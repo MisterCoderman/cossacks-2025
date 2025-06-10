@@ -70,7 +70,7 @@ Manual project build: To manually build the project, use Visual Studio 2019 and 
 You can download the updated version of the game [here](https://mega.nz/file/vZV00aCb#9gZn8v27jvvuNX4p_ruRCi2IQdL3k2YvYa4ZOCQk8Po) 🌐
 
 ## ⚠️ A backup copy of the project and the source code are also available on the Internet Archive.
-[Internet Archive](https://archive.org/details/cossacks-back-to-war-v-1.52-2025)
+[Internet Archive](https://archive.org/details/cossacks-back-to-war-v-1.52-2025_202506)
 
 
 #  🖥 How to Run the Game on Linux or macOS?
@@ -177,8 +177,7 @@ peace: Включает режим перемирия в любой момент
 
 
 
-[Internet Archive](https://archive.org/details/cossacks-back-to-war-v-1.52-2025)
-
+[Internet Archive](https://archive.org/details/cossacks-back-to-war-v-1.52-2025_202506)
 
 # 🖥 Как запустить игру на Linux или MacOS?
 
