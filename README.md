@@ -1,3 +1,6 @@
+*[Информация на русском языке](#rus)*
+
+
 # 🌟 Cossacks: Back to War 1.52 — Updated Version for 2025
 
 If you love classic strategy games, Cossacks: Back to War is a genre classic. However, it may not work properly on modern computers. The 1.52 update by MR.CODERMAN addresses this issue by improving the game's stability and compatibility. 🌍
@@ -99,10 +102,10 @@ If you happen to come across any archive on the web, you may need the following 
 | cossacks-1.52-source.zip                  | bea9866d00afa4732c7fb1036a2f05b0fb4ccc4005c688b73209363030a25de1 |
 
 You will also need the [Microsoft Visual C++ 2015 Redistributable (x86)](https://www.microsoft.com/en-us/download/details.aspx?id=53587) for the game to work correctly. 💻
+<hr>
 
-
-
-#  🌟 Казаки: Снова Война 1.52 — Обновлённая версия 2025 года
+<a name="rus"></a>
+# 🌟 Казаки: Снова Война 1.52 — Обновлённая версия 2025 года
 
 Если вы любите старые стратегические игры, то «Казаки: Снова Война» — это классика жанра. Однако на современных компьютерах она может не работать должным образом. Обновление версии 1.52 от MR.CODERMAN решает эту проблему, улучшая стабильность и совместимость игры. 🌍
 
