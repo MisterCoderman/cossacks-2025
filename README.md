@@ -70,7 +70,7 @@ Manual project build: To manually build the project, use Visual Studio 2019 and 
 
 # 📥 Where to Download?
 
-You can download the updated version of the game [here](https://mega.nz/file/vZV00aCb#9gZn8v27jvvuNX4p_ruRCi2IQdL3k2YvYa4ZOCQk8Po) 🌐
+You can download the updated version of the game [here](https://mega.nz/file/eckQGQyY#1qYEfjJrHGTM70dN-lEHviOtmMZ1Sk7Z0xAuWqRx_Ak) 🌐
 
 ## ⚠️ A backup copy of the project and the source code are also available on the Internet Archive.
 [Internet Archive](https://archive.org/details/cossacks-back-to-war-v-1.52-2025_202506)
@@ -98,7 +98,7 @@ If you happen to come across any archive on the web, you may need the following 
 
 | File                                                    | SHA‑256                                                         |
 |---------------------------------------------------------|----------------------------------------------------------------------|
-| Cossacks Back to War v1.52 (2025).zip                   | cc1bc8c2ca62ce64da0cb754bd53af67a7ea5d98d88040786d0788759ce9cd4a |
+| Cossacks Back to War v1.52 (2025).zip                   | 6afc688a4c6bd409b1a3b541edad721e0ce28cd7abe4740a0449846e1646c12c |
 | cossacks-1.52-source.zip                  | bea9866d00afa4732c7fb1036a2f05b0fb4ccc4005c688b73209363030a25de1 |
 
 You will also need the [Microsoft Visual C++ 2015 Redistributable (x86)](https://www.microsoft.com/en-us/download/details.aspx?id=53587) for the game to work correctly. 💻
@@ -174,7 +174,7 @@ peace: Включает режим перемирия в любой момент
 
 #  📥 Где скачать?
 
-Вы можете скачать обновлённую версию игры по [ссылке](https://mega.nz/file/vZV00aCb#9gZn8v27jvvuNX4p_ruRCi2IQdL3k2YvYa4ZOCQk8Po) . 🌐
+Вы можете скачать обновлённую версию игры по [ссылке](https://mega.nz/file/eckQGQyY#1qYEfjJrHGTM70dN-lEHviOtmMZ1Sk7Z0xAuWqRx_Ak) . 🌐
 
 ### ⚠️  Резервная копия проекта и исходный код также доступны в Internet Archive.
 
@@ -204,7 +204,7 @@ peace: Включает режим перемирия в любой момент
 Если вы вдруг наткнётесь на какой-то архив на просторах сети, вам могут понадобиться следующие контрольные суммы для проверки целостности файлов:
 | Файл                                                    | SHA‑256                                                         |
 |---------------------------------------------------------|----------------------------------------------------------------------|
-| Cossacks Back to War v1.52 (2025).zip                   | cc1bc8c2ca62ce64da0cb754bd53af67a7ea5d98d88040786d0788759ce9cd4a |
+| Cossacks Back to War v1.52 (2025).zip                   | 6afc688a4c6bd409b1a3b541edad721e0ce28cd7abe4740a0449846e1646c12c |
 | cossacks-1.52-source.zip                    | bea9866d00afa4732c7fb1036a2f05b0fb4ccc4005c688b73209363030a25de1 |
 
 Также потребуется [Распространяемый компонент Microsoft Visual C++ 2015 (x86)](https://www.microsoft.com/ru-ru/download/details.aspx?id=53587) для корректной работы игры. 💻
