@@ -1,4 +1,5 @@
 ﻿// ==============================================
+// Эмулятор MCI на базе SDL2 Mixer
 // MR.CODERMAN 2025
 // ==============================================
 #include "windows.h"
@@ -186,17 +187,28 @@ static void channelFinished(int channel)
     if (channel != currentChannel)
         return;
 
-    if (NextCommand == -1) {
+    if (!PlayMode)
+    {
+        NextCommand = -1;
+        return;
+    }
+
+    if (NextCommand == -1)
+    {
         PlayRandomTrack();
     }
-    else if (NextCommand >= 1000) {
+    else if (NextCommand >= 1000)
+    {
         PlayCDTrack(NextCommand - 1000);
         NextCommand = -1;
     }
-    else {
+    else
+    {
         PlayCDTrack(NextCommand);
+        NextCommand = -1;
     }
 }
+
 
 /////////////////////////////////////////////////////////////////////////////
 // Глобальные функции
@@ -228,6 +240,7 @@ void PlayRandomTrack()
 void StopPlayCD()
 {
     CDPLAY.Stop();
+    NextCommand = -1;
 }
 
 int GetCDVolume()
