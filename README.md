@@ -18,7 +18,6 @@ Improved Graphics and Interface Updated textures and UI make the game easier on 
 **The issue with music playback in the game has been resolved.**
 
 # Integrated Mods:
-
 **Mod 1**
 
 • Adds around 100 new missions (16th–18th centuries);
@@ -35,14 +34,11 @@ Improved Graphics and Interface Updated textures and UI make the game easier on 
 • Replaces original unit and building models with assets from American Conquest: Fight Back and Cossacks II;
 
 • Includes visual upgrades and increased detail.
-
-
 **Ultimate Pack**
 
 • Combines all single-player content from European Wars and The Art of War into Back to War;
 
 • Adds a total of 117 single-player missions, including the Over the Horizon campaign.
-
 
  **Includes maps for both multiplayer and single-player modes.**
 
@@ -151,6 +147,7 @@ You will also need the [Microsoft Visual C++ 2015 Redistributable (x86)](https:/
 
 
 **Mod 1**
+
 • Добавляет около 100 новых миссий (XVI–XVIII века);
 
 • Вводит 4 уровня сложности для одиночной игры;
@@ -160,6 +157,7 @@ You will also need the [Microsoft Visual C++ 2015 Redistributable (x86)](https:/
 • Вводит нового юнита — бедуина на верблюде (для Турции и Алжира).
 
 **Reloaded**
+
 • Заменяет оригинальные модели юнитов и зданий на графику из American Conquest: Fight Back и Cossacks II;
 
 
@@ -167,6 +165,7 @@ You will also need the [Microsoft Visual C++ 2015 Redistributable (x86)](https:/
 
 
 **Ultimate Pack**
+
 
 • Объединяет всё одиночное содержимое из “European Wars” и “Art of War” в “Back to War”;
 
