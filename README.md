@@ -11,11 +11,41 @@ Removed 1920x1080 Resolution Limit You can now enjoy the game in high resolution
 
 Improved Graphics and Interface Updated textures and UI make the game easier on the eyes, adding vibrancy and enhancing the visual experience. 🎨
 
-Fixed Water and Nation Color Bugs Visual issues related to water and nation colors have been corrected — everything now looks just like in the original game.
+**Fixed Water and Nation Color Bugs Visual issues related to water and nation colors have been corrected — everything now looks just like in the original game.**
 
-AI has been improved (AI Pack). Bots are now much more challenging.
+**AI has been improved (AI Pack). Bots are now much more challenging.**
 
-The issue with music playback in the game has been resolved.
+**The issue with music playback in the game has been resolved.**
+
+# Integrated Mods:
+
+**Mod 1**
+
+• Adds around 100 new missions (16th–18th centuries);
+
+• Introduces 4 difficulty levels for single-player mode;
+
+• Adds 2 new nations — Switzerland and Hungary (unique architecture and ~4 unique units each);
+
+• Introduces a new unit — Camel Bedouin (available for Turkey and Algeria).
+
+
+**Reloaded**
+
+• Replaces original unit and building models with assets from American Conquest: Fight Back and Cossacks II;
+
+• Includes visual upgrades and increased detail.
+
+
+**Ultimate Pack**
+
+• Combines all single-player content from European Wars and The Art of War into Back to War;
+
+• Adds a total of 117 single-player missions, including the Over the Horizon campaign.
+
+
+ **Includes maps for both multiplayer and single-player modes.**
+
 
 # Mod Reloaded Launch Instructions
 
@@ -114,10 +144,38 @@ You will also need the [Microsoft Visual C++ 2015 Redistributable (x86)](https:/
 Полная совместимость с Windows, macOS и Linux: Игра теперь работает без вылетов на всех современных платформах, обеспечивая стабильную производительность.
 Убрано ограничение разрешения 1920x1080: Теперь вы можете наслаждаться игрой в высоком разрешении, без ограничений по размеру экрана. 🚀
 Улучшенная графика и интерфейс: Обновлённые текстуры и интерфейс делают игру более приятной для глаз, добавляя яркости и улучшая восприятие. 🎨
-Исправлены баги с цветами воды и наций. Теперь всё как в оригинальной игре.
-Улучшен AI (AI Pack). Теперь Боты намного сложнее.
+**Исправлены баги с цветами воды и наций. Теперь всё как в оригинальной игре.**
+**Улучшен AI (AI Pack). Теперь Боты намного сложнее.**
+**Решена проблема с воспроизведением музыки в игре.**
+# Интегрированы моды:
 
-Решена проблема с воспроизведением музыки в игре.
+
+**Mod 1**
+• Добавляет около 100 новых миссий (XVI–XVIII века);
+
+• Вводит 4 уровня сложности для одиночной игры;
+
+• Добавляет 2 новые нации — Швейцария и Венгрия (уникальная архитектура и ~4 юнита на каждую);
+
+• Вводит нового юнита — бедуина на верблюде (для Турции и Алжира).
+
+**Reloaded**
+• Заменяет оригинальные модели юнитов и зданий на графику из American Conquest: Fight Back и Cossacks II;
+
+
+• Вносит визуальные изменения и повышенную детализацию
+
+
+**Ultimate Pack**
+
+• Объединяет всё одиночное содержимое из “European Wars” и “Art of War” в “Back to War”;
+
+
+• Добавляет в общей сложности 117 одиночных миссий, включая кампанию “Over the Horizon”;
+
+
+**В комплекте идут карты для сетевой и одиночной игры**
+
 
 # Запуск модификации mod reloaded:
 
