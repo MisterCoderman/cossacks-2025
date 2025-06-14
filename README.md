@@ -47,6 +47,7 @@ Improved Graphics and Interface Updated textures and UI make the game easier on 
 # Mod Reloaded Launch Instructions
 
 To launch mod reloaded, use the batch file Cossacks.Reloaded.bat located next to dmcr.exe. When using Wine on Linux or macOS, launch with the command: dmcr.exe /reloaded. 🔄
+For a comfortable gaming experience on the built-in MacBook display, make sure to enable Retina mode in the bottle settings.
 
 #  🧠 Multithreading Support
 
@@ -64,13 +65,13 @@ The menu opens in windowed mode and the game switches to fullscreen upon launch.
 
 #  🧩 New Features for Single Player (Cheats)
 
-king: God mode, millions of resources, maximum of 15,000 units, artillery construction limits removed. Building and unit prices don’t increase, and the artillery depot has almost no construction limits. 🏰
+**king:** God mode, millions of resources, maximum of 15,000 units, artillery construction limits removed. Building and unit prices don’t increase, and the artillery depot has almost no construction limits. 🏰
 
-house: Bots build a lot of houses. To stop them, enter the cheat again. 🏠
+**house:** Bots build a lot of houses. To stop them, enter the cheat again. 🏠
 
-nocost: Disables the cost increase for units and buildings. 💰
+**nocost:** Disables the cost increase for units and buildings. 💰
 
-peace: Enables a peace mode at any point during the game. Re-entering it will disable it. ☮️
+**peace:** Enables a peace mode at any point during the game. Re-entering it will disable it. ☮️
 
 #  🇷🇺 Localization and Mods
 
@@ -187,6 +188,8 @@ You will also need the [Microsoft Visual C++ 2015 Redistributable (x86)](https:/
 
 Для запуска mod reloaded используйте бат-файл Cossacks.Reloaded.bat, который находится рядом с файлом dmcr.exe. При запуске через Wine на Linux или macOS используйте команду dmcr.exe /reloaded. 🔄
 
+Для комфортной игры на встроенном экране MacBook обязательно включите режим Retina в настройках бутылки.
+
 # Поддержка многоядерности:
 
 Ранее игра использовала только одно ядро, что приводило к сильным тормозам при большом количестве юнитов. Теперь, с поддержкой многоядерности, игра использует многопоточную обработку, что значительно улучшает производительность. Протестировано в мультиплеере с 40 000 юнитов на карте — лагов и вылетов не замечено. В теории можно использовать ещё больше юнитов, но это не проверялось.
@@ -205,13 +208,13 @@ You will also need the [Microsoft Visual C++ 2015 Redistributable (x86)](https:/
 
 #  🧩 Новые возможности для одиночной игры (Читы)
 
-king: Режим бога, миллионы ресурсов, максимум 15 000 юнитов, сняты ограничения на постройку артиллерии. Цена на здания и юнитов не увеличивается, в артиллерийском депо практически нет лимитов на постройку артиллерии. 🏰
+**king:** Режим бога, миллионы ресурсов, максимум 15 000 юнитов, сняты ограничения на постройку артиллерии. Цена на здания и юнитов не увеличивается, в артиллерийском депо практически нет лимитов на постройку артиллерии. 🏰
 
-house: Боты строят много домов. Чтобы остановить их, нужно ввести чит повторно. 🏠
+**house:** Боты строят много домов. Чтобы остановить их, нужно ввести чит повторно. 🏠
 
-nocost: Отключает увеличение стоимости юнитов и зданий. 💰
+**nocost:** Отключает увеличение стоимости юнитов и зданий. 💰
 
-peace: Включает режим перемирия в любой момент игры. Повторный ввод отключит его. ☮️
+**peace:** Включает режим перемирия в любой момент игры. Повторный ввод отключит его. ☮️
 
 #  🇷🇺 Локализация и моды
 
