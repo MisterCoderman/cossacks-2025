@@ -47,6 +47,7 @@ Improved Graphics and Interface Updated textures and UI make the game easier on 
 # Mod Reloaded Launch Instructions
 
 To launch mod reloaded, use the batch file Cossacks.Reloaded.bat located next to dmcr.exe. When using Wine on Linux or macOS, launch with the command: dmcr.exe /reloaded. 🔄
+
 For a comfortable gaming experience on the built-in MacBook display, make sure to enable Retina mode in the bottle settings.
 
 #  🧠 Multithreading Support
