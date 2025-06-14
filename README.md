@@ -34,6 +34,7 @@ Improved Graphics and Interface Updated textures and UI make the game easier on 
 • Replaces original unit and building models with assets from American Conquest: Fight Back and Cossacks II;
 
 • Includes visual upgrades and increased detail.
+
 **Ultimate Pack**
 
 • Combines all single-player content from European Wars and The Art of War into Back to War;
