@@ -48,7 +48,6 @@ Improved Graphics and Interface Updated textures and UI make the game easier on 
 
 To launch mod reloaded, use the batch file Cossacks.Reloaded.bat located next to dmcr.exe. When using Wine on Linux or macOS, launch with the command: dmcr.exe /reloaded. 🔄
 
-For a comfortable gaming experience on the built-in MacBook display, make sure to enable Retina mode in the bottle settings.
 
 #  🧠 Multithreading Support
 
@@ -108,6 +107,9 @@ You can download the updated version of the game [here](https://mega.nz/file/eck
 #  🖥 How to Run the Game on Linux or macOS?
 
 To run the game on Linux, use Wine or Proton . To run it on macOS, use [Whisky](https://getwhisky.app/) or [CrossOver](https://www.codeweavers.com/). Simply copy the game folder into the created bottle and launch the dmcr.exe file, or dmcr.exe /reloaded if you want to start the game with the Reloaded mod.
+
+For a comfortable gaming experience on the built-in MacBook display, make sure to enable Retina mode in the bottle settings.
+
 
 Enjoy the game! 🎮
 
@@ -189,7 +191,6 @@ You will also need the [Microsoft Visual C++ 2015 Redistributable (x86)](https:/
 
 Для запуска mod reloaded используйте бат-файл Cossacks.Reloaded.bat, который находится рядом с файлом dmcr.exe. При запуске через Wine на Linux или macOS используйте команду dmcr.exe /reloaded. 🔄
 
-Для комфортной игры на встроенном экране MacBook обязательно включите режим Retina в настройках бутылки.
 
 # Поддержка многоядерности:
 
@@ -253,6 +254,9 @@ You will also need the [Microsoft Visual C++ 2015 Redistributable (x86)](https:/
 # 🖥 Как запустить игру на Linux или MacOS?
 
 Для запуска игры на Linux используйте Wine или Proton. Для запуска на MacOS — [Whisky](https://getwhisky.app/) или [CrossOver](https://www.codeweavers.com/). Просто скопируйте папку с игрой в созданную бутылку и запустите файл dmcr.exe или dmcr.exe /reloaded, если хотите загрузить игру с модом Reloaded.
+
+Для комфортной игры на встроенном экране MacBook обязательно включите режим Retina в настройках бутылки.
+
 
 🎮 Приятной игры!
 
