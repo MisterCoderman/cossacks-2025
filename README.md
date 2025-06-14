@@ -11,6 +11,8 @@ Removed 1920x1080 Resolution Limit You can now enjoy the game in high resolution
 
 Improved Graphics and Interface Updated textures and UI make the game easier on the eyes, adding vibrancy and enhancing the visual experience. 🎨
 
+**Vertical synchronization has been enabled by default.**
+
 **Fixed Water and Nation Color Bugs Visual issues related to water and nation colors have been corrected — everything now looks just like in the original game.**
 
 **AI has been improved (AI Pack). Bots are now much more challenging.**
@@ -147,6 +149,8 @@ You will also need the [Microsoft Visual C++ 2015 Redistributable (x86)](https:/
 Убрано ограничение разрешения 1920x1080: Теперь вы можете наслаждаться игрой в высоком разрешении, без ограничений по размеру экрана. 🚀
 
 Улучшенная графика и интерфейс: Обновлённые текстуры и интерфейс делают игру более приятной для глаз, добавляя яркости и улучшая восприятие. 🎨
+
+**Вертикальная синхронизация включена по умолчанию.**
 
 **Исправлены баги с цветами воды и наций. Теперь всё как в оригинальной игре.**
 
