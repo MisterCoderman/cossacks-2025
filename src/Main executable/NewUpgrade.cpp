@@ -1405,9 +1405,9 @@ void PerformNewUpgrade( Nation* NT, int UIndex, OneObject* OB )
 	{
 		int val = NT->StoneEff;
 		UseValue( &val, NU->ValueType, NU->Value );
-		if (800 < val)
+		if (400 < val)
 		{
-			val = 800;//just in case
+			val = 400;//just in case
 		}
 		NT->StoneEff = val;
 	}

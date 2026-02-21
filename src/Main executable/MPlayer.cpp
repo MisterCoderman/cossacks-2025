@@ -62,11 +62,6 @@ Menu StartMultiplayer;
 word PlayerMenuMode;
 word PrevRpos;
 extern bool DoNewInet;
-void IPCORESetAndSendUserData(byte* pData, unsigned short size)
-{
-	IPCORE.SetUserData(pData, size);
-	IPCORE.SendUserData();
-}
 extern int COUNTER;
 bool ProcessMessages();
 int WaitCycle;
@@ -1777,11 +1772,7 @@ bool CreateNamedSession( char* Name, DWORD User2, int Max )
 		IPCORE.SetOptions( User2 );
 		IPCORE.SetMaxPeers( Max );
 		bool r = ( IPCORE.InitServer( Name, Name ) != 0 );
-		if (r)
-		{
-			IPCORE_INIT = 1;
-			MyDPID = IPCORE.GetPeerID();
-		}
+		if (r)IPCORE_INIT = 1;
 		return r;
 	}
 	else

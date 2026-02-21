@@ -980,7 +980,6 @@ int ProcessInternetConnection(bool Active);
 bool FindSessionAndJoin(char* Name, char* Nick, bool Style, unsigned short port);
 bool CreateSession(char* SessName, char* Name, DWORD User2, bool Style, int MaxPlayers);
 extern int GMTYPE;
-void IPCORESetAndSendUserData(byte* pData, unsigned short size);
 
 bool historical_battle_over_gsc_network = false;
 
@@ -1055,10 +1054,6 @@ RetryConn:
 
 	DoNewInet = 0;
 	if (selected_network_protocol > 2)//Not TCP/IP
-	{
-		DoNewInet = 1;
-	}
-	else if (selected_network_protocol == 2)//Direct IP — use CommCore
 	{
 		DoNewInet = 1;
 	}
@@ -1138,22 +1133,7 @@ RetryConn:
 		break;
 
 	case mcmJoin:
-		if (DoNewInet)
-		{
-			PlayerMenuMode = 1;
-			if (!FindSessionAndJoin(IPADDR, PlName, true, 0))
-			{
-				WaitWithMessage(GetTextByID("ICUNJ"));
-			}
-			else
-			{
-				WaitingJoinGame(0);
-			}
-		}
-		else
-		{
-			MPL_JoinGame(0);
-		}
+		MPL_JoinGame(0);
 		break;
 
 	case 11://Inet Host(Deathmatch)
@@ -11422,7 +11402,6 @@ bool WaitingGame(bool Host)
 		tmm1 = GetRealTime() - tmm1;
 		tmm2 = GetRealTime();
 		AnalyseMessages();
-		ProcessNewInternet();
 		tmm2 = GetRealTime() - tmm2;
 		MPLAY.MarkToDraw();
 		MPLAY.ProcessDialogs();
@@ -11438,20 +11417,13 @@ bool WaitingGame(bool Host)
 				{
 					PINFO[i].NationID = MNATION[i]->CurLine;
 					PINFO[i].ColorID = MCOLOR[i]->color - 0x80;
-					if (DoNewInet)
-					{
-						IPCORESetAndSendUserData((byte*)&PINFO[i].NationID, sizeof(PlayerInfo) - 36);
-					}
-					else
-					{
-						lpDirectPlay3A->SetPlayerData(MyDPID, (void*)&PINFO[i].NationID, 4, DPSET_REMOTE);
-						DPNAME dpName;
-						ZeroMemory(&dpName, sizeof(DPNAME));
-						dpName.dwSize = sizeof(DPNAME);
-						dpName.lpszShortNameA = MNAME[i]->Str;
-						dpName.lpszLongNameA = nullptr;
-						lpDirectPlay3A->SetPlayerName(MyDPID, &dpName, DPSET_REMOTE);
-					}
+					lpDirectPlay3A->SetPlayerData(MyDPID, (void*)&PINFO[i].NationID, 4, DPSET_REMOTE);
+					DPNAME dpName;
+					ZeroMemory(&dpName, sizeof(DPNAME));
+					dpName.dwSize = sizeof(DPNAME);
+					dpName.lpszShortNameA = MNAME[i]->Str;
+					dpName.lpszLongNameA = nullptr;
+					lpDirectPlay3A->SetPlayerName(MyDPID, &dpName, DPSET_REMOTE);
 					MNATION[i]->Enabled = true;
 					MCOLOR[i]->Enabled = true;
 					MGRP[i]->Enabled = true;

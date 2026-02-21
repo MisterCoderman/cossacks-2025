@@ -1,44 +1,5 @@
 *[Информация на русском языке](#rus)*
 
-# Cossacks Back to War — Multiplayer Fix for Hamachi, VPN, and Direct IP (LAN over Internet)
-
-## The Problem
-
-Cossacks: Back to War multiplayer does not work over Hamachi, Radmin VPN, ZeroTier, or other virtual LAN / VPN solutions when using the "Direct TCP/IP" connection option. The game hangs when joining a session, freezes on the lobby screen, or fails to connect entirely. This also affects players behind symmetric NAT, carrier-grade NAT (CGNAT), or restrictive firewalls that block DirectPlay traffic.
-
-**Symptoms:** Game hangs on join, "Unable to join game" error, lobby freeze, host cannot see joiner, start button grayed out, multiplayer not working over Hamachi or VPN.
-
-## Why It Happened
-
-This was not a bug in the original game — it was a consequence of legacy networking code that predates modern NAT and VPN setups.
-
-Cossacks: Back to War has two completely separate networking stacks:
-
-1. **DirectPlay** (Microsoft's deprecated game networking API) — used for LAN and "Direct TCP/IP" connections. Operates on TCP port 47624. DirectPlay was designed for simple local networks in the late 1990s and does not handle NAT traversal, VPN adapters, or virtual network interfaces well. It often binds to the wrong network adapter and its session discovery protocol fails across NAT boundaries.
-
-2. **CommCore** (GSC Game World's custom UDP networking) — used for the GSC-Game.Net online service. Operates on UDP port 34000. This is a lightweight, UDP-based protocol that works reliably over NAT and VPN because it uses direct IP addressing and does not depend on broadcast-based session discovery.
-
-When you select "Direct TCP/IP" in the multiplayer menu and enter your friend's IP address, the game routes the connection through DirectPlay — even though you are providing a direct IP. This is because the code only enables CommCore for protocol index > 2 (the GSC online service), while Direct TCP/IP is protocol index 2. Since DirectPlay cannot traverse NAT/VPN properly, the connection fails.
-
-## The Fix
-
-This fork reroutes all "Direct TCP/IP" connections through CommCore's UDP stack instead of DirectPlay. When you enter an IP address and click join, the game now connects via UDP port 34000 using GSC's robust CommCore protocol. The host also listens on CommCore, so both sides speak the same protocol.
-
-**Changes made:**
-- Direct TCP/IP (protocol 2) now sets `DoNewInet = 1`, enabling the CommCore path for both host and joiner
-- The join flow uses `FindSessionAndJoin()` → `IPCORE.InitClient()` instead of DirectPlay session enumeration
-- The host's peer ID (`MyDPID`) is correctly set after `InitServer()` so the lobby recognizes the host player
-- Null pointer guards added for `lpDirectPlay3A` in the lobby when running in CommCore mode
-- CommCore's `QueueProcess()` is called during the lobby loop to ensure reliable packet delivery
-- Player data (nation, color, ready state) is synced via CommCore's `SetUserData`/`SendUserData` instead of DirectPlay's `SetPlayerData`
-
-**To use:** Both host and joiner need this fixed version. The host creates a game via "Direct TCP/IP", the joiner enters the host's Hamachi/VPN IP address and joins. UDP port 34000 must be open (or the VPN must allow it).
-
----
-
-**Keywords for search:** Cossacks Back to War multiplayer not working, Cossacks Hamachi LAN, Cossacks VPN multiplayer fix, Cossacks direct IP connection failed, Cossacks Back to War online with friends, Cossacks BTW Hamachi freeze, Cossacks multiplayer hangs on join, Cossacks LAN over internet, Cossacks Radmin VPN, Cossacks ZeroTier multiplayer, Cossacks CGNAT fix, Cossacks NAT traversal, Cossacks DirectPlay fix, Cossacks UDP multiplayer, Cossacks 1.52 networking fix, how to play Cossacks online 2025 2026
-
----
 
 # 🌟 Cossacks: Back to War 1.52
 
@@ -280,12 +241,6 @@ To avoid entering this variable every time, you can add it to the configuration 
 [Internet Archive](https://archive.org/details/cossacks-back-to-war-v-1.52-2025_202506)
 
 
-
-# Fixed Networking (Fork by emilekm2142)
-
-**Direct TCP/IP now uses CommCore (UDP) instead of DirectPlay.** Previously, the "Direct TCP/IP" multiplayer option (where you enter an IP address) used DirectPlay, which fails behind symmetric NAT and VPNs like Hamachi. This fork reroutes Direct TCP/IP connections through CommCore's UDP-based networking stack (port 34000), enabling reliable connections over Hamachi and similar VPN tools.
-
-**Stone mining upgrade cap raised from 400% to 800%.** The academy stone efficiency upgrades compound multiplicatively, which was capped at 400%. The cap has been raised to 800% to allow the full effect of both upgrades.
 
 #  🙏 Acknowledgments
 
