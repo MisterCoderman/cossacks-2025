@@ -1002,22 +1002,28 @@ long FAR PASCAL WindowProc( HWND hWnd, UINT message,
 		break;
 
 	case WM_ACTIVATEAPP:
-		bActive = wParam;
+	{
+		if (window_mode)
+			bActive = true;
+		else
+			bActive = wParam;
+
 		if (bActive)
 		{
 			if (lpDDSPrimary)
 			{
-				CreateDDObjects( hwnd );
+				CreateDDObjects(hwnd);
 				LockSurface();
 				UnlockSurface();
-				LoadFog( CurPalette );
+				LoadFog(CurPalette);
 				char cc[64];
-				sprintf( cc, "%d\\agew_1.pal", CurPalette );
+				sprintf(cc, "%d\\agew_1.pal", CurPalette);
 				PalDone = 0;
-				LoadPalette( cc );
+				LoadPalette(cc);
 			}
 		}
-		break;
+	}
+	break;
 
 	case WM_SETCURSOR:
 		SetCursor( NULL );
