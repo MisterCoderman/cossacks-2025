@@ -14,13 +14,13 @@ Remaining: pointer-to-int casts in FnDefine.cpp (64-bit porting issue),
 and Main executable not yet attempted. Compat stubs may need further
 extension as the Main executable is tackled.
 
-## 3. Fix pointer-to-int casts (64-bit porting)
-The original code stores pointers in `int`/`DWORD` (32-bit) — works on
-Win32 but truncates on ARM64 where pointers are 8 bytes. This is a
-**prerequisite for all further progress**.
-- FnDefine.cpp (IntExplorer) — 17 casts, currently blocking compilation
-- Likely pervasive in the Main executable too
-- Fix: change to `intptr_t` or `uintptr_t`, or use proper pointer types
+## ~~3. Fix pointer-to-int casts (64-bit porting)~~ DONE (IntExplorer)
+~~FnDefine.cpp (IntExplorer) — 17 casts blocking compilation.~~
+Fixed by changing `UserParam`, `ComplexBox::param`, `CustomBox::param`
+from `int` to `intptr_t` in dialogs.h, and updating cast sites.
+Also replaced inline assembly in MapDiscr.h (`DistTo`) and NewMon.h
+(`Norma`) with portable C equivalents. Fixed `WallSystem::Show` extra
+qualification in walls.h. More pointer-to-int casts likely in Main executable.
 
 ## 4. Rewrite x86 inline assembly
 **Hard blocker on ARM64** — x86 assembly cannot compile at all on Apple Silicon.
@@ -67,8 +67,9 @@ This includes keyboard/mouse input handling in `Interface.cpp` and `Mouse_X.cpp`
 ### Build status on macOS ARM64
 - **CommCore** — compiles and links (static lib)
 - **IChat** — compiles and links (static lib)
-- **IntExplorer** — all files compile except FnDefine.cpp (pointer-to-int casts)
-- **Main executable** — not yet attempted (blocked by IntExplorer)
+- **IntExplorer** — compiles and links (static lib)
+- **Main executable** — compilation started, blocked by x86 inline assembly
+  in 3DGraph.cpp (first file alphabetically that has `__asm` blocks)
 
 ### Graphics pipeline (already mostly portable)
 The rendering is software-based: all drawing goes to an 8-bit `ScreenPtr`

@@ -30,6 +30,11 @@ typedef struct WSAData {
     char szSystemStatus[129];
 } WSADATA, *LPWSADATA;
 
+typedef unsigned char UCHAR;
+
+// WSASocket stub — map to regular socket()
+#define WSASocket(af, type, proto, info, group, flags) socket(af, type, proto)
+
 inline int WSAStartup(WORD version, LPWSADATA data) { (void)version; (void)data; return 0; }
 inline int WSACleanup() { return 0; }
 inline int WSAGetLastError() { return errno; }

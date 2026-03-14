@@ -58,7 +58,7 @@ public:
 	short MouseSound;
 	short ClickSound;
 	int x, y, x1, y1;
-	int UserParam;
+	intptr_t UserParam;
 	char* Hint;
 	char* AllocPtr;
 	SimpleDialog* Parent;
@@ -223,7 +223,7 @@ public:
 	int StSprite;
 	int M_OvrItem;
 	int FirstVisItem;
-	int param;
+	intptr_t param;
 	VScrollBar* VS;
 };
 class DIALOGS_API Canvas :public SimpleDialog {
@@ -244,7 +244,7 @@ public:
 class DIALOGS_API CustomBox :public SimpleDialog {
 public:
 	procDrawBoxElement* DRAWPROC;
-	int param;
+	intptr_t param;
 };
 struct ListBoxItem {
 	char* Message;

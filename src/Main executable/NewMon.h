@@ -9,27 +9,11 @@ bool CheckBar(int x, int y, int Lx, int Ly);
 //returns (2|y| + |x|) / 2 if y > x
 inline int Norma(int x, int y)
 {
-	__asm
-	{
-		mov		eax, x
-		cmp		eax, 0
-		jge		ggg1
-		neg		eax
-		ggg1 : mov		ebx, y
-		cmp		ebx, 0
-		jge		ggg2
-		neg		ebx
-		ggg2 : mov		ecx, eax
-		cmp		eax, ebx
-		ja		ggg3
-		mov		ecx, ebx
-		ggg3 : add		ecx, eax
-		add		ecx, ebx
-		shr		ecx, 1
-		mov		eax, ecx
-	}
+	int ax = (x < 0) ? -x : x;
+	int ay = (y < 0) ? -y : y;
+	int mx = (ax > ay) ? ax : ay;
+	return (mx + ax + ay) / 2;
 }
-#pragma warning(default : 4035)
 
 void TryToStand(OneObject* OB, bool rest);
 void BSetPt(int x, int y);

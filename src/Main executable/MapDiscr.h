@@ -1355,24 +1355,11 @@ public:
 
 	inline int DistTo(int xx, int yy)
 	{
-		__asm
-		{
-			mov		eax, xx
-			mov		ebx, this
-			mov		edx, [ebx]this.x
-			sub		eax, edx
-			jge		uui
-			neg		eax
-			uui : mov		ecx, yy
-			mov		edx, [ebx]this.y
-			sub		ecx, edx
-			jge		uux
-			neg		ecx
-			uux : cmp		ecx, eax
-			jl		uuz
-			mov		eax, ecx
-			uuz :
-		}
+		int dx = xx - this->x;
+		int dy = yy - this->y;
+		if (dx < 0) dx = -dx;
+		if (dy < 0) dy = -dy;
+		return (dx > dy) ? dx : dy;
 	};
 	void CloseObject();
 };

@@ -22,6 +22,7 @@ if(NOT WIN32)
         -Wno-error
         -Wno-incompatible-pointer-types
         -fpermissive
+        -fms-extensions
         -ferror-limit=0
     )
 endif()

@@ -313,7 +313,7 @@ bool ADI_Txt( sicExplorer* SXP, DialogsSystem* DSS, int* x, int* y, int* x1, int
 					if (UsedActives <= NActive)
 					{
 						TB->OnUserClick = &SendToServer;
-						TB->UserParam = int( SXP );
+						TB->UserParam = (intptr_t)( SXP );
 						TB->AllocPtr = new char[strlen( Active[UsedActives - 1] ) + 1];
 						strcpy( TB->AllocPtr, Active[UsedActives - 1] );
 					};
@@ -392,7 +392,7 @@ bool ADI_Txt( sicExplorer* SXP, DialogsSystem* DSS, int* x, int* y, int* x1, int
 						GPP->OnUserClick = &SendToServer;
 						GPP->AllocPtr = new char[strlen( Active[UsedActives - 1] ) + 1];
 						strcpy( GPP->AllocPtr, Active[UsedActives - 1] );
-						GPP->UserParam = int( SXP );
+						GPP->UserParam = (intptr_t)( SXP );
 					}
 					xcs0 += reallx;
 					cslx = 0;
@@ -642,7 +642,7 @@ bool ADI_Btn( sicExplorer* SXP, DialogsSystem* DSS, int* x, int* y, int* x1, int
 			GPB->AllocPtr = (char*) _ExMalloc( strlen( Active[0] ) + 1 );
 			strcpy( GPB->AllocPtr, Active[0] );
 			GPB->OnUserClick = &SendToServer;
-			GPB->UserParam = int( SXP );
+			GPB->UserParam = (intptr_t)( SXP );
 		};
 		return true;
 	}
@@ -677,7 +677,7 @@ bool ADI_Btn( sicExplorer* SXP, DialogsSystem* DSS, int* x, int* y, int* x1, int
 			GPB->AllocPtr = (char*) _ExMalloc( strlen( Active[0] ) + 1 );
 			strcpy( GPB->AllocPtr, Active[0] );
 			GPB->OnUserClick = &SendToServer;
-			GPB->UserParam = int( SXP );
+			GPB->UserParam = (intptr_t)( SXP );
 		};
 		return true;
 	};
@@ -716,7 +716,7 @@ bool ADI_SBtn( sicExplorer* SXP, DialogsSystem* DSS, int* x, int* y, int* x1, in
 		GPB->AllocPtr = (char*) _ExMalloc( strlen( Active[0] ) + 1 );
 		strcpy( GPB->AllocPtr, Active[0] );
 		GPB->OnUserClick = &SendToServer;
-		GPB->UserParam = int( SXP );
+		GPB->UserParam = (intptr_t)( SXP );
 	};
 	return true;
 };
@@ -896,7 +896,7 @@ bool ADI_APan( sicExplorer* SXP, DialogsSystem* DSS, int* x, int* y, int* x1, in
 		SD->AllocPtr = (char*) _ExMalloc( strlen( Active[0] ) + 1 );
 		strcpy( SD->AllocPtr, Active[0] );
 		SD->OnUserClick = &SendToServer;
-		SD->UserParam = int( SXP );
+		SD->UserParam = (intptr_t)( SXP );
 	};
 	return true;
 };
@@ -1170,7 +1170,7 @@ bool ADI_Stbl( sicExplorer* SXP, DialogsSystem* DSS, int* x, int* y, int* x1, in
 						{
 							SD->OnUserClick = &SendToServer;
 							SD->AllocPtr = (char*) _ExMalloc( strlen( Active[curac] ) + 1 );
-							SD->UserParam = (int) SXP;
+							SD->UserParam = (intptr_t) SXP;
 							strcpy( SD->AllocPtr, Active[curac] );
 							curac++;
 						};
@@ -1838,7 +1838,7 @@ bool ADI_AddDBTBL( sicExplorer* SXP, DialogsSystem* DSS, int* x, int* y, int* x1
 	if (!ADI->TBL)ADI->TBL = SXP->CreateTable( ADI->DB_REQID );
 	for (int i = 0; i < ADI->NColumns; i++)if (ADI->COLM[i].ID[1] == '%')ADI->TBL->COLMOPT[i] = 1;
 	ADI->TBL->NCol = ADI->NColumns;
-	CBX->param = int( data );
+	CBX->param = (intptr_t)( data );
 	return true;
 };
 //----------------------------------------------------------------------------------------
@@ -1917,7 +1917,7 @@ bool ADI_Ubtn( sicExplorer* SXP, DialogsSystem* DSS, int* x, int* y, int* x1, in
 		GPB->AllocPtr = (char*) _ExMalloc( strlen( Active[0] ) + 1 );
 		strcpy( GPB->AllocPtr, Active[0] );
 		GPB->OnUserClick = &SendToServer;
-		GPB->UserParam = int( SXP );
+		GPB->UserParam = (intptr_t)( SXP );
 	};
 	return true;
 };
@@ -1952,7 +1952,7 @@ bool ADI_gpBtn( sicExplorer* SXP, DialogsSystem* DSS, int* x, int* y, int* x1, i
 		GPB->AllocPtr = (char*) _ExMalloc( strlen( Active[0] ) + 1 );
 		strcpy( GPB->AllocPtr, Active[0] );
 		GPB->OnUserClick = &SendToServer;
-		GPB->UserParam = int( SXP );
+		GPB->UserParam = (intptr_t)( SXP );
 	};
 	return true;
 };
@@ -2116,7 +2116,7 @@ bool ADI_Map( sicExplorer* SXP, DialogsSystem* DSS, int* x, int* y, int* x1, int
 	MAP->OnUserClick = &MapClick;
 	MAP->AllocPtr = (char*) malloc( strlen( Active[1] ) + 1 );
 	strcpy( MAP->AllocPtr, Active[1] );
-	MAP->UserParam = int( SXP );
+	MAP->UserParam = (intptr_t)( SXP );
 	return true;
 };
 //#murl(Index,URL)
@@ -2267,7 +2267,7 @@ void FileClickProc( char** strs, int nstr )
 				strcpy( FL, strs[1] );
 			};
 };
-#define ADDFL(name,com) if(cstr)fprintf(F,mask,cstr,BoxID,cstr-1,DWORD(FileClickProc),com,name);else fprintf(F,mask0,BoxID,DWORD(FileClickProc),com,name);
+#define ADDFL(name,com) if(cstr)fprintf(F,mask,cstr,BoxID,cstr-1,(DWORD)(uintptr_t)(FileClickProc),com,name);else fprintf(F,mask0,BoxID,(DWORD)(uintptr_t)(FileClickProc),com,name);
 void EnumFilesInDirectory( char* Dir, char** Mask, int NMasks, char* FrameID, char* BoxID )
 {
 	char tmp[512];

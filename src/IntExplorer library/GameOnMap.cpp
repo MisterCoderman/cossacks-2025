@@ -137,7 +137,7 @@ void OneMap::LoadMapData( sicExplorer* SXP )
 		byte* Data;
 		if (ReadBMP8( ccc, &BM, &Data ))
 		{
-			SCALE = (OneScale*) realloc( SCALE, ( NScales + 1 ) * sizeof OneScale );
+			SCALE = (OneScale*) realloc( SCALE, ( NScales + 1 ) * sizeof(OneScale) );
 			SCALE[NScales].Data = Data;
 			SCALE[NScales].Loaded = 1;
 			SCALE[NScales].Lx = BM.biWidth;
@@ -167,9 +167,9 @@ void OneMap::LoadMapData( sicExplorer* SXP )
 	sprintf( ccc, "Internet\\Cash\\%s_nations.bmp", Title );
 	BMPformat BM;
 	byte* Data;
-	memset( XSumm, 0, sizeof XSumm );
-	memset( YSumm, 0, sizeof YSumm );
-	memset( NPoints, 0, sizeof NPoints );
+	memset( XSumm, 0, sizeof(XSumm) );
+	memset( YSumm, 0, sizeof(YSumm) );
+	memset( NPoints, 0, sizeof(NPoints) );
 
 	if (ReadBMP8( ccc, &BM, &Data ))
 	{
@@ -180,7 +180,7 @@ void OneMap::LoadMapData( sicExplorer* SXP )
 		int MAXLX[256];
 		int CY[256];
 		int CX[256];
-		memset( MAXLX, 0, sizeof MAXLX );
+		memset( MAXLX, 0, sizeof(MAXLX) );
 		byte prevc = 255;
 		int cx = 0;
 		int cx1 = 0;
@@ -241,7 +241,7 @@ void OneMap::LoadMapData( sicExplorer* SXP )
 	};
 	sprintf( ccc, "Internet\\Cash\\%s.nations", Title );
 	F = fopen( ccc, "r" );
-	memset( Names, 0, sizeof Names );
+	memset( Names, 0, sizeof(Names) );
 	if (F)
 	{
 		char ccc[256];
@@ -596,10 +596,10 @@ void OneMap::AddMapPicture( char* Name, int x, int y, int dx, int dy, int Sprite
 	if (NMapPix >= MaxMapPix)
 	{
 		MaxMapPix += 16;
-		MapPix = (OneMapPicture*) realloc( MapPix, MaxMapPix * sizeof OneMapPicture );
+		MapPix = (OneMapPicture*) realloc( MapPix, MaxMapPix * sizeof(OneMapPicture) );
 	};
 	OneMapPicture* OMP = MapPix + NMapPix;
-	memset( OMP, 0, sizeof OneMapPicture );
+	memset( OMP, 0, sizeof(OneMapPicture) );
 	OMP->x = x;
 	OMP->y = y;
 	OMP->dx = dx;

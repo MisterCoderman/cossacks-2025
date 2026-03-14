@@ -100,7 +100,7 @@ public:
 	WallSystem();
 	~WallSystem();
 	void AddCluster( WallCluster* );
-	void WallSystem::Show();
+	void Show();
 };
 
 void WallHandleDraw();

@@ -173,8 +173,8 @@ int PingEngine::GetPing(DWORD IP){
 		Requests[i].LastRequestTime=GetTickCount();
 		return Requests[i].Ping;
 	};
-	Requests=(OneIPAddress*)realloc(Requests,(NRequests+1)*sizeof OneIPAddress);
-	memset(Requests+NRequests,0,sizeof OneIPAddress);
+	Requests=(OneIPAddress*)realloc(Requests,(NRequests+1)*sizeof(OneIPAddress));
+	memset(Requests+NRequests,0,sizeof(OneIPAddress));
 	Requests[NRequests].LastPingTime=-1;
 	Requests[NRequests].IP=IP;
 	Requests[NRequests].LastRequestTime=GetTickCount();

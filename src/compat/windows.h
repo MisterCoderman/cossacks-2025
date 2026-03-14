@@ -12,6 +12,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <unistd.h>
 
 // ---- Basic types ----
 typedef int                 BOOL;
@@ -159,6 +160,10 @@ struct IUnknown {
 #ifndef _MSC_VER
 #define _MSC_VER 0
 #endif
+
+// MSVC type aliases
+typedef char small;
+#define __forceinline inline __attribute__((always_inline))
 
 // ---- Structures ----
 typedef struct tagRECT {
@@ -505,6 +510,7 @@ typedef struct _PROCESS_MEMORY_COUNTERS {
 } PROCESS_MEMORY_COUNTERS;
 
 inline HANDLE GetCurrentProcess() { return NULL; }
+inline DWORD GetCurrentProcessId() { return (DWORD)getpid(); }
 inline BOOL GetProcessMemoryInfo(HANDLE proc, PROCESS_MEMORY_COUNTERS* pmc, DWORD cb) {
     (void)proc; (void)pmc; (void)cb; return FALSE;
 }
@@ -653,6 +659,12 @@ inline void* GetProcAddress(HMODULE hm, LPCSTR name) { (void)hm; (void)name; ret
 inline HMODULE LoadLibraryA(LPCSTR name) { (void)name; return NULL; }
 #define LoadLibrary LoadLibraryA
 inline BOOL FreeLibrary(HMODULE hm) { (void)hm; return TRUE; }
+
+// ---- DLL entry point constants ----
+#define DLL_PROCESS_ATTACH 1
+#define DLL_THREAD_ATTACH  2
+#define DLL_THREAD_DETACH  3
+#define DLL_PROCESS_DETACH 0
 
 #define MAKEFOURCC(ch0, ch1, ch2, ch3)                              \
                 ((DWORD)(BYTE)(ch0) | ((DWORD)(BYTE)(ch1) << 8) |   \
