@@ -74,7 +74,7 @@ public:
 
 	void SetStdShadow()
 	{
-		ShadowGP = int(RLC);
+		ShadowGP = static_cast<int>(reinterpret_cast<intptr_t>(RLC));
 		ShadowDx = 1;
 		ShadowDy = 1;
 	};

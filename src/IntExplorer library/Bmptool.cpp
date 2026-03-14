@@ -10,10 +10,10 @@ void SaveToBMP24(char* Name, int Lx, int Ly, byte* data) {
 	BM.bfType = 'MB';
 	int rlx = Lx * 3;
 	if (rlx & 3)rlx = (rlx | 3) + 1;
-	BM.bfSize = (sizeof BMPformat) + rlx*Ly;
+	BM.bfSize = (sizeof(BMPformat)) + rlx*Ly;
 	BM.bfReserved1 = 0;
 	BM.bfReserved2 = 0;
-	BM.bfOffBits = (sizeof BMPformat);
+	BM.bfOffBits = (sizeof(BMPformat));
 	BM.biSize = 40;
 	BM.biWidth = Lx;
 	BM.biHeight = Ly;
@@ -25,7 +25,7 @@ void SaveToBMP24(char* Name, int Lx, int Ly, byte* data) {
 	BM.biYPelsPerMeter = 0;
 	BM.biClrUsed = 0;
 	BM.biClrImportant = 0;
-	RBlockWrite(f1, &BM, sizeof BM);
+	RBlockWrite(f1, &BM, sizeof(BM));
 	for (int j = 0; j < Ly; j++) {
 		RBlockWrite(f1, &data[3 * Lx*(Ly - j - 1)], rlx);
 	};
@@ -34,7 +34,7 @@ void SaveToBMP24(char* Name, int Lx, int Ly, byte* data) {
 bool ReadBMP24(char* Name, BMPformat* BM, byte** data) {
 	ResFile f1 = RReset(Name);
 	if (f1 != INVALID_HANDLE_VALUE) {
-		RBlockRead(f1, BM, sizeof BMPformat);
+		RBlockRead(f1, BM, sizeof(BMPformat));
 		if (BM->bfType != 'MB')return false;
 		if (BM->biBitCount != 24)return false;
 		*data = new byte[BM->biWidth*BM->biHeight * 3];
@@ -42,7 +42,7 @@ bool ReadBMP24(char* Name, BMPformat* BM, byte** data) {
 		int rwid = wid;
 		if (wid & 3)rwid = (wid | 3) + 1;
 		for (int i = 0; i < BM->biHeight; i++) {
-			RSeek(f1, (sizeof BMPformat) + (BM->biHeight - i - 1)*rwid);
+			RSeek(f1, (sizeof(BMPformat)) + (BM->biHeight - i - 1)*rwid);
 			RBlockRead(f1, &((*data)[i*wid]), wid);
 		};
 		RClose(f1);
@@ -53,7 +53,7 @@ bool ReadBMP24(char* Name, BMPformat* BM, byte** data) {
 bool ReadBMP8(char* Name, BMPformat* BM, byte** data) {
 	ResFile f1 = RReset(Name);
 	if (f1 != INVALID_HANDLE_VALUE) {
-		RBlockRead(f1, BM, sizeof BMPformat);
+		RBlockRead(f1, BM, sizeof(BMPformat));
 		if (BM->bfType != 'MB')return false;
 		if (BM->biBitCount != 8)return false;
 		*data = new byte[BM->biWidth*BM->biHeight];
@@ -61,7 +61,7 @@ bool ReadBMP8(char* Name, BMPformat* BM, byte** data) {
 		int rwid = wid;
 		if (wid & 3)rwid = (wid | 3) + 1;
 		for (int i = 0; i < BM->biHeight; i++) {
-			RSeek(f1, (sizeof BMPformat) + 1024 + (BM->biHeight - i - 1)*rwid);
+			RSeek(f1, (sizeof(BMPformat)) + 1024 + (BM->biHeight - i - 1)*rwid);
 			RBlockRead(f1, &((*data)[i*wid]), wid);
 		};
 		RClose(f1);
@@ -73,7 +73,7 @@ bool ReadBMP8TOBPX(char* Name, byte** data) {
 	BMPformat BM;
 	ResFile f1 = RReset(Name);
 	if (f1 != INVALID_HANDLE_VALUE) {
-		RBlockRead(f1, &BM, sizeof BMPformat);
+		RBlockRead(f1, &BM, sizeof(BMPformat));
 		if (BM.bfType != 'MB')return false;
 		if (BM.biBitCount != 8)return false;
 		*data = new byte[BM.biWidth*BM.biHeight + 4];
@@ -157,10 +157,10 @@ void SaveToBMP8(char* Name, int Lx, int Ly, byte* data, PAL3* pal) {
 	BM.bfType = 'MB';
 	int rlx = Lx;
 	if (Lx & 3)rlx = (Lx | 3) + 1;
-	BM.bfSize = 1024 + (sizeof BMPformat) + rlx*Ly;
+	BM.bfSize = 1024 + (sizeof(BMPformat)) + rlx*Ly;
 	BM.bfReserved1 = 0;
 	BM.bfReserved2 = 0;
-	BM.bfOffBits = 1024 + (sizeof BMPformat);
+	BM.bfOffBits = 1024 + (sizeof(BMPformat));
 	BM.biSize = 40;
 	BM.biWidth = Lx;
 	BM.biHeight = Ly;
@@ -178,7 +178,7 @@ void SaveToBMP8(char* Name, int Lx, int Ly, byte* data, PAL3* pal) {
 		P4[j].g = pal[j].g;
 		P4[j].b = pal[j].b;
 	};
-	RBlockWrite(f1, &BM, sizeof BM);
+	RBlockWrite(f1, &BM, sizeof(BM));
 	RBlockWrite(f1, P4, 1024);
 	for (int j = 0; j < Ly; j++) {
 		RBlockWrite(f1, &data[Lx*(Ly - j - 1)], rlx);

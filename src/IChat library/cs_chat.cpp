@@ -12,9 +12,9 @@ void ChatSystem::AddPlayer( char* Nick, int c )
 	if (CCH[c].NPlayers >= CCH[c].MaxPlayers)
 	{
 		CCH[c].MaxPlayers += 64;
-		CCH[c].Players = (OneChatPlayer*) realloc( CCH[c].Players, CCH[c].MaxPlayers * sizeof OneChatPlayer );
+		CCH[c].Players = (OneChatPlayer*) realloc( CCH[c].Players, CCH[c].MaxPlayers * sizeof(OneChatPlayer) );
 	}
-	memset( CCH[c].Players + CCH[c].NPlayers, 0, sizeof OneChatPlayer );
+	memset( CCH[c].Players + CCH[c].NPlayers, 0, sizeof(OneChatPlayer) );
 	strcpy( CCH[c].Players[CCH[c].NPlayers].Nick, Nick );
 	CCH[c].NPlayers++;
 }
@@ -25,7 +25,7 @@ void ChatSystem::DelPlayer( char* Nick, int c )
 	{
 		if (i < CCH[c].NPlayers - 1)
 		{
-			memcpy( CCH[c].Players + i, CCH[c].Players + i + 1, ( CCH[c].NPlayers - i - 1 ) * sizeof OneChatPlayer );
+			memcpy( CCH[c].Players + i, CCH[c].Players + i + 1, ( CCH[c].NPlayers - i - 1 ) * sizeof(OneChatPlayer) );
 		};
 		CCH[c].NPlayers--;
 		return;
@@ -39,9 +39,9 @@ void ChatSystem::AddAbsentPlayer( char* Nick )
 	if (NAbsPlayers >= MaxAbsPlayers)
 	{
 		MaxAbsPlayers += 64;
-		AbsPlayers = (OneChatPlayer*) realloc( AbsPlayers, MaxAbsPlayers * sizeof OneChatPlayer );
+		AbsPlayers = (OneChatPlayer*) realloc( AbsPlayers, MaxAbsPlayers * sizeof(OneChatPlayer) );
 	};
-	memset( AbsPlayers + NAbsPlayers, 0, sizeof OneChatPlayer );
+	memset( AbsPlayers + NAbsPlayers, 0, sizeof(OneChatPlayer) );
 	strcpy( AbsPlayers[NAbsPlayers].Nick, Nick );
 	NAbsPlayers++;
 };
@@ -51,7 +51,7 @@ void ChatSystem::DelAbsentPlayer( char* Nick )
 	{
 		if (i < NAbsPlayers - 1)
 		{
-			memcpy( AbsPlayers + i, AbsPlayers + i + 1, ( NAbsPlayers - i - 1 ) * sizeof OneChatPlayer );
+			memcpy( AbsPlayers + i, AbsPlayers + i + 1, ( NAbsPlayers - i - 1 ) * sizeof(OneChatPlayer) );
 		};
 		NAbsPlayers--;
 		return;
@@ -543,13 +543,13 @@ void ChatSystem::SortPlayers( OneChatPlayer* PL, int N )
 		change = 0;
 		for (int i = 1; i < N; i++)
 		{
-			int r = stricmp( PL[i].Nick, PL[i - 1].Nick );
+			int r = strcasecmp( PL[i].Nick, PL[i - 1].Nick );
 			if (r < 0)
 			{
-				byte PLX[sizeof OneChatPlayer];
-				memcpy( &PLX, PL + i, sizeof OneChatPlayer );
-				memcpy( PL + i, PL + i - 1, sizeof OneChatPlayer );
-				memcpy( PL + i - 1, &PLX, sizeof OneChatPlayer );
+				byte PLX[sizeof(OneChatPlayer)];
+				memcpy( &PLX, PL + i, sizeof(OneChatPlayer) );
+				memcpy( PL + i, PL + i - 1, sizeof(OneChatPlayer) );
+				memcpy( PL + i - 1, &PLX, sizeof(OneChatPlayer) );
 				change = 1;
 			};
 		};

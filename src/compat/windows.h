@@ -11,6 +11,7 @@
 #include <stddef.h>
 #include <string.h>
 #include <stdlib.h>
+#include <stdio.h>
 
 // ---- Basic types ----
 typedef int                 BOOL;
@@ -30,6 +31,10 @@ typedef long long           LONGLONG;
 typedef unsigned long long  ULONGLONG;
 typedef BYTE                byte;
 typedef void                VOID;
+typedef unsigned int        u_int;
+typedef unsigned long       u_long;
+typedef unsigned short      u_short;
+typedef unsigned char       u_char;
 
 #ifndef TRUE
 #define TRUE  1
@@ -39,7 +44,11 @@ typedef void                VOID;
 #endif
 
 #ifndef NULL
+#ifdef __cplusplus
 #define NULL nullptr
+#else
+#define NULL ((void*)0)
+#endif
 #endif
 
 // ---- Pointer types ----
@@ -193,6 +202,42 @@ typedef const WAVEFORMATEX* LPCWAVEFORMATEX;
 
 #define WAVE_FORMAT_PCM 1
 
+// ---- Bitmap structures ----
+#define BI_RGB 0L
+#define BI_RLE8 1L
+#define BI_RLE4 2L
+
+#pragma pack(push, 2)
+typedef struct tagBITMAPFILEHEADER {
+    WORD  bfType;
+    DWORD bfSize;
+    WORD  bfReserved1;
+    WORD  bfReserved2;
+    DWORD bfOffBits;
+} BITMAPFILEHEADER;
+
+typedef struct tagBITMAPINFOHEADER {
+    DWORD biSize;
+    LONG  biWidth;
+    LONG  biHeight;
+    WORD  biPlanes;
+    WORD  biBitCount;
+    DWORD biCompression;
+    DWORD biSizeImage;
+    LONG  biXPelsPerMeter;
+    LONG  biYPelsPerMeter;
+    DWORD biClrUsed;
+    DWORD biClrImportant;
+} BITMAPINFOHEADER;
+
+typedef struct tagRGBQUAD {
+    BYTE rgbBlue;
+    BYTE rgbGreen;
+    BYTE rgbRed;
+    BYTE rgbReserved;
+} RGBQUAD;
+#pragma pack(pop)
+
 // ---- Color ----
 #define RGB(r,g,b) ((COLORREF)(((BYTE)(r)|((WORD)((BYTE)(g))<<8))|(((DWORD)(BYTE)(b))<<16)))
 #define GetRValue(rgb) ((BYTE)(rgb))
@@ -222,6 +267,23 @@ typedef const WAVEFORMATEX* LPCWAVEFORMATEX;
 #define lstrcat strcat
 #define wsprintf sprintf
 #define wvsprintf vsprintf
+// ---- MSVC CRT name mappings ----
+#define _utimbuf utimbuf
+#define _utime utime
+#define stricmp strcasecmp
+#define _stricmp strcasecmp
+#define strnicmp strncasecmp
+#define _strnicmp strncasecmp
+#define _snprintf snprintf
+#define _vsnprintf vsnprintf
+
+// strupr / strlwr - MSVC extensions
+#include <ctype.h>
+inline char* strupr(char* s) { for (char* p = s; *p; p++) *p = toupper(*p); return s; }
+inline char* strlwr(char* s) { for (char* p = s; *p; p++) *p = tolower(*p); return s; }
+#define _strupr strupr
+#define _strlwr strlwr
+#define itoa(val, buf, radix) sprintf(buf, "%d", val)
 
 // ---- File and system stubs ----
 #define MAX_PATH 260
@@ -339,6 +401,10 @@ inline DWORD GetModuleFileNameA(HMODULE hm, LPSTR buf, DWORD size) {
 #define GetModuleFileName GetModuleFileNameA
 
 inline void GetSystemDirectory(LPSTR buf, UINT size) { (void)buf; (void)size; }
+inline DWORD GetCurrentDirectoryA(DWORD size, LPSTR buf) { (void)size; (void)buf; return 0; }
+#define GetCurrentDirectory GetCurrentDirectoryA
+inline DWORD GetLogicalDriveStringsA(DWORD size, LPSTR buf) { (void)size; (void)buf; return 0; }
+#define GetLogicalDriveStrings GetLogicalDriveStringsA
 inline BOOL SetCurrentDirectoryA(LPCSTR path) { (void)path; return TRUE; }
 #define SetCurrentDirectory SetCurrentDirectoryA
 
@@ -445,8 +511,27 @@ inline BOOL GetProcessMemoryInfo(HANDLE proc, PROCESS_MEMORY_COUNTERS* pmc, DWOR
 
 typedef struct _STARTUPINFOA {
     DWORD cb;
+    LPSTR lpReserved;
+    LPSTR lpDesktop;
+    LPSTR lpTitle;
+    DWORD dwX;
+    DWORD dwY;
+    DWORD dwXSize;
+    DWORD dwYSize;
+    DWORD dwXCountChars;
+    DWORD dwYCountChars;
+    DWORD dwFillAttribute;
+    DWORD dwFlags;
+    WORD  wShowWindow;
+    WORD  cbReserved2;
+    LPBYTE lpReserved2;
+    HANDLE hStdInput;
+    HANDLE hStdOutput;
+    HANDLE hStdError;
 } STARTUPINFOA;
 #define STARTUPINFO STARTUPINFOA
+#define STARTF_USESHOWWINDOW 0x00000001
+#define SW_SHOWMINNOACTIVE 7
 
 typedef struct _PROCESS_INFORMATION {
     HANDLE hProcess;
@@ -515,8 +600,49 @@ inline LRESULT DispatchMessageA(const MSG* msg) { (void)msg; return 0; }
 
 #define SW_SHOW         5
 #define SW_HIDE         0
+#define SW_MAXIMIZE     3
 #define SW_MINIMIZE     6
 #define SW_RESTORE      9
+
+// ---- SYSTEMTIME ----
+typedef struct _SYSTEMTIME {
+    WORD wYear;
+    WORD wMonth;
+    WORD wDayOfWeek;
+    WORD wDay;
+    WORD wHour;
+    WORD wMinute;
+    WORD wSecond;
+    WORD wMilliseconds;
+} SYSTEMTIME;
+inline void GetLocalTime(SYSTEMTIME* st) { (void)st; }
+inline void GetSystemTime(SYSTEMTIME* st) { (void)st; }
+
+// ---- File/Process stubs ----
+inline BOOL DeleteFileA(LPCSTR path) { return ::remove(path) == 0; }
+#define DeleteFile DeleteFileA
+inline BOOL CreateDirectoryA(LPCSTR path, void* sa) { (void)path; (void)sa; return TRUE; }
+#define CreateDirectory CreateDirectoryA
+inline void ExitProcess(UINT code) { exit(code); }
+
+// ---- Cursor stubs ----
+inline BOOL GetCursorPos(LPPOINT pt) { (void)pt; return TRUE; }
+inline BOOL SetCursorPos(int x, int y) { (void)x; (void)y; return TRUE; }
+inline HCURSOR SetCursor(HCURSOR c) { (void)c; return NULL; }
+inline HCURSOR LoadCursorA(HINSTANCE hi, LPCSTR name) { (void)hi; (void)name; return NULL; }
+#define LoadCursor LoadCursorA
+
+// ---- _stat mapping ----
+#include <sys/stat.h>
+#define _stat stat
+#define _access access
+
+// ---- Shell stubs ----
+inline HINSTANCE ShellExecuteA(HWND hw, LPCSTR op, LPCSTR file, LPCSTR params, LPCSTR dir, int show) {
+    (void)hw; (void)op; (void)file; (void)params; (void)dir; (void)show;
+    return NULL;
+}
+#define ShellExecute ShellExecuteA
 
 // ---- Misc ----
 inline void OutputDebugStringA(LPCSTR str) { (void)str; }

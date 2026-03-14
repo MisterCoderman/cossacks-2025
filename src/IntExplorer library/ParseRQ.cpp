@@ -15,7 +15,7 @@ void ParsedRQ::AddComm( char* Name )
 	char NAME[18];
 	strncpy( NAME, Name, 16 );
 	NAME[15] = 0;
-	Comm = (OneComm*) realloc( Comm, ( NComm + 1 ) * sizeof OneComm );
+	Comm = (OneComm*) realloc( Comm, ( NComm + 1 ) * sizeof(OneComm) );
 	strcpy( Comm[NComm].ComID, NAME );
 	Comm[NComm].NParams = 0;
 	Comm[NComm].Params = NULL;
@@ -268,7 +268,7 @@ void ParsedRQ::DelComm( int pos )
 		for( int i = 0; i < Comm[pos].NParams; i++ )free( Comm[pos].Params[i] );
 		if( Comm[pos].ParamSize )free( Comm[pos].ParamSize );
 		if( Comm[pos].Params )free( Comm[pos].Params );
-		if( pos < NComm - 1 )memmove( Comm + pos, Comm + pos + 1, ( NComm - pos - 1 ) * sizeof OneComm );
+		if( pos < NComm - 1 )memmove( Comm + pos, Comm + pos + 1, ( NComm - pos - 1 ) * sizeof(OneComm) );
 		NComm--;
 	};
 };
@@ -289,7 +289,7 @@ void ParsedRQ::AddParamToCom( int idx, char* data, int size )
 void ParsedRQ::AddIntParam( int val )
 {
 	char cc[64];
-	itoa( val, cc, 10 );
+	sprintf( cc, "%d", val );
 	AddParam( cc, strlen( cc ) + 1 );
 };
 /*

@@ -120,7 +120,7 @@ DWORD SXP_DevScope::SendRequest( sicExplorer* SXP, ParsedRQ* P1, bool AllowNewWi
 			if (NReq >= MaxReq)
 			{
 				MaxReq += 64;
-				REQ = (OneRequest*) realloc( REQ, MaxReq * sizeof OneRequest );
+				REQ = (OneRequest*) realloc( REQ, MaxReq * sizeof(OneRequest) );
 			};
 			REQ[NReq].DevIndex = i;
 			REQ[NReq].Handle = H;
@@ -164,7 +164,7 @@ void  SXP_DevScope::CloseRequest( DWORD Handle )
 		};
 		if (i < NReq - 1)
 		{
-			memcpy( REQ + i, REQ + i + 1, ( NReq - i - 1 ) * sizeof OneRequest );
+			memcpy( REQ + i, REQ + i + 1, ( NReq - i - 1 ) * sizeof(OneRequest) );
 		};
 		NReq--;
 	};
@@ -193,7 +193,7 @@ void SXP_DevScope::RegisterDevice( char* ID, char* DLL_Path )
 	HMODULE H = LoadLibrary( DLL_Path );
 	if (H)
 	{
-		DEVS = (OneSXP_Device*) realloc( DEVS, ( NDEVS + 1 ) * sizeof OneSXP_Device );
+		DEVS = (OneSXP_Device*) realloc( DEVS, ( NDEVS + 1 ) * sizeof(OneSXP_Device) );
 		char STR[64];
 		sprintf( STR, "?%s_SendRequest@@YAKPADH@Z", ID );
 		DEVS[NDEVS].SendRequest = (fnSendRequest*) GetProcAddress( H, STR );
@@ -1681,7 +1681,7 @@ void StartDownloadInternetFile( char* Name, char* Server, char* DestName )
 	if (N_DNPR >= Max_DNPR)
 	{
 		Max_DNPR += 8;
-		DNPR = (OneDnProcess*) realloc( DNPR, Max_DNPR * sizeof OneDnProcess );
+		DNPR = (OneDnProcess*) realloc( DNPR, Max_DNPR * sizeof(OneDnProcess) );
 	};
 
 	//check if already downloaded
@@ -1693,7 +1693,7 @@ void StartDownloadInternetFile( char* Name, char* Server, char* DestName )
 		RClose( F );
 		return;
 	};
-	memset( DNPR + N_DNPR, 0, sizeof OneDnProcess );
+	memset( DNPR + N_DNPR, 0, sizeof(OneDnProcess) );
 	sprintf( CC, "Internet\\dnl\\%s.open", DestName );
 	F = RReset( CC );
 	if (F != INVALID_HANDLE_VALUE)
@@ -1830,7 +1830,7 @@ void exec_LW_dff( int Np, char** par, int* size )
 			fwrite( DD + 2, 1, sz, f );
 			for (int i = 0; i < N_DNPR; i++)if (!strcmp( DNPR[i].HashName, par[0] ))
 			{
-				if (i < N_DNPR - 1)memcpy( DNPR + i, DNPR + i + 1, ( N_DNPR - 1 - i ) * sizeof OneDnProcess );
+				if (i < N_DNPR - 1)memcpy( DNPR + i, DNPR + i + 1, ( N_DNPR - 1 - i ) * sizeof(OneDnProcess) );
 				N_DNPR--;
 				i--;
 			};

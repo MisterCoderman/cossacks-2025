@@ -446,7 +446,7 @@ bool ADI_Ping( sicExplorer* SXP, DialogsSystem* DSS, int* x, int* y, int* x1, in
 	{
 		return false;
 	}
-	PingST* PING = (PingST*) SXP->CreateSXProcess( &ProcPing, nullptr, sizeof PingST );
+	PingST* PING = (PingST*) SXP->CreateSXProcess( &ProcPing, nullptr, sizeof(PingST) );
 	PING->IP = 0;
 	sscanf( Param[0], "%u", &PING->IP );
 	RLCFont* FNT = SXP->GetFontByName( SXP->FONT1 );
@@ -488,7 +488,7 @@ bool ADI_Combo( sicExplorer* SXP, DialogsSystem* DSS, int* x, int* y, int* x1, i
 	if (!NActive)return false;
 	if (Active[0][0] != '%')return false;
 	char* VAR = SXP->CreateVar( Active[0], 512 );
-	ADI_Combo_Data* ADCD = (ADI_Combo_Data*) SXP->CreateSXProcess( &CBB_Process, nullptr, sizeof ADI_Combo_Data );
+	ADI_Combo_Data* ADCD = (ADI_Combo_Data*) SXP->CreateSXProcess( &CBB_Process, nullptr, sizeof(ADI_Combo_Data) );
 	strcpy( ADCD->VarName, Active[0] );
 	ADCD->CBB = DSS->addGP_ComboBoxDLX( nullptr, *x, *y, ( *x1 ) - ( *x ), cbgp, OSW->cmb_Idx, 9, 0, SXP->GetFontByName( SXP->FONT2 ), SXP->GetFontByName( SXP->FONT1 ), nullptr );
 	ADCD->CBB->FontDx = OSW->cmb_bdx + 1;
@@ -566,7 +566,7 @@ bool ADI_Combo2( sicExplorer* SXP, DialogsSystem* DSS, int* x, int* y, int* x1, 
 	if (!NActive)return false;
 	if (Active[0][0] != '%')return false;
 	char* VAR = SXP->CreateVar( Active[0], 512 );
-	ADI_Combo_Data2* ADCD = (ADI_Combo_Data2*) SXP->CreateSXProcess( &CBB_Process2, &CBB_Close2, sizeof ADI_Combo_Data2 );
+	ADI_Combo_Data2* ADCD = (ADI_Combo_Data2*) SXP->CreateSXProcess( &CBB_Process2, &CBB_Close2, sizeof(ADI_Combo_Data2) );
 	strcpy( ADCD->VarName, Active[0] );
 	ADCD->CBB = DSS->addGP_ComboBoxDLX( nullptr, *x, *y, ( *x1 ) - ( *x ), cbgp, OSW->cmb_Idx, 9, 0, SXP->GetFontByName( SXP->FONT2 ), SXP->GetFontByName( SXP->FONT1 ), nullptr );
 	ADCD->CBB->FontDx = OSW->cmb_bdx + 1;
@@ -778,7 +778,7 @@ bool ADI_Chk( sicExplorer* SXP, DialogsSystem* DSS, int* x, int* y, int* x1, int
 	if (NActive&&Active[0][0] == '%')
 	{
 		char* VAR = SXP->CreateVar( Active[0], 512 );
-		ADI_Chk_Data* ADCD = (ADI_Chk_Data*) SXP->CreateSXProcess( &CHK_Process, nullptr, sizeof ADI_Chk_Data );
+		ADI_Chk_Data* ADCD = (ADI_Chk_Data*) SXP->CreateSXProcess( &CHK_Process, nullptr, sizeof(ADI_Chk_Data) );
 		strcpy( ADCD->VarName, Active[0] );
 		ADCD->CBB = CB;
 		strcpy( ADCD->DEF_st0, Param[1] );
@@ -829,7 +829,7 @@ bool ADI_Rad( sicExplorer* SXP, DialogsSystem* DSS, int* x, int* y, int* x1, int
 	if (NActive&&Active[0][0] == '%')
 	{
 		char* VAR = SXP->CreateVar( Active[0], 512 );
-		ADI_Chk_Data* ADCD = (ADI_Chk_Data*) SXP->CreateSXProcess( &CHK_Process, nullptr, sizeof ADI_Chk_Data );
+		ADI_Chk_Data* ADCD = (ADI_Chk_Data*) SXP->CreateSXProcess( &CHK_Process, nullptr, sizeof(ADI_Chk_Data) );
 		strcpy( ADCD->VarName, Active[0] );
 		ADCD->CBB = CB;
 		strcpy( ADCD->DEF_st0, Param[2] );
@@ -945,7 +945,7 @@ bool ADI_Sort( sicExplorer* SXP, DialogsSystem* DSS, int* x, int* y, int* x1, in
 	if (NActive && Active[0][0] == '%')
 	{
 		SXP->CreateVar( Active[0], 512 );
-		ADI_Sort_Data* ADCD = (ADI_Sort_Data*) SXP->CreateSXProcess( &SOR_Process, nullptr, sizeof ADI_Sort_Data );
+		ADI_Sort_Data* ADCD = (ADI_Sort_Data*) SXP->CreateSXProcess( &SOR_Process, nullptr, sizeof(ADI_Sort_Data) );
 		strcpy( ADCD->VarName, Active[0] );
 		ADCD->CBB = CB;
 		strcpy( ADCD->DEF_st0, Param[2] );
@@ -1641,9 +1641,9 @@ bool ADI_AddDBTBL( sicExplorer* SXP, DialogsSystem* DSS, int* x, int* y, int* x1
 	RLCFont* PFONT = SXP->GetFontByName( SXP->FONT1 );
 	RLCFont* AFONT = SXP->GetFontByName( SXP->FONT2 );
 
-	void* data = SXP->CreateSXProcess( &Process_DBTBL, &Close_DBTBL, sizeof ADI_DBTBL );
+	void* data = SXP->CreateSXProcess( &Process_DBTBL, &Close_DBTBL, sizeof(ADI_DBTBL) );
 	ADI_DBTBL* ADI = (ADI_DBTBL*) data;
-	memset( ADI, 0, sizeof ADI_DBTBL );
+	memset( ADI, 0, sizeof(ADI_DBTBL) );
 	strncpy( ADI->DB_REQID, Active[0], 31 );
 	ADI->DB_REQID[31] = 0;
 	if (NParam < 4)return false;
@@ -1875,7 +1875,7 @@ bool ADI_Pix( sicExplorer* SXP, DialogsSystem* DSS, int* x, int* y, int* x1, int
 	int gpid = SXP->GetGPPictureIndex( Param[0] );
 	if (gpid == -1)return true;
 
-	PixProcess* PP = (PixProcess*) SXP->CreateSXProcess( &ShowPixProcess, nullptr, sizeof PixProcess );
+	PixProcess* PP = (PixProcess*) SXP->CreateSXProcess( &ShowPixProcess, nullptr, sizeof(PixProcess) );
 	PP->PStart = atoi( Param[1] );
 	PP->PEnd = atoi( Param[2] );
 	PP->AStart = atoi( Param[3] );
@@ -2409,7 +2409,7 @@ bool ADI_FBrowse( sicExplorer* SXP, DialogsSystem* DSS, int* x, int* y, int* x1,
 	}
 	if (CBB)
 	{
-		FBrowse* FB = (FBrowse*) SXP->CreateSXProcess( &BrowseChDisk, nullptr, sizeof FBrowse );
+		FBrowse* FB = (FBrowse*) SXP->CreateSXProcess( &BrowseChDisk, nullptr, sizeof(FBrowse) );
 		FB->Disk = CBB;
 		FB->SXP = SXP;
 		LastBrowse = FB;
@@ -2480,10 +2480,10 @@ bool ADI_NewFont( sicExplorer* SXP, DialogsSystem* DSS, int* x, int* y, int* x1,
 
 	int GPID = SXP->GetGPPictureIndex( Param[1] );
 	if (GPID == -1)return true;
-	if (!OSW->NAddFonts)OSW->ADFonts = (OneAddFont*) malloc( 64 * sizeof OneAddFont );
+	if (!OSW->NAddFonts)OSW->ADFonts = (OneAddFont*) malloc( 64 * sizeof(OneAddFont) );
 	if (OSW->NAddFonts > 64)return false;
 	strcpy( OSW->ADFonts[OSW->NAddFonts].FID, Param[0] );
-	memset( &OSW->ADFonts[OSW->NAddFonts].FONT, 0, sizeof OSW->ADFonts[OSW->NAddFonts].FONT );
+	memset( &OSW->ADFonts[OSW->NAddFonts].FONT, 0, sizeof(OSW)->ADFonts[OSW->NAddFonts].FONT );
 	OSW->ADFonts[OSW->NAddFonts].FONT.SetGPIndex( GPID );
 	OSW->ADFonts[OSW->NAddFonts].FONT.SetColorTable( atoi( Param[2] ) );
 	OSW->ADFonts[OSW->NAddFonts].sdx = 0;

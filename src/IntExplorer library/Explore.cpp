@@ -610,7 +610,7 @@ int OneSicWindow::ParseTheWholeText()
 					if (NBoxes >= MaxBoxes)
 					{
 						MaxBoxes += 16;
-						Boxes = (OneBox*) realloc( Boxes, MaxBoxes * sizeof OneBox );
+						Boxes = (OneBox*) realloc( Boxes, MaxBoxes * sizeof(OneBox) );
 					};
 					int X0 = EXP->x;
 					int Y0 = EXP->y;
@@ -618,7 +618,7 @@ int OneSicWindow::ParseTheWholeText()
 					int Y1 = EXP->y1;
 					char* src = Result + pos;
 					ReadCoordinates( &src, X0, Y0, X1, Y1, nullptr );
-					memset( Boxes + NBoxes, 0, sizeof OneBox );
+					memset( Boxes + NBoxes, 0, sizeof(OneBox) );
 					OneBox* OBX = Boxes + NBoxes;
 					pos = src - Result + 1;
 					OBX->Scroll = B2;
@@ -1170,7 +1170,7 @@ int OneSicWindow::ParseTheWholeText()
 																						{
 																							//more complex commands
 																							OneInterfaceElement IFS;
-																							memset( &IFS, 0, sizeof IFS );
+																							memset( &IFS, 0, sizeof(IFS) );
 																							DialogsSystem* DSS = nullptr;
 																							for (int i = 0; i < N_IFNS; i++)
 																							{
@@ -1299,7 +1299,7 @@ int OneSicWindow::ParseTheWholeText()
 																										if (CURBOX->NISPOS >= CURBOX->MaxISPOS)
 																										{
 																											CURBOX->MaxISPOS += 32;
-																											CURBOX->ISPOS = (InterfaceElementPosition*) realloc( CURBOX->ISPOS, CURBOX->MaxISPOS * sizeof InterfaceElementPosition );
+																											CURBOX->ISPOS = (InterfaceElementPosition*) realloc( CURBOX->ISPOS, CURBOX->MaxISPOS * sizeof(InterfaceElementPosition) );
 																										};
 																										InterfaceElementPosition* IEP = CURBOX->ISPOS + CURBOX->NISPOS;
 																										CURBOX->NISPOS++;
@@ -1450,7 +1450,7 @@ char* OneSicWindow::CreateVar( char* Name, int Len )
 	if (GV)
 		return GV;
 
-	VARS = (OneVariable*) realloc( VARS, ( NVARS + 1 ) * sizeof OneVariable );
+	VARS = (OneVariable*) realloc( VARS, ( NVARS + 1 ) * sizeof(OneVariable) );
 	VARS[NVARS].Value = new char[Len];
 	VARS[NVARS].MaxLen = Len;
 	VARS[NVARS].Value[0] = 0;
@@ -1471,7 +1471,7 @@ char* OneSicWindow::GetVar( char* Name )
 };
 char* sicExplorer::CreateGVar( char* Name, int Len )
 {
-	GVARS = (OneVariable*) realloc( GVARS, ( NGVars + 1 ) * sizeof OneVariable );
+	GVARS = (OneVariable*) realloc( GVARS, ( NGVars + 1 ) * sizeof(OneVariable) );
 	GVARS[NGVars].Value = new char[Len];
 	GVARS[NGVars].MaxLen = Len;
 	GVARS[NGVars].Value[0] = 0;
@@ -1501,7 +1501,7 @@ char* sicExplorer::GetVar( char* Name )
 };
 void* OneSicWindow::CreateSXProcess( fnExpProcess* Process, fnExpProcess* Close, int size )
 {
-	PRC = (OneSXProcess*) realloc( PRC, ( NPRC + 1 ) * sizeof OneSXProcess );
+	PRC = (OneSXProcess*) realloc( PRC, ( NPRC + 1 ) * sizeof(OneSXProcess) );
 	PRC[NPRC].Process = Process;
 	PRC[NPRC].Close = Close;
 	PRC[NPRC].Data = malloc( size );
@@ -2058,8 +2058,8 @@ void OneSicWindow::LoadCookies()
 
 OneSXPTable* sicExplorer::CreateTable( char* Name )
 {
-	Tables = (OneSXPTable*) realloc( Tables, ( NTables + 1 ) * sizeof OneSXPTable );
-	memset( Tables + NTables, 0, sizeof OneSXPTable );
+	Tables = (OneSXPTable*) realloc( Tables, ( NTables + 1 ) * sizeof(OneSXPTable) );
+	memset( Tables + NTables, 0, sizeof(OneSXPTable) );
 	strncpy( Tables[NTables].ID, Name, 15 );
 	Tables[NTables].ID[15] = 0;
 	NTables++;
@@ -2217,7 +2217,7 @@ int sicExplorer::GetGPPictureIndex( char* NAME0 )
 		if (NDownl >= MaxDownl)
 		{
 			MaxDownl += 32;
-			DOWNL = (FileDownloadProcess*) realloc( DOWNL, MaxDownl * sizeof FileDownloadProcess );
+			DOWNL = (FileDownloadProcess*) realloc( DOWNL, MaxDownl * sizeof(FileDownloadProcess) );
 		};
 		//parsing request
 		strcpy( DOWNL[NDownl].URL, Name );

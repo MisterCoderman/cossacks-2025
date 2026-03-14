@@ -600,7 +600,11 @@ static void GenerateID(char *keyval)
 }
 
 #ifndef PATH_MAX
+#ifdef _WIN32
 #define PATH_MAX MAX_PATH
+#else
+#include <limits.h>
+#endif
 #endif
 
 

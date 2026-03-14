@@ -5,9 +5,13 @@
 ~~Forward slashes work on Windows too, so this is a safe no-op change.~~
 ~~Unblocks CLion from parsing most of the Main executable.~~
 
-## 2. Add missing compat stubs as needed
-Extend `src/compat/windows.h` and other compat headers incrementally
-as new missing types or functions are encountered while browsing in CLion.
+## ~~2. Add missing compat stubs as needed~~ DONE (initial pass)
+~~Extend `src/compat/windows.h` and other compat headers incrementally~~
+~~as new missing types or functions are encountered while browsing in CLion.~~
+CommCore, IChat, and IntExplorer (except FnDefine.cpp) compile on macOS.
+Remaining: pointer-to-int casts in FnDefine.cpp (64-bit porting issue),
+and Main executable not yet attempted. Compat stubs may need further
+extension as the Main executable is tackled.
 
 ## 3. Rewrite x86 inline assembly in Fastdraw.cpp
 `Fastdraw.cpp` uses MSVC inline assembly (`__asm`) for RLC sprite decoding
