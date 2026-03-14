@@ -832,7 +832,8 @@ inline BOOL MoveWindow(HWND hw, int x, int y, int w, int h, BOOL repaint) {
 #define SWP_NOSENDCHANGING 0x0400
 
 // ---- Screen metrics ----
-inline int GetSystemMetrics(int nIndex) { (void)nIndex; return 0; }
+// Returns 0 (caller should use SDL_GetCurrentDisplayMode for real values)
+inline int GetSystemMetrics(int nIndex) { (void)nIndex; return 1024; }
 #define SM_CXSCREEN 0
 #define SM_CYSCREEN 1
 

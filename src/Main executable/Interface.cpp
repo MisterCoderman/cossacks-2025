@@ -15605,7 +15605,7 @@ void AddPiece(char* str)
 	if (NPIECES >= MAX_PIECES)
 	{
 		MAX_PIECES += 256;
-		PIECES_NAMES = (char**)realloc(PIECES_NAMES, MAX_PIECES << 2);
+		PIECES_NAMES = (char**)realloc(PIECES_NAMES, MAX_PIECES * sizeof(char*));
 	};
 	for (int i = 0; i < NPIECES; i++)
 	{

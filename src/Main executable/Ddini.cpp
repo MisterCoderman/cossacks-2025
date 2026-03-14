@@ -488,10 +488,20 @@ bool CreateDDObjects(HWND hwnd_param) {
     if (RealLy <= 0) RealLy = 600;
 
     if (!gWindow) {
+#ifdef _WIN32
         gWindow = SDL_CreateWindowFrom(hwnd_param);
+#else
+        if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) < 0) {
+            fprintf(stderr, "SDL_Init failed: %s\n", SDL_GetError());
+            return false;
+        }
+        gWindow = SDL_CreateWindow("Cossacks",
+            SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
+            RealLx, RealLy, SDL_WINDOW_SHOWN);
+#endif
         if (!gWindow) {
             char errorMsg[256], convertedMsg[256];
-            sprintf(errorMsg, "SDL_CreateWindowFrom failed: %s", SDL_GetError());
+            sprintf(errorMsg, "SDL_CreateWindow failed: %s", SDL_GetError());
             ConvertUTF8ToWindows1251(errorMsg, convertedMsg, 256);
             MessageBoxA(NULL, convertedMsg, "SDL Error", MB_OK | MB_ICONERROR);
             SDL_Quit();

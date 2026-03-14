@@ -991,8 +991,8 @@ struct GlobalIconInfo
 {
 	HandlePro* HPLeft;
 	HandlePro* HPRight;
-	int LParam;
-	int RParam;
+	intptr_t LParam;
+	intptr_t RParam;
 	int IconSpriteID;
 	char* Hint;
 };

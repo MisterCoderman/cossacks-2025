@@ -4487,7 +4487,7 @@ void ComboBox::AddLine( char* Text )
 {
 	if (Lines)
 	{
-		Lines = (char**) realloc( Lines, ( NLines + 1 ) << 2 );
+		Lines = (char**) realloc( Lines, ( NLines + 1 ) * sizeof(char*) );
 		Lines[NLines] = new char[strlen( Text ) + 1];
 		strcpy( Lines[NLines], Text );
 		NLines++;
@@ -4679,7 +4679,7 @@ void WinComboBox::AddLine( char* Text )
 {
 	if (Lines)
 	{
-		Lines = (char**) realloc( Lines, ( NLines + 1 ) << 2 );
+		Lines = (char**) realloc( Lines, ( NLines + 1 ) * sizeof(char*) );
 		Lines[NLines] = new char[strlen( Text ) + 1];
 		strcpy( Lines[NLines], Text );
 		NLines++;

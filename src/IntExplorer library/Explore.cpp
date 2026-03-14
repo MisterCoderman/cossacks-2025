@@ -1233,7 +1233,7 @@ int OneSicWindow::ParseTheWholeText()
 																											int p1 = pos;
 																											while (( c = Result[p1] ) != '}'&&c)p1++;
 																											if (Result[p1] != '}')return pos;
-																											IFS.ActiveRefs = (char**) realloc( IFS.ActiveRefs, ( IFS.NActiveRefs + 1 ) << 2 );
+																											IFS.ActiveRefs = (char**) realloc( IFS.ActiveRefs, ( IFS.NActiveRefs + 1 ) * sizeof(char*) );
 																											IFS.ActiveRefs[IFS.NActiveRefs] = (char*) malloc( p1 - pos + 1 );
 																											memcpy( IFS.ActiveRefs[IFS.NActiveRefs], Result + pos, p1 - pos );
 																											IFS.ActiveRefs[IFS.NActiveRefs][p1 - pos] = 0;
@@ -1273,7 +1273,7 @@ int OneSicWindow::ParseTheWholeText()
 																												p1 = pos;
 																												pos = p2;
 																											};
-																											IFS.Params = (char**) realloc( IFS.Params, ( IFS.NParams + 1 ) << 2 );
+																											IFS.Params = (char**) realloc( IFS.Params, ( IFS.NParams + 1 ) * sizeof(char*) );
 																											char* ss = IFS.Params[IFS.NParams] = (char*) malloc( p2 - p1 + 1 );
 																											memcpy( ss, Result + p1, p2 - p1 );
 																											ss[p2 - p1] = 0;
@@ -2256,7 +2256,7 @@ void OneSicWindow::ReParse()
 		if (NBOX >= MAXBOX)
 		{
 			MAXBOX += 32;
-			BOXES = (char**) realloc( BOXES, MAXBOX << 2 );
+			BOXES = (char**) realloc( BOXES, MAXBOX * sizeof(char*) );
 			SCRS = (int*) realloc( SCRS, MAXBOX << 2 );
 			SCMAX = (int*) realloc( SCMAX, MAXBOX << 2 );
 		};

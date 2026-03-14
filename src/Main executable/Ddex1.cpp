@@ -11,6 +11,7 @@
 #define TITLE "Cossacks"
 
 #include "ddini.h"
+#include <SDL.h>
 
 bool window_mode;
 int screen_width;
@@ -2226,6 +2227,7 @@ static BOOL doInit( HINSTANCE hInstance, int nCmdShow )
 	WNDCLASS wc;
 	char buf[256];
 
+#ifdef _WIN32
 	//set up and register window class
 	wc.style = CS_HREDRAW | CS_VREDRAW;
 	wc.lpfnWndProc = WindowProc;
@@ -2275,17 +2277,26 @@ static BOOL doInit( HINSTANCE hInstance, int nCmdShow )
 	{
 		return FALSE;
 	}
+#else
+	// On macOS/Linux, SDL creates the window in CreateDDObjects().
+	// Set hwnd to non-NULL so initialization continues.
+	hwnd = (HWND)(intptr_t)1;
+	bActive = TRUE;
+#endif
 
 	ShowWindow( hwnd, SW_SHOWNORMAL );
 
 	UpdateWindow( hwnd );
 
+	fprintf(stderr, "[doInit] CreateDirSound...\n"); fflush(stderr);
 	CDIRSND.CreateDirSound( hwnd );
 
 	CDS = &CDIRSND;
 
+	fprintf(stderr, "[doInit] LoadSounds...\n"); fflush(stderr);
 	LoadSounds( "SoundList.txt" );
 
+	fprintf(stderr, "[doInit] Loading version.dat...\n"); fflush(stderr);
 	ResFile F = RReset( "version.dat" );
 	if (F != INVALID_HANDLE_VALUE)
 	{
@@ -2301,6 +2312,7 @@ static BOOL doInit( HINSTANCE hInstance, int nCmdShow )
 		}
 	}
 
+	fprintf(stderr, "[doInit] Loading()...\n"); fflush(stderr);
 	if (!Loading())
 	{
 		FilesExit();
@@ -2308,6 +2320,7 @@ static BOOL doInit( HINSTANCE hInstance, int nCmdShow )
 		return 0;
 	}
 
+	fprintf(stderr, "[doInit] Loading OK, CreateDDObjects...\n"); fflush(stderr);
 	CurrentSurface = FALSE;
 
 	//create the main DirectDraw object
@@ -3313,6 +3326,7 @@ int PASCAL WinMain(
 	EraseRND();
 	fprintf(stderr, "[INIT] EraseRND done\n"); fflush(stderr);
 
+	fprintf(stderr, "[INIT] Setting vars...\n"); fflush(stderr);
 	//Pointer to the DirectDraw screen buffer
 	ScreenPtr = nullptr;
 
@@ -3327,6 +3341,7 @@ int PASCAL WinMain(
 	BlobMode = 0;
 	CostThickness = 4;
 	EditMedia = 0;
+	fprintf(stderr, "[INIT] CreateRadio...\n"); fflush(stderr);
 	CreateRadio();
 	SpecCmd = 0;
 	sfVersion = 285;
@@ -3342,10 +3357,13 @@ int PASCAL WinMain(
 	OrderSound = 0;
 	MidiSound = 0;
 
+	fprintf(stderr, "[INIT] InitObjs3...\n"); fflush(stderr);
 	//Zero 3D Bars variables (?)
 	InitObjs3();
+	fprintf(stderr, "[INIT] InitObjs3 OK\n"); fflush(stderr);
 
 	//Load settings
+	fprintf(stderr, "[INIT] Loading mode.dat...\n"); fflush(stderr);
 	GFILE* fff = Gopen( "mode.dat", "rt" );
 	ScrollSpeed = 5;
 	if (fff)
@@ -3429,14 +3447,19 @@ int PASCAL WinMain(
 	DeathMode = false;
 	AttackMode = false;
 
+	fprintf(stderr, "[INIT] InitFishMap...\n"); fflush(stderr);
 	//Zero FishMap pointer
 	InitFishMap();
+	fprintf(stderr, "[INIT] InitFishMap OK\n"); fflush(stderr);
 
 	//Init Gates[32] array
+	fprintf(stderr, "[INIT] SetupGates...\n"); fflush(stderr);
 	SetupGates();
+	fprintf(stderr, "[INIT] SetupGates OK\n"); fflush(stderr);
 
 	LockGrid = false;
 
+#ifdef _WIN32
 	FILE* Fx = fopen( "cew.dll", "r" );
 	if (!Fx)
 	{
@@ -3447,12 +3470,17 @@ int PASCAL WinMain(
 	{
 		fclose( Fx );
 	}
+#endif
 
+	fprintf(stderr, "[INIT] SetupNatList...\n"); fflush(stderr);
 	//Init buffers for national units?
 	SetupNatList();
+	fprintf(stderr, "[INIT] SetupNatList OK\n"); fflush(stderr);
 
 	//Something about fog?
+	fprintf(stderr, "[INIT] makeFden...\n"); fflush(stderr);
 	makeFden();
+	fprintf(stderr, "[INIT] makeFden OK\n"); fflush(stderr);
 
 	PlayerMenuMode = 1;
 
@@ -3486,14 +3514,18 @@ int PASCAL WinMain(
 	//Probably just to define PREVT
 	GetRealTime();
 
+	fprintf(stderr, "[INIT] doInit...\n"); fflush(stderr);
 	//Register winapi window class, init DirectDraw, sounds and cursor
 	if (!doInit( hInstance, nCmdShow ))
 	{
+		fprintf(stderr, "[INIT] doInit FAILED\n"); fflush(stderr);
 		return FALSE;
 	}
+	fprintf(stderr, "[INIT] doInit OK\n"); fflush(stderr);
 
 	//Load specific palette and fog resources (alphas etc)
 	LoadFog( 2 );
+	fprintf(stderr, "[INIT] LoadFog OK\n"); fflush(stderr);
 	LoadPalette( "2\\agew_1.pal" );
 
 	//Init DirectPlay and DPInfo structure
@@ -3521,6 +3553,7 @@ int PASCAL WinMain(
 	//Program loop to handle WM_QUIT; everything else handles AllGame()
 	while (true)
 	{
+#ifdef _WIN32
 		while (PeekMessage( &msg, NULL, 0, 0, PM_REMOVE ))
 		{
 			if (msg.message == WM_QUIT)
@@ -3531,6 +3564,17 @@ int PASCAL WinMain(
 			TranslateMessage( &msg );
 			DispatchMessage( &msg );
 		}
+#else
+		// On macOS/Linux, pump SDL events
+		SDL_Event sdlEvent;
+		while (SDL_PollEvent(&sdlEvent))
+		{
+			if (sdlEvent.type == SDL_QUIT)
+			{
+				goto cleanup;
+			}
+		}
+#endif
 
 		//Check if window has focus
 		if (bActive)
@@ -3589,5 +3633,8 @@ int PASCAL WinMain(
 			FinExplorer();
 		}
 	}
+#ifndef _WIN32
+cleanup:
+#endif
 	return msg.wParam;
 }

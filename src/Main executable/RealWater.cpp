@@ -772,7 +772,7 @@ void DrawCost(int x, int y, short* Wave, int z1, int z2, int z3, int z4, int Msh
 	if (z1 < 128 && z2 < 128 && z3 < 128 && z4 < 128)return;
 	if (z1 > 143 && z2 > 143 && z3 > 143 && z4 > 143) {
 		//simple copy
-		int ofst = int(ScreenPtr) + x + y * ScrWidth;
+		intptr_t ofst = (intptr_t)(ScreenPtr) + x + y * ScrWidth;
 		#if defined(_MSC_VER) && defined(_M_IX86)
 		__asm {
 			push	esi
@@ -841,7 +841,7 @@ void DrawCost(int x, int y, short* Wave, int z1, int z2, int z3, int z4, int Msh
 	}
 	else {
 		;
-		int ofst = int(ScreenPtr) + x + y * ScrWidth;
+		intptr_t ofst = (intptr_t)(ScreenPtr) + x + y * ScrWidth;
 		z1 <<= 16;
 		z2 <<= 16;
 		z3 <<= 16;
@@ -1050,7 +1050,7 @@ void DrawCost2(int x, int y, short* Wave, int z1, int z2, int z3, int z4, int Ms
 	if (z1 > 143 && z2 > 143 && z3 > 143 && z4 > 143)
 	{
 		//simple copy
-		int ofst = int(ScreenPtr) + x + y * ScrWidth;
+		intptr_t ofst = (intptr_t)(ScreenPtr) + x + y * ScrWidth;
 		#if defined(_MSC_VER) && defined(_M_IX86)
 		__asm {
 			push	esi
@@ -1169,7 +1169,7 @@ void DrawCost2(int x, int y, short* Wave, int z1, int z2, int z3, int z4, int Ms
 	}
 	else
 	{
-		int ofst = int(ScreenPtr) + x + y * ScrWidth;
+		intptr_t ofst = (intptr_t)(ScreenPtr) + x + y * ScrWidth;
 		z1 <<= 16;
 		z2 <<= 16;
 		z3 <<= 16;
@@ -1370,7 +1370,7 @@ void DrawCost1(int x, int y, short* Wave, int z1, int z2, int z3, int z4, int Ms
 	if (z1 > 143 && z2 > 143 && z3 > 143 && z4 > 143)
 	{
 		//simple copy
-		int ofst = int(ScreenPtr) + x + y * ScrWidth;
+		intptr_t ofst = (intptr_t)(ScreenPtr) + x + y * ScrWidth;
 		#if defined(_MSC_VER) && defined(_M_IX86)
 		__asm
 		{
@@ -1482,7 +1482,7 @@ void DrawCost1(int x, int y, short* Wave, int z1, int z2, int z3, int z4, int Ms
 	}
 	else
 	{
-		int ofst = int(ScreenPtr) + x + y * ScrWidth;
+		intptr_t ofst = (intptr_t)(ScreenPtr) + x + y * ScrWidth;
 		z1 <<= 16;
 		z2 <<= 16;
 		z3 <<= 16;
@@ -2290,7 +2290,7 @@ void ProcessWaves(short* Wave0, short* Wave1, short* Wave2)
 
 void DisturbWater(short* Wave)
 {
-	int ofst = int(Wave + ((1 + WaveLx) << 1));
+	intptr_t ofst = (intptr_t)(Wave + ((1 + WaveLx) << 1));
 	#if defined(_MSC_VER) && defined(_M_IX86)
 	__asm {
 		push	esi

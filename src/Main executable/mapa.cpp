@@ -411,7 +411,7 @@ void RedSquare(int x, int y)
 		return;
 	}
 
-	int sco = int(ScreenPtr) + smapx + ((x - mapx) << 5) +
+	intptr_t sco = (intptr_t)(ScreenPtr) + smapx + ((x - mapx) << 5) +
 		(((y - mapy) << 5) + smapy) * SCRSizeX;
 
 	int ddx = SCRSizeX + SCRSizeX - 32;
@@ -452,7 +452,7 @@ void RedMiniSquare(int x, int y)
 		return;
 	}
 
-	int sco = int(ScreenPtr) + smapx + ((x - mapx) << 4) +
+	intptr_t sco = (intptr_t)(ScreenPtr) + smapx + ((x - mapx) << 4) +
 		(((y - mapy) << 4) + smapy) * SCRSizeX;
 
 	int ddx = SCRSizeX + SCRSizeX - 16;
@@ -503,7 +503,7 @@ void RedMiniBar(int x, int y, int lx, int ly)
 void WhiteSquare(int x, int y)
 {
 	if (x < mapx || x >= mapx + smaplx || y < mapy || y >= mapy + smaply)return;
-	int sco = int(ScreenPtr) + smapx + ((x - mapx) << 5) +
+	intptr_t sco = (intptr_t)(ScreenPtr) + smapx + ((x - mapx) << 5) +
 		(((y - mapy) << 5) + smapy) * SCRSizeX;
 	int ddx = SCRSizeX + SCRSizeX - 32;
 	#if defined(_MSC_VER) && defined(_M_IX86)
@@ -538,7 +538,7 @@ void WhiteSquare(int x, int y)
 void WhiteMiniSquare(int x, int y)
 {
 	if (x < mapx || x >= mapx + smaplx || y < mapy || y >= mapy + smaply)return;
-	int sco = int(ScreenPtr) + smapx + ((x - mapx) << 4) +
+	intptr_t sco = (intptr_t)(ScreenPtr) + smapx + ((x - mapx) << 4) +
 		(((y - mapy) << 4) + smapy) * SCRSizeX;
 	int ddx = SCRSizeX + SCRSizeX - 16;
 	#if defined(_MSC_VER) && defined(_M_IX86)

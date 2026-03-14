@@ -78,8 +78,8 @@ public:
 					if (NVal >= MaxVal)
 					{
 						MaxVal += 32;
-						Vars = (char**) realloc( Vars, MaxVal << 2 );
-						Values = (char**) realloc( Values, MaxVal << 2 );
+						Vars = (char**) realloc( Vars, MaxVal * sizeof(char*) );
+						Values = (char**) realloc( Values, MaxVal * sizeof(char*) );
 					}
 					sscanf( ccc, "%s", ccc1 );
 					char* ssv = ccc + strlen( ccc1 ) + 1;

@@ -418,7 +418,7 @@ void WallSystem::AddCluster( WallCluster* WC )
 	{
 		return;
 	}
-	WCL = (WallCluster**) realloc( (void*) WCL, ( NClusters + 1 ) << 2 );
+	WCL = (WallCluster**) realloc( (void*) WCL, ( NClusters + 1 ) * sizeof(WallCluster*) );
 	WCL[NClusters] = new WallCluster;
 	WallCluster* WCLUS = WCL[NClusters];
 	WCLUS->NCells = WC->NCells;

@@ -27,7 +27,7 @@ void ParsedRQ::AddParam( char* Data, int size )
 	if( NComm )
 	{
 		OneComm* OC = Comm + NComm - 1;
-		OC->Params = (char**) realloc( OC->Params, ( OC->NParams + 1 ) << 2 );
+		OC->Params = (char**) realloc( OC->Params, ( OC->NParams + 1 ) * sizeof(char*) );
 		OC->Params[OC->NParams] = (char*) malloc( size + 1 );
 		memcpy( OC->Params[OC->NParams], Data, size );
 		OC->Params[OC->NParams][size] = 0;
@@ -277,7 +277,7 @@ void ParsedRQ::AddParamToCom( int idx, char* data, int size )
 	if( idx < NComm )
 	{
 		OneComm* OC = Comm + idx;
-		OC->Params = (char**) realloc( OC->Params, ( OC->NParams + 1 ) << 2 );
+		OC->Params = (char**) realloc( OC->Params, ( OC->NParams + 1 ) * sizeof(char*) );
 		OC->Params[OC->NParams] = (char*) malloc( size + 1 );
 		memcpy( OC->Params[OC->NParams], data, size );
 		OC->Params[OC->NParams][size] = 0;

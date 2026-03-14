@@ -93,7 +93,7 @@ void MotionField::ClearMaps()
 
 void MotionField::BSetPt(int x, int y)
 {
-	int MAPV = int(MapV);
+	intptr_t MAPV = (intptr_t)(MapV);
 	if (x >= 0 && x < MAPSX && y >= 0 && y < MAPSY) {
 		switch (ADDSH) {
 		case 1:
@@ -112,7 +112,7 @@ void MotionField::BSetPt(int x, int y)
 
 void MotionField::BClrPt(int x, int y)
 {
-	int MAPV = int(MapV);
+	intptr_t MAPV = (intptr_t)(MapV);
 	if (x >= 0 && x < MAPSX && y >= 0 && y < MAPSY) {
 		switch (ADDSH) {
 		case 1:
@@ -176,7 +176,7 @@ void MotionField::BClrSQ(int x, int y, int Lx, int Ly) {
 int MotionField::CheckPt(int x, int y)
 {
 	int retval = 0;
-	int MAPV = int(MapV);
+	intptr_t MAPV = (intptr_t)(MapV);
 	if (x >= 0 && x < MAPSX && y >= 0 && y < MAPSY)
 	{
 		switch (ADDSH)
@@ -215,7 +215,7 @@ int MotionField::CheckHLine(int x, int y, int Lx)
 int MotionField::CheckVLine(int x, int y, int Lx)
 {
 	int retval = 0;
-	int MAPV = int(MapV);
+	intptr_t MAPV = (intptr_t)(MapV);
 	if (x > 0 && y > 0 && y + Lx - 1 < MAPSY && x < MAPSX && Lx <= 24)
 	{
 		switch (ADDSH)

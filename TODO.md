@@ -14,7 +14,25 @@ Primary dev environment: macOS ARM64 (Apple Silicon M1), CLion.
 ## ~~Fix custom memory allocator~~ DONE
 ## ~~Fix 32-bit pointer size assumptions~~ DONE (32 locations, `malloc(4*N)` → `malloc(sizeof(T*)*N)`)
 
-## NEXT: Wire up SDL window and event loop
+## ~~PREV: Fix crash in Loading()~~ DONE (Nature.cpp `short**` alloc, GP_Draw.cpp `int`→`intptr_t`)
+## ~~PREV: Fix GP_Header::Pack pointer size~~ DONE (changed `byte*` to `DWORD` to match file format)
+
+## NEXT: Fix GP sprite CASHREF 32-bit pointer casts
+GP_Draw.cpp line 9877: `byte* PACKOFS = (byte*)(*PAK)` casts a DWORD (32-bit
+value from the sprite cache) to a 64-bit pointer — truncation crash.
+The CASHREF system stores 32-bit offsets/pointers that were valid addresses
+on Win32 but are meaningless on 64-bit. Need to understand how CASHREF is
+populated (see `LoadGP`, decompression functions) and convert the offset
+scheme to use proper pointer arithmetic relative to the mmap base address.
+Also: GP_Draw.cpp has many `int(...)` casts already fixed to `intptr_t`,
+but the `CASHREF`/`PAK`/`PACKOFS` chain is a separate 32-bit assumption.
+Game initializes fully, loads .gsc archives, passes all early init, then
+crashes (SIGSEGV) in `Loading()` (Ddex1.cpp:463) which loads sprites,
+textures, nations, fonts etc. Likely another 32-bit pointer assumption in
+the resource loading code. Debug with traces or CLion breakpoints inside
+`Loading()` to find which sub-function crashes.
+
+## Wire up SDL window and event loop (partially done)
 Game initializes fully — loads .gsc archives, reads game data, exits cleanly.
 But nothing displays because Win32 window/event stubs are no-ops.
 Need to connect the existing SDL2 code in Ddini.cpp to the game loop:
@@ -42,8 +60,9 @@ Already linking statically on macOS. Future cleanup.
 - **IChat** — compiles and links (static lib)
 - **IntExplorer** — compiles and links (static lib)
 - **Main executable** — compiles, links, and runs. Native ARM64 binary (3.5MB)
-- **Runtime** — initializes fully: loads .gsc archives, reads game data,
-  exits cleanly (code 0). No window/display yet (Win32 window stubs are no-ops).
+- **Runtime** — loads .gsc archives, passes full init (files, sounds, settings,
+  resources, fonts, nations, fog, textures). SDL window created. Crashes in
+  GP sprite rendering due to CASHREF 32-bit pointer casts in GP_Draw.cpp.
 
 ## Assembly rewrite status (ALL DONE)
 21 files, ~155 blocks rewritten from x86 to portable C:
@@ -58,6 +77,20 @@ Nation.cpp, AntiBug.cpp, MapDiscr.h, NewMon.h
 ### Graphics pipeline (already mostly portable)
 Software-based 8-bit rendering to `ScreenPtr`, then `FlipPages()` in
 `Ddini.cpp` converts to SDL texture for display. Already uses SDL2.
+
+### Build and test commands
+```bash
+# Build (from project root):
+cd /Users/mazhnik/Codes/opensource/cossacks-1.52
+cmake -B build -S .
+cmake --build build
+
+# Run (from game data directory):
+cd "/Users/mazhnik/Codes/opensource/cossacks-1.52/Cossacks Back to War v1.52 (2025)"
+"../build/src/Main executable/Cossacks" 2>&1
+
+# CLion: Set working directory to the game data folder in Run > Edit Configurations
+```
 
 ### Audio (already portable)
 `Cdirsnd.cpp` uses SDL2_mixer. No porting work needed.

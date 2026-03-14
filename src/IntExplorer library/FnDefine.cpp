@@ -582,7 +582,7 @@ bool ADI_Combo2( sicExplorer* SXP, DialogsSystem* DSS, int* x, int* y, int* x1, 
 	};
 	int NN = ( NParam - 1 ) >> 1;
 	ADCD->NIDS = 0;
-	ADCD->IDS = (char**) malloc( NN << 2 );
+	ADCD->IDS = (char**) malloc( NN * sizeof(char*) );
 	for (int i = 0; i < NN; i++)
 	{
 		ADCD->CBB->AddLine( Param[i + i] );
@@ -2302,7 +2302,7 @@ void EnumFilesInDirectory( char* Dir, char** Mask, int NMasks, char* FrameID, ch
 							if (NDirs >= MaxDirs)
 							{
 								MaxDirs += 512;
-								Dirs = (char**) realloc( Dirs, MaxDirs << 2 );
+								Dirs = (char**) realloc( Dirs, MaxDirs * sizeof(char*) );
 							};
 							Dirs[NDirs] = (char*) malloc( strlen( FD.cFileName ) + 1 );
 							strcpy( Dirs[NDirs], FD.cFileName );
@@ -2314,7 +2314,7 @@ void EnumFilesInDirectory( char* Dir, char** Mask, int NMasks, char* FrameID, ch
 						if (NFiles >= MaxFiles)
 						{
 							MaxFiles += 512;
-							Files = (char**) realloc( Files, MaxFiles << 2 );
+							Files = (char**) realloc( Files, MaxFiles * sizeof(char*) );
 						};
 						Files[NFiles] = (char*) malloc( strlen( FD.cFileName ) + 1 );
 						strcpy( Files[NFiles], FD.cFileName );

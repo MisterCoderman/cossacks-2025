@@ -30,8 +30,8 @@ public:
     HandlePro* LPro;
     HandlePro* RPro;
 	HandlePro* MoveOver;
-    int   LParam;
-    int   RParam;
+    intptr_t   LParam;
+    intptr_t   RParam;
 	int   MoveParam;
 	int   IntParam;
 

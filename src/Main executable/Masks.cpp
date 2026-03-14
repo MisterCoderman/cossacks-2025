@@ -1088,7 +1088,7 @@ void ClearIntersectionBuffer() {
 };
 void ShowIntersectionBuffer() {
 	if (!bActive)return;
-	int SCROF = int(ScreenPtr) + 256 * ScrWidth + 256;
+	intptr_t SCROF = (intptr_t)(ScreenPtr) + 256 * ScrWidth + 256;
 	#if defined(_MSC_VER) && defined(_M_IX86)
 	__asm {
 		push	esi

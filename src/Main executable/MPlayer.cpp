@@ -4378,7 +4378,7 @@ void LongSocket::ClearSocket(DWORD ID){
 };
 void LongSocket::RegisterSocket(DWORD ID,int MaxLink){
  for(int i=0;i<NSINF;i++)if(LSI[i].ID==ID)return;
- LSI=(LSockInfo*)realloc(LSI,(NSINF+1)<<2);
+ LSI=(LSockInfo*)realloc(LSI,(NSINF+1)*sizeof(LSockInfo));
  LSI[NSINF].ID=ID;
  LSI[NSINF].L=nullptr;
  LSI[NSINF].Data=nullptr;

@@ -85,8 +85,8 @@ void ShowBlob(int x, int y, byte* Blob, int Lx, int Ly) {
 		//assert(BLX>0&&BLY>0);
 		return;
 	};
-	int sof = int(ScreenPtr) + x + y * ScrWidth;
-	int bufo = int(bof);
+	intptr_t sof = (intptr_t)(ScreenPtr) + x + y * ScrWidth;
+	intptr_t bufo = (intptr_t)(bof);
 	int scadd = ScrWidth - BLX;
 	int badd = Lx - BLX;
 	{

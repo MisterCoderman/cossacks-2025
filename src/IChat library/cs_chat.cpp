@@ -507,8 +507,8 @@ void ChatMsg::Add( char* nick, char* msg )
 	if (NMsg >= MaxMsg)
 	{
 		MaxMsg += 16;
-		Message = (char**) realloc( Message, MaxMsg << 2 );
-		Nick = (char**) realloc( Nick, MaxMsg << 2 );
+		Message = (char**) realloc( Message, MaxMsg * sizeof(char*) );
+		Nick = (char**) realloc( Nick, MaxMsg * sizeof(char*) );
 	};
 	Message[NMsg] = (char*) malloc( strlen( msg ) + 1 );
 	strcpy( Message[NMsg], msg );
@@ -527,8 +527,8 @@ bool ChatMsg::RemoveOne( char* nick, char* buf, int Len )
 		free( Message[0] );
 		if (NMsg > 1)
 		{
-			memmove( Nick, Nick + 1, ( NMsg - 1 ) << 2 );
-			memmove( Message, Message + 1, ( NMsg - 1 ) << 2 );
+			memmove( Nick, Nick + 1, ( NMsg - 1 ) * sizeof(char*) );
+			memmove( Message, Message + 1, ( NMsg - 1 ) * sizeof(char*) );
 		};
 		NMsg--;
 		return true;

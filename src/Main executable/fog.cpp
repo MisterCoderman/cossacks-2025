@@ -387,7 +387,7 @@ void SetScreenFog16x16()
 {
 	smaplx++;
 	smaply++;
-	int fofs = int(fmap) + ((((mapy - 1) << 8) + (mapx - 1)) << 1);
+	intptr_t fofs = (intptr_t)(fmap) + ((((mapy - 1) << 8) + (mapx - 1)) << 1);
 	int Saddy = (256 - smaplx) << 1;
 	int Daddy = (64 - smaplx) << 1;
 	word MinShad = (MaxShad - (32 << Shifter));
@@ -560,7 +560,7 @@ void ShowSuperFluentFog32_160_16(int x, int y, int z1x, int z2x, int z3x, int z4
 	int z3 = z3x * 65536;
 	int	z4 = z4x * 65536;
 
-	int scrof = int(ScreenPtr) + x + y * SCRSizeX;
+	intptr_t scrof = (intptr_t)(ScreenPtr) + x + y * SCRSizeX;
 	int adds = SCRSizeX - 32;
 
 	if (z1x <= 63 && z2x <= 63 && z3x <= 63 && z4x <= 63)
@@ -884,7 +884,7 @@ void ShowSuperFluentFog16_160(int x, int y, int z1x, int z2x, int z3x, int z4x)
 	int	z2 = z2x << 16;
 	int z3 = z3x << 16;
 	int	z4 = z4x << 16;
-	int scrof = int(ScreenPtr) + x + y * SCRSizeX;
+	intptr_t scrof = (intptr_t)(ScreenPtr) + x + y * SCRSizeX;
 	int adds = SCRSizeX - 16;
 
 	if (z1x <= 63 && z2x <= 63 && z3x <= 63 && z4x <= 63)
@@ -1107,7 +1107,7 @@ void ShowSuperFluentFog12_160(int x, int y, int z1x, int z2x, int z3x, int z4x)
 	int	z2 = z2x << 16;
 	int z3 = z3x << 16;
 	int	z4 = z4x << 16;
-	int scrof = int(ScreenPtr) + x + y * SCRSizeX;
+	intptr_t scrof = (intptr_t)(ScreenPtr) + x + y * SCRSizeX;
 	int adds = SCRSizeX - 16;
 	if (z1x <= 63 && z2x <= 63 && z3x <= 63 && z4x <= 63)return;
 	if (z1x >= 96 && z2x >= 96 && z3x >= 96 && z4x >= 96)
@@ -1682,8 +1682,8 @@ extern int MiniX, MiniY;
 
 void DrawMiniFog()
 {
-	int sofs = int(ScreenPtr) + minix + miniy * ScrWidth;
-	int fofs = int(fmap) + ((((MiniX >> 1) << (ADDSH - 1)) + kFogOffset + 1 + FMSX * (((MiniY >> 1) << (ADDSH - 1)) + kFogOffset + 1)) << 1);
+	intptr_t sofs = (intptr_t)(ScreenPtr) + minix + miniy * ScrWidth;
+	intptr_t fofs = (intptr_t)(fmap) + ((((MiniX >> 1) << (ADDSH - 1)) + kFogOffset + 1 + FMSX * (((MiniY >> 1) << (ADDSH - 1)) + kFogOffset + 1)) << 1);
 
 
 	int MMSX = (MiniLx / 2);

@@ -3727,7 +3727,7 @@ void HandleGeology()
 				int y = (OSP->y >> (5 + ADDSH)) - MiniY;
 				if (x > 0 && x < MiniLx && y>0 && y < MiniLy)
 				{
-					int ofst = int(ScreenPtr) + x + minix + (miniy + y) * ScrWidth;
+					intptr_t ofst = (intptr_t)(ScreenPtr) + x + minix + (miniy + y) * ScrWidth;
 					#if defined(_MSC_VER) && defined(_M_IX86)
 					__asm {
 						push	edi
@@ -7188,7 +7188,7 @@ void DeleteFromGroups(byte NI, word ID)
 
 					if (i < N - 1)
 					{
-						memcpy(CT->GroupsSet + i, CT->GroupsSet + i + 1, (N - 1 - i) << 2);
+						memcpy(CT->GroupsSet + i, CT->GroupsSet + i + 1, (N - 1 - i) * sizeof(word*));
 					}
 
 					N--;

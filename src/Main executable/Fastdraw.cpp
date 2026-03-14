@@ -171,7 +171,7 @@ void ClearScreen();
 void ShowRLC(int x, int y, void* PicPtr)
 {
 	//for(int i=0;i<256;i++) precomp[i]=i;
-	int ScrOfst = int(ScreenPtr) + y * ScrWidth + x;
+	intptr_t ScrOfst = (intptr_t)(ScreenPtr) + y * ScrWidth + x;
 	int addofs = 0;
 	int subline = 0;
 	int PLY = (lpRLCHeader(PicPtr)->SizeY) & 65535;
@@ -413,7 +413,7 @@ void ShowRLC(int x, int y, void* PicPtr)
 void ShowRLCi(int x, int y, void* PicPtr)
 {
 	//for(int i=0;i<256;i++) precomp[i]=i;
-	int ScrOfst = int(ScreenPtr) + y * ScrWidth + x;
+	intptr_t ScrOfst = (intptr_t)(ScreenPtr) + y * ScrWidth + x;
 	int addofs = 0;
 	int subline = 0;
 	int PLY = (lpRLCHeader(PicPtr)->SizeY) & 65535;
@@ -637,7 +637,7 @@ void ShowRLCi(int x, int y, void* PicPtr)
 void ShowRLCpal(int x, int y, void* PicPtr, byte* pal)
 {
 	//for(int i=0;i<256;i++) precomp[i]=i;
-	int ScrOfst = int(ScreenPtr) + y * ScrWidth + x;
+	intptr_t ScrOfst = (intptr_t)(ScreenPtr) + y * ScrWidth + x;
 	int addofs = 0;
 	int subline = 0;
 	int PLY = (lpRLCHeader(PicPtr)->SizeY) & 65535;
@@ -875,7 +875,7 @@ void ShowRLCpal(int x, int y, void* PicPtr, byte* pal)
 void ShowRLCipal(int x, int y, void* PicPtr, byte* pal)
 {
 	//for(int i=0;i<256;i++) precomp[i]=i;
-	int ScrOfst = int(ScreenPtr) + y * ScrWidth + x;
+	intptr_t ScrOfst = (intptr_t)(ScreenPtr) + y * ScrWidth + x;
 	int addofs = 0;
 	int subline = 0;
 	int PLY = (lpRLCHeader(PicPtr)->SizeY) & 65535;
@@ -1117,7 +1117,7 @@ void ShowRLCfonpal(int x, int y, void* PicPtr, byte* pal)
 {
 	//for(int i=0;i<256;i++) precomp[i]=i;
 	if (!PicPtr)return;
-	int ScrOfst = int(ScreenPtr) + y * ScrWidth + x;
+	intptr_t ScrOfst = (intptr_t)(ScreenPtr) + y * ScrWidth + x;
 	int addofs = 0;
 	int subline = 0;
 	int PLY = (lpRLCHeader(PicPtr)->SizeY) & 65535;
@@ -1357,7 +1357,7 @@ void ShowRLCfonpal(int x, int y, void* PicPtr, byte* pal)
 void ShowRLCifonpal(int x, int y, void* PicPtr, byte* pal)
 {
 	//for(int i=0;i<256;i++) precomp[i]=i;
-	int ScrOfst = int(ScreenPtr) + y * ScrWidth + x;
+	intptr_t ScrOfst = (intptr_t)(ScreenPtr) + y * ScrWidth + x;
 	int addofs = 0;
 	int subline = 0;
 	int PLY = (lpRLCHeader(PicPtr)->SizeY) & 65535;
@@ -1603,7 +1603,7 @@ void ShowRLCifonpal(int x, int y, void* PicPtr, byte* pal)
 void ShowRLChtpal(int x, int y, void* PicPtr, byte* pal)
 {
 	//for(int i=0;i<256;i++) precomp[i]=i;
-	int ScrOfst = int(ScreenPtr) + y * ScrWidth + x;
+	intptr_t ScrOfst = (intptr_t)(ScreenPtr) + y * ScrWidth + x;
 	int addofs = 0;
 	int subline = 0;
 	int PLY = (lpRLCHeader(PicPtr)->SizeY) & 65535;
@@ -1849,7 +1849,7 @@ void ShowRLChtpal(int x, int y, void* PicPtr, byte* pal)
 void ShowRLCihtpal(int x, int y, void* PicPtr, byte* pal)
 {
 	//for(int i=0;i<256;i++) precomp[i]=i;
-	int ScrOfst = int(ScreenPtr) + y * ScrWidth + x;
+	intptr_t ScrOfst = (intptr_t)(ScreenPtr) + y * ScrWidth + x;
 	int addofs = 0;
 	int subline = 0;
 	int PLY = (lpRLCHeader(PicPtr)->SizeY) & 65535;

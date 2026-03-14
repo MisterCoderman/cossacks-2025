@@ -75,7 +75,7 @@ LPGSCfile CGSCset::gOpenFile(LPCSTR lpcsFileName, bool Only)
 		gFile->m_Position = 0;
 		gFile->m_Arch = NULL;
 
-		gFile->m_FileHandle = DWORD(CreateFile(lpcsFileName,
+		gFile->m_FileHandle = (uintptr_t)(CreateFile(lpcsFileName,
 			GENERIC_READ | GENERIC_WRITE,
 			FILE_SHARE_READ | FILE_SHARE_WRITE,
 			NULL,
@@ -83,7 +83,7 @@ LPGSCfile CGSCset::gOpenFile(LPCSTR lpcsFileName, bool Only)
 			FILE_ATTRIBUTE_NORMAL,
 			0));
 
-		if (gFile->m_FileHandle == (DWORD)INVALID_HANDLE_VALUE)
+		if (gFile->m_FileHandle == (uintptr_t)INVALID_HANDLE_VALUE)
 		{
 			delete gFile;
 			return NULL;
@@ -509,14 +509,14 @@ LPGSCfile CGSCset::gWriteOpen(LPCSTR lpcsFileName)
 	gFile->m_Position = 0;
 	gFile->m_Arch = NULL;
 
-	gFile->m_FileHandle = DWORD(CreateFile(lpcsFileName,
+	gFile->m_FileHandle = (uintptr_t)(CreateFile(lpcsFileName,
 		GENERIC_READ | GENERIC_WRITE,
 		FILE_SHARE_READ,
 		NULL,
 		CREATE_ALWAYS,
 		FILE_ATTRIBUTE_NORMAL,
 		0));
-	if (gFile->m_FileHandle == (DWORD)INVALID_HANDLE_VALUE)
+	if (gFile->m_FileHandle == (uintptr_t)INVALID_HANDLE_VALUE)
 	{
 		delete gFile;
 		return NULL;

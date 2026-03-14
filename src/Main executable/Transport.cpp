@@ -475,7 +475,7 @@ int TRP_IconInfo(GOrder* GOR, int IcoIndex, OneObject* OB, GlobalIconInfo* GIN) 
 		GIN->IconSpriteID = -1;
 		GIN->HPLeft = &TRP_LHandle;
 		GIN->HPRight = NULL;
-		GIN->LParam = int(TRP);
+		GIN->LParam = (intptr_t)(TRP);
 		GIN->RParam = 0;
 		GIN->Hint = TransHint;
 		return 1;

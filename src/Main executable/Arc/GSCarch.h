@@ -24,7 +24,7 @@ typedef CGSCarch* LPGSCarch;
 
 struct TGSCfile
 {
- DWORD	m_FileHandle;
+ uintptr_t	m_FileHandle;
  BYTE	m_Flags;
  DWORD	m_Position;
  LPGSCarch	m_Arch;

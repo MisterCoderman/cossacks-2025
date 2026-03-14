@@ -47,7 +47,7 @@ void StrHash::AddString(char* s){
 	int nv=lpSHI->NStr;
 	if(lpSHI->NStr>=lpSHI->MaxStr){
 		lpSHI->MaxStr+=16;
-		lpSHI->Str=(char**)realloc(lpSHI->Str,lpSHI->MaxStr<<2);
+		lpSHI->Str=(char**)realloc(lpSHI->Str,lpSHI->MaxStr*sizeof(char*));
 		lpSHI->Value=(int*)realloc(lpSHI->Value,lpSHI->MaxStr<<2);
 	};
 	lpSHI->Str[nv]=(char*)malloc(strlen(s)+1);

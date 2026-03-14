@@ -1176,8 +1176,8 @@ void LoadOrders()
 							}
 							int nL = ODE->NLines;
 							ODE->NLines++;
-							ODE->LineNU = (word*) realloc( ODE->LineNU, ( nL + 1 ) << 2 );
-							ODE->Lines = (short**) realloc( ODE->Lines, ( nL + 1 ) << 2 );
+							ODE->LineNU = (word*) realloc( ODE->LineNU, ( nL + 1 ) * sizeof(word) );
+							ODE->Lines = (short**) realloc( ODE->Lines, ( nL + 1 ) * sizeof(short*) );
 							ODE->LineNU[nL] = nz;
 							ODE->Lines[nL] = NULL;
 							if (nz)

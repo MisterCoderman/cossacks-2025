@@ -16,7 +16,7 @@ public:
 	short dy;
 	short Lx;
 	short Ly;
-	byte* Pack;
+	DWORD Pack; // 4-byte offset in file format (not a pointer on 64-bit)
 	char  Options;
 	DWORD CData;
 	short NLines;
@@ -63,7 +63,7 @@ public:
 	UNICODETABLE* FindFont(char* Name);
 };
 extern GP_API UNIFONTS UFONTS;
-#define NO_PACK ((byte*)0xFFFFFFFF)
+#define NO_PACK ((byte*)(intptr_t)-1)
 void ErrM(char* s);
 typedef GP_GlobalHeader* lpGP_GlobalHeader;
 
@@ -82,7 +82,7 @@ public:
 	//Array of pointers to buffers with loaded resource files
 	GP_GlobalHeader** GPH;
 
-	DWORD** CASHREF;
+	uintptr_t** CASHREF;
 	byte* Mapping;
 	char** GPNames;
 	word* GPNFrames;
