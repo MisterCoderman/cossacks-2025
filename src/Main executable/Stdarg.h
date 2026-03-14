@@ -12,16 +12,18 @@
 *
 ****/
 
+// On non-Windows, use the system stdarg.h
+#if !defined(_WIN32) && !defined(_MAC)
+#pragma once
+#include_next <stdarg.h>
+#else
+
 #if _MSC_VER > 1000
 #pragma once
 #endif  /* _MSC_VER > 1000 */
 
 #ifndef _INC_STDARG
 #define _INC_STDARG
-
-#if !defined (_WIN32) && !defined (_MAC)
-#error ERROR: Only Mac or Win32 targets supported!
-#endif  /* !defined (_WIN32) && !defined (_MAC) */
 
 #ifndef _CRTBLD
 /* This version of the header files is NOT for user programs.
@@ -171,3 +173,4 @@ extern void * __builtin_va_start(va_list, ...);
 #endif  /* _MSC_VER */
 
 #endif  /* _INC_STDARG */
+#endif  /* !_WIN32 && !_MAC - close the non-Windows guard */
