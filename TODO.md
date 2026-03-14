@@ -17,7 +17,20 @@ Primary dev environment: macOS ARM64 (Apple Silicon M1), CLion.
 ## ~~PREV: Fix crash in Loading()~~ DONE (Nature.cpp `short**` alloc, GP_Draw.cpp `int`→`intptr_t`)
 ## ~~PREV: Fix GP_Header::Pack pointer size~~ DONE (changed `byte*` to `DWORD` to match file format)
 
-## NEXT: Fix GP sprite CASHREF 32-bit pointer casts
+## ~~PREV: Fix GP sprite rendering~~ DONE
+Fixed CASHREF (DWORD→uintptr_t), INTV/PTRV macros, cash buffer header layout
+(8→16 bytes on 64-bit), NO_PACK sentinel, `(int)(intptr_t)maskPtr` truncation
+(15 instances), GP_Header::Pack (byte*→DWORD), comprehensive 32-bit sweep
+(~95 instances across 34 files).
+
+## NEXT: Wire up SDL input events
+Main menu renders but mouse/keyboard don't work. Need to translate
+SDL events to the game's Win32 input system:
+- `SDL_MOUSEMOTION` → call `HandleMouse(x, y)` or set mouse globals
+- `SDL_MOUSEBUTTONDOWN/UP` → trigger click handlers
+- `SDL_KEYDOWN/UP` → map SDL keycodes to VK_* codes
+- Check how `Interface.cpp` and `Mouse_X.cpp` read input
+Also: investigate graphics rendering artifacts (colors/palette may be off).
 GP_Draw.cpp line 9877: `byte* PACKOFS = (byte*)(*PAK)` casts a DWORD (32-bit
 value from the sprite cache) to a 64-bit pointer — truncation crash.
 The CASHREF system stores 32-bit offsets/pointers that were valid addresses
@@ -60,9 +73,10 @@ Already linking statically on macOS. Future cleanup.
 - **IChat** — compiles and links (static lib)
 - **IntExplorer** — compiles and links (static lib)
 - **Main executable** — compiles, links, and runs. Native ARM64 binary (3.5MB)
-- **Runtime** — loads .gsc archives, passes full init (files, sounds, settings,
-  resources, fonts, nations, fog, textures). SDL window created. Crashes in
-  GP sprite rendering due to CASHREF 32-bit pointer casts in GP_Draw.cpp.
+- **Runtime** — MAIN MENU RENDERS! Game loads archives, initializes fully,
+  creates SDL window, renders 8-bit graphics with palette. Mouse/keyboard
+  input not yet connected (SDL events not mapped to game input system).
+  Some graphics artifacts (colors/rendering slightly off).
 
 ## Assembly rewrite status (ALL DONE)
 21 files, ~155 blocks rewritten from x86 to portable C:
