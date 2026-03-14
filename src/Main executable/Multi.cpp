@@ -1738,6 +1738,7 @@ void InitSelection()
 {
 	int sz = (MAXOBJECT >> 2) + 128;
 	if (sz > 16384)sz = 16384;
+	#if defined(_MSC_VER) && defined(_M_IX86)
 	__asm {
 		push	edi
 		mov		ecx, sz
@@ -1747,6 +1748,7 @@ void InitSelection()
 		rep		stosd
 		pop		edi
 	};
+	#endif
 };
 
 
@@ -3084,7 +3086,7 @@ void LoadNetworkGame( char* Name )
 	}
 
 	PlayerInfo LOC_PINFO[8];
-	memcpy( LOC_PINFO, PINFO, sizeof LOC_PINFO );
+	memcpy( LOC_PINFO, PINFO, sizeof(LOC_PINFO) );
 
 	byte mm[8];
 	memcpy( mm, NatRefTBL, 8 );
@@ -3129,7 +3131,7 @@ void LoadNetworkGame( char* Name )
 
 	if ( NPlayers > 1 )
 	{
-		memcpy( PINFO, LOC_PINFO, sizeof LOC_PINFO );
+		memcpy( PINFO, LOC_PINFO, sizeof(LOC_PINFO) );
 		byte MyExNation = MyNation;
 		for ( int i = 0; i < NPlayers; i++ )
 		{

@@ -97,6 +97,7 @@ void MotionField::BSetPt(int x, int y)
 	if (x >= 0 && x < MAPSX && y >= 0 && y < MAPSY) {
 		switch (ADDSH) {
 		case 1:
+			#if defined(_MSC_VER) && defined(_M_IX86)
 			__asm {
 				//Horisontal
 				/*
@@ -125,8 +126,10 @@ void MotionField::BSetPt(int x, int y)
 				add		ebx, MAPV
 				or [ebx], al
 			};
+			#endif
 			break;
 		case 2:
+			#if defined(_MSC_VER) && defined(_M_IX86)
 			__asm {
 				//Horisontal
 				/*
@@ -155,8 +158,10 @@ void MotionField::BSetPt(int x, int y)
 				add		ebx, MAPV
 				or [ebx], al
 			};
+			#endif
 			break;
 		case 3:
+			#if defined(_MSC_VER) && defined(_M_IX86)
 			__asm {
 				//Horisontal
 				/*
@@ -185,6 +190,7 @@ void MotionField::BSetPt(int x, int y)
 				add		ebx, MAPV
 				or [ebx], al
 			};
+			#endif
 			break;
 		};
 	};
@@ -196,6 +202,7 @@ void MotionField::BClrPt(int x, int y)
 	if (x >= 0 && x < MAPSX && y >= 0 && y < MAPSY) {
 		switch (ADDSH) {
 		case 1:
+			#if defined(_MSC_VER) && defined(_M_IX86)
 			__asm {
 				//Horisontal
 				/*
@@ -224,8 +231,10 @@ void MotionField::BClrPt(int x, int y)
 				add		ebx, MAPV
 				and [ebx], al
 			};
+			#endif
 			break;
 		case 2:
+			#if defined(_MSC_VER) && defined(_M_IX86)
 			__asm {
 				//Horisontal
 				/*
@@ -254,8 +263,10 @@ void MotionField::BClrPt(int x, int y)
 				add		ebx, MAPV
 				and [ebx], al
 			};
+			#endif
 			break;
 		case 3:
+			#if defined(_MSC_VER) && defined(_M_IX86)
 			__asm {
 				//Horisontal
 				/*
@@ -284,6 +295,7 @@ void MotionField::BClrPt(int x, int y)
 				add		ebx, MAPV
 				and [ebx], al
 			};
+			#endif
 			break;
 		};
 
@@ -341,6 +353,7 @@ int MotionField::CheckPt(int x, int y)
 		switch (ADDSH)
 		{
 		case 1:
+			#if defined(_MSC_VER) && defined(_M_IX86)
 			__asm
 			{
 				mov		eax, y
@@ -357,9 +370,11 @@ int MotionField::CheckPt(int x, int y)
 				and eax, 0xFF
 				mov		retval, eax
 			}
+			#endif
 			break;
 
 		case 2:
+			#if defined(_MSC_VER) && defined(_M_IX86)
 			__asm
 			{
 				mov		eax, y
@@ -376,9 +391,11 @@ int MotionField::CheckPt(int x, int y)
 				and eax, 0xFF
 				mov		retval, eax
 			}
+			#endif
 			break;
 
 		case 3:
+			#if defined(_MSC_VER) && defined(_M_IX86)
 			__asm
 			{
 				mov		eax, y
@@ -395,6 +412,7 @@ int MotionField::CheckPt(int x, int y)
 				and eax, 0xFF
 				mov		retval, eax
 			}
+			#endif
 			break;
 		}
 		return retval;
@@ -426,6 +444,7 @@ int MotionField::CheckVLine(int x, int y, int Lx)
 		switch (ADDSH)
 		{
 		case 1:
+			#if defined(_MSC_VER) && defined(_M_IX86)
 			__asm
 			{
 				mov		eax, y
@@ -445,9 +464,11 @@ int MotionField::CheckVLine(int x, int y, int Lx)
 				and eax, dword ptr[ebx]
 				mov		retval, eax
 			}
+			#endif
 			break;
 
 		case 2:
+			#if defined(_MSC_VER) && defined(_M_IX86)
 			__asm
 			{
 				mov		eax, y
@@ -467,9 +488,11 @@ int MotionField::CheckVLine(int x, int y, int Lx)
 				and eax, dword ptr[ebx]
 				mov		retval, eax
 			}
+			#endif
 			break;
 
 		case 3:
+			#if defined(_MSC_VER) && defined(_M_IX86)
 			__asm
 			{
 				mov		eax, y
@@ -489,6 +512,7 @@ int MotionField::CheckVLine(int x, int y, int Lx)
 				and eax, dword ptr[ebx]
 				mov		retval, eax
 			}
+			#endif
 			break;
 		}
 		return retval;
@@ -766,6 +790,7 @@ bool OneObject::CreatePrePath(int x1, int y1)
 
 	//соединяем линией начальную и конечную точки. 
 	//Оптимизация только по скорости
+	#if defined(_MSC_VER) && defined(_M_IX86)
 	__asm
 	{
 		mov		ax, word ptr Mdx
@@ -918,6 +943,7 @@ bool OneObject::CreatePrePath(int x1, int y1)
 		shr		edx, 1
 			mov		Pps, edx
 	}
+	#endif
 
 	Pps--;
 
@@ -1280,6 +1306,7 @@ bool OneObject::CreatePrePath2(int x1, int y1) {
 	NeedPath = false;
 	//соединяем линией начальную и конечную точки. 
 	//Оптимизация только по скорости
+	#if defined(_MSC_VER) && defined(_M_IX86)
 	__asm {
 		mov		ax, word ptr Mdx
 		mov		bx, word ptr Mdy
@@ -1431,6 +1458,7 @@ bool OneObject::CreatePrePath2(int x1, int y1) {
 		shr		edx, 1
 			mov		Pps, edx
 	};
+	#endif
 	Pps--;
 	if (InLocked)
 	{
@@ -1762,6 +1790,7 @@ bool OneObject::CreatePrePath4(int x1, int y1) {
 	NeedPath = false;
 	//соединяем линией начальную и конечную точки. 
 	//Оптимизация только по скорости
+	#if defined(_MSC_VER) && defined(_M_IX86)
 	__asm {
 		mov		ax, word ptr Mdx
 		mov		bx, word ptr Mdy
@@ -1913,6 +1942,7 @@ bool OneObject::CreatePrePath4(int x1, int y1) {
 		shr		edx, 1
 			mov		Pps, edx
 	};
+	#endif
 	Pps--;
 	if (InLocked)
 	{
@@ -2244,6 +2274,7 @@ bool OneObject::CreatePrePathBordered(int x1,int y1,int Border){
 	NeedPath=false;
 	//соединяем линией начальную и конечную точки.
 	//Оптимизация только по скорости
+	#if defined(_MSC_VER) && defined(_M_IX86)
 	__asm{
 		mov		ax,word ptr Mdx
 		mov		bx,word ptr Mdy
@@ -2395,6 +2426,7 @@ loopsEnd:
 		shr		edx,1
 		mov		Pps,edx
 	};
+	#endif
 	Pps--;
 	assert(Pps<MaxP);
 	if(InLocked){

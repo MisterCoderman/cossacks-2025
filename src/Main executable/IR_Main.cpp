@@ -381,8 +381,8 @@ void CurrentGame::UpdateGame()
 					strcpy( InGameNick, PINFO[q].name );
 				}
 
-				memset( PLAYERS[q].Popul, 0, sizeof PLAYERS[q].Popul );
-				memset( PLAYERS[q].ScoreG, 0, sizeof PLAYERS[q].ScoreG );
+				memset( PLAYERS[q].Popul, 0, sizeof(PLAYERS)[q].Popul );
+				memset( PLAYERS[q].ScoreG, 0, sizeof(PLAYERS)[q].ScoreG );
 
 				if (NATIONS[c].NAccount > 1)
 				{
@@ -540,15 +540,15 @@ void CurrentGame::SaveGameToFile()
 	XXX = *this;
 	byte* DATA = (byte*) ( &XXX );
 	byte* Key = (byte*) randoma;
-	for (int i = 0; i < sizeof XXX; i++)
+	for (int i = 0; i < sizeof(XXX); i++)
 	{
 		DATA[i] ^= Key[i];
 	}
 
-	RBlockWrite( F1, &XXX, sizeof XXX );
+	RBlockWrite( F1, &XXX, sizeof(XXX) );
 
 	int S = 0;
-	for (int i = 0; i < sizeof CurrentGame; i++)
+	for (int i = 0; i < sizeof(CurrentGame); i++)
 	{
 		S += DATA[i];
 	}
@@ -592,14 +592,14 @@ NEXTFILE:
 	if (SUCCESS)
 	{
 		RSeek( F, 20532 + 200 + cur*( sizeof( CurrentGame ) + 4 ) );
-		RBlockRead( F, this, sizeof CurrentGame );
+		RBlockRead( F, this, sizeof(CurrentGame) );
 		int S;
 		RBlockRead( F, &S, 4 );
 		byte* Key = (byte*) randoma;
 		byte* xx = ( byte* ) this;
 
 		int S1 = 0;
-		for (int i = 0; i < sizeof CurrentGame; i++)
+		for (int i = 0; i < sizeof(CurrentGame); i++)
 		{
 			S1 += xx[i];
 		}
@@ -609,7 +609,7 @@ NEXTFILE:
 		}
 		else
 		{
-			for (int i = 0; i < sizeof CurrentGame; i++)
+			for (int i = 0; i < sizeof(CurrentGame); i++)
 			{
 				xx[i] ^= Key[i];
 			}
@@ -623,7 +623,7 @@ NEXTFILE:
 			FILETIME FT;
 			SystemTimeToFileTime( &ST, &FT );
 			SYSTEMTIME ST0;
-			memset( &ST0, 0, sizeof ST0 );
+			memset( &ST0, 0, sizeof(ST0) );
 			ST0.wMinute = StartTime.Min;
 			ST0.wHour = StartTime.Hour;
 			ST0.wDay = StartTime.Day;
@@ -1312,7 +1312,7 @@ bool IsGameActive()
 int GetCurGamePtr( byte** Ptr )
 {
 	*Ptr = (byte*) &CURIGAME;
-	return sizeof CURIGAME;
+	return sizeof(CURIGAME);
 }
 
 bool CheckLogin()
@@ -1332,7 +1332,7 @@ void UpdateCurGame()
 		CURIGAME.LastLoadTime.Hour = SYSTM.wHour;
 		CURIGAME.LastLoadTime.Min = SYSTM.wMinute;
 		CURIGAME.LastLoadTime.DayOfWeek = SYSTM.wDayOfWeek;
-		memcpy( &CURIGAME.CurTime, &CURIGAME.LastLoadTime, sizeof CURIGAME.LastLoadTime );
+		memcpy( &CURIGAME.CurTime, &CURIGAME.LastLoadTime, sizeof(CURIGAME).LastLoadTime );
 	}
 }
 
@@ -1341,7 +1341,7 @@ bool CheckGameTime()
 	if (CURIGAME.Active)
 	{
 		SYSTEMTIME ST;
-		memset( &ST, 0, sizeof ST );
+		memset( &ST, 0, sizeof(ST) );
 		ST.wMinute = CURIGAME.CurTime.Min;
 		ST.wHour = CURIGAME.CurTime.Hour;
 		ST.wDay = CURIGAME.CurTime.Day;
@@ -1350,7 +1350,7 @@ bool CheckGameTime()
 		FILETIME FT;
 		SystemTimeToFileTime( &ST, &FT );
 		SYSTEMTIME ST0;
-		memset( &ST0, 0, sizeof ST0 );
+		memset( &ST0, 0, sizeof(ST0) );
 		ST0.wMinute = CURIGAME.LastLoadTime.Min;
 		ST0.wHour = CURIGAME.LastLoadTime.Hour;
 		ST0.wDay = CURIGAME.LastLoadTime.Day;

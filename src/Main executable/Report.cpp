@@ -179,9 +179,9 @@ void MakeReportOnUnit( Nation* NT, int NIndex, GFILE* f )
 	AdvCharacter* OLD = new AdvCharacter;
 	AdvCharacter* START = new AdvCharacter;
 	AdvCharacter* NEW = GO->MoreCharacter;
-	memcpy( OLD, NEW, sizeof AdvCharacter );
+	memcpy( OLD, NEW, sizeof(AdvCharacter) );
 	CreateAdvCharacter( NEW, NM );
-	memcpy( START, NEW, sizeof AdvCharacter );
+	memcpy( START, NEW, sizeof(AdvCharacter) );
 
 	int Nr = 0;
 	for (int i = 0; i < 8; i++)if (NM->NeedRes[i])Nr++;
@@ -204,7 +204,7 @@ void MakeReportOnUnit( Nation* NT, int NIndex, GFILE* f )
 	Gprintf( f, "%s\n", ccc );
 	PrintAttackUpgrades( NT, NIndex, START, f );
 	PrintShieldUpgrades( NT, NIndex, START, f );
-	memcpy( NEW, OLD, sizeof AdvCharacter );
+	memcpy( NEW, OLD, sizeof(AdvCharacter) );
 	Gprintf( f, "\n" );
 	free( OLD );
 	free( START );
@@ -368,9 +368,9 @@ void MakeBriefReport( Nation* NT, int NIndex, GFILE* f )
 	AdvCharacter* OLD = new AdvCharacter;
 	AdvCharacter* START = new AdvCharacter;
 	AdvCharacter* NEW = GO->MoreCharacter;
-	memcpy( OLD, NEW, sizeof AdvCharacter );
+	memcpy( OLD, NEW, sizeof(AdvCharacter) );
 	CreateAdvCharacter( NEW, NM );
-	memcpy( START, NEW, sizeof AdvCharacter );
+	memcpy( START, NEW, sizeof(AdvCharacter) );
 
 	int Nr = 0;
 	for (int i = 0; i < 8; i++)if (NM->NeedRes[i])Nr++;
@@ -390,7 +390,7 @@ void MakeBriefReport( Nation* NT, int NIndex, GFILE* f )
 	PrintBriefAttackUpgrades( NT, NIndex, START, f );
 	PrintBriefShieldUpgrades( NT, NIndex, START, f );
 	Gprintf( f, "\n", ccc );
-	memcpy( NEW, OLD, sizeof AdvCharacter );
+	memcpy( NEW, OLD, sizeof(AdvCharacter) );
 	free( OLD );
 	free( START );
 

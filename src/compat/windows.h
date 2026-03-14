@@ -119,6 +119,15 @@ typedef const GUID&         REFGUID;
 typedef const GUID&         REFIID;
 typedef const GUID&         REFCLSID;
 
+#ifdef __cplusplus
+inline bool operator==(const GUID& a, const GUID& b) {
+    return memcmp(&a, &b, sizeof(GUID)) == 0;
+}
+inline bool operator!=(const GUID& a, const GUID& b) {
+    return !(a == b);
+}
+#endif
+
 #define DEFINE_GUID(name, l, w1, w2, b1, b2, b3, b4, b5, b6, b7, b8) \
     static const GUID name = { l, w1, w2, { b1, b2, b3, b4, b5, b6, b7, b8 } }
 
@@ -157,9 +166,9 @@ struct IUnknown {
 #define _declspec(x)
 
 // ---- MSVC-specific ----
-#ifndef _MSC_VER
-#define _MSC_VER 0
-#endif
+// Note: We do NOT define _MSC_VER here as it confuses system headers
+// (e.g., inttypes.h checks for MSVC version). Code that needs to check
+// for MSVC should use: #if defined(_MSC_VER) && _MSC_VER > 0
 
 // MSVC type aliases
 typedef char small;
@@ -272,6 +281,34 @@ typedef struct tagRGBQUAD {
 #define lstrcat strcat
 #define wsprintf sprintf
 #define wvsprintf vsprintf
+// ---- MSVC secure CRT ----
+#ifndef _TRUNCATE
+#define _TRUNCATE ((size_t)-1)
+#endif
+#ifndef strncpy_s
+inline int strncpy_s(char* dest, size_t destsz, const char* src, size_t count) {
+    if (!dest || destsz == 0) return -1;
+    if (count == _TRUNCATE || count >= destsz) count = destsz - 1;
+    strncpy(dest, src ? src : "", count);
+    dest[count] = 0;
+    return 0;
+}
+#endif
+#ifndef sprintf_s
+#define sprintf_s(buf, sz, ...) snprintf(buf, sz, __VA_ARGS__)
+#endif
+#ifndef _stprintf_s
+#define _stprintf_s sprintf_s
+#endif
+#ifndef strcpy_s
+inline int strcpy_s(char* dest, size_t destsz, const char* src) {
+    if (!dest || destsz == 0) return -1;
+    strncpy(dest, src ? src : "", destsz - 1);
+    dest[destsz - 1] = 0;
+    return 0;
+}
+#endif
+
 // ---- MSVC CRT name mappings ----
 #define _utimbuf utimbuf
 #define _utime utime
@@ -289,6 +326,7 @@ inline char* strlwr(char* s) { for (char* p = s; *p; p++) *p = tolower(*p); retu
 #define _strupr strupr
 #define _strlwr strlwr
 #define itoa(val, buf, radix) sprintf(buf, "%d", val)
+#define _itoa(val, buf, radix) sprintf(buf, "%d", val)
 
 // ---- File and system stubs ----
 #define MAX_PATH 260
@@ -362,6 +400,8 @@ inline char* strlwr(char* s) { for (char* p = s; *p; p++) *p = tolower(*p); retu
 #define VK_F10          0x79
 #define VK_F11          0x7A
 #define VK_F12          0x7B
+#define VK_SCROLL       0x91
+#define VK_NUMLOCK      0x90
 
 // ---- MessageBox ----
 #define MB_OK               0x00000000L
@@ -370,6 +410,7 @@ inline char* strlwr(char* s) { for (char* p = s; *p; p++) *p = tolower(*p); retu
 #define MB_ICONERROR        0x00000010L
 #define MB_ICONWARNING      0x00000030L
 #define MB_ICONINFORMATION  0x00000040L
+#define MB_TOPMOST          0x00040000L
 #define IDOK     1
 #define IDCANCEL 2
 #define IDYES    6
@@ -443,7 +484,14 @@ inline HANDLE CreateFileA(LPCSTR name, DWORD access, DWORD share, void* sa, DWOR
 #define GENERIC_WRITE   0x40000000L
 #define OPEN_EXISTING   3
 #define CREATE_ALWAYS   2
-#define FILE_SHARE_READ 0x00000001
+#define FILE_SHARE_READ  0x00000001
+#define FILE_SHARE_WRITE 0x00000002
+#define FILE_BEGIN       0
+#define FILE_CURRENT     1
+#define FILE_END         2
+#define CREATE_NEW       1
+#define OPEN_ALWAYS      4
+#define TRUNCATE_EXISTING 5
 
 inline BOOL ReadFile(HANDLE h, LPVOID buf, DWORD bytes, LPDWORD read, void* overlapped) {
     (void)h; (void)buf; (void)bytes; (void)read; (void)overlapped; return FALSE;
@@ -456,10 +504,22 @@ inline DWORD SetFilePointer(HANDLE h, LONG dist, LPLONG high, DWORD method) {
 }
 inline DWORD GetFileSize(HANDLE h, LPDWORD high) { (void)h; (void)high; return 0; }
 
+// ---- FILETIME ----
+typedef struct _FILETIME {
+    DWORD dwLowDateTime;
+    DWORD dwHighDateTime;
+} FILETIME;
+
 // ---- FindFile stubs ----
 typedef struct _WIN32_FIND_DATAA {
     DWORD    dwFileAttributes;
+    FILETIME ftCreationTime;
+    FILETIME ftLastAccessTime;
+    FILETIME ftLastWriteTime;
+    DWORD    nFileSizeHigh;
+    DWORD    nFileSizeLow;
     CHAR     cFileName[MAX_PATH];
+    CHAR     cAlternateFileName[14];
 } WIN32_FIND_DATAA, *LPWIN32_FIND_DATAA;
 #define WIN32_FIND_DATA WIN32_FIND_DATAA
 
@@ -495,8 +555,8 @@ inline LONG RegCreateKeyExA(HKEY key, LPCSTR sub, DWORD reserved, LPSTR cls, DWO
 #define KEY_ALL_ACCESS 0xF003F
 
 // ---- Computer name ----
-inline BOOL GetComputerNameA(LPSTR buf, LPDWORD size) {
-    if (buf && size && *size > 0) { buf[0] = '\0'; }
+inline BOOL GetComputerNameA(LPSTR buf, void* size) {
+    if (buf && size) { buf[0] = '\0'; }
     return TRUE;
 }
 #define GetComputerName GetComputerNameA
@@ -623,6 +683,17 @@ typedef struct _SYSTEMTIME {
 } SYSTEMTIME;
 inline void GetLocalTime(SYSTEMTIME* st) { (void)st; }
 inline void GetSystemTime(SYSTEMTIME* st) { (void)st; }
+inline BOOL SystemTimeToFileTime(const SYSTEMTIME* st, FILETIME* ft) { (void)st; (void)ft; return TRUE; }
+inline BOOL FileTimeToSystemTime(const FILETIME* ft, SYSTEMTIME* st) { (void)ft; (void)st; return TRUE; }
+inline BOOL GetFileTime(HANDLE hFile, FILETIME* lpCreate, FILETIME* lpAccess, FILETIME* lpWrite) {
+    (void)hFile; (void)lpCreate; (void)lpAccess; (void)lpWrite; return TRUE;
+}
+inline BOOL SetFileTime(HANDLE hFile, const FILETIME* lpCreate, const FILETIME* lpAccess, const FILETIME* lpWrite) {
+    (void)hFile; (void)lpCreate; (void)lpAccess; (void)lpWrite; return TRUE;
+}
+inline BOOL CompareFileTime(const FILETIME* ft1, const FILETIME* ft2) {
+    (void)ft1; (void)ft2; return 0;
+}
 
 // ---- File/Process stubs ----
 inline BOOL DeleteFileA(LPCSTR path) { return ::remove(path) == 0; }
@@ -630,6 +701,10 @@ inline BOOL DeleteFileA(LPCSTR path) { return ::remove(path) == 0; }
 inline BOOL CreateDirectoryA(LPCSTR path, void* sa) { (void)path; (void)sa; return TRUE; }
 #define CreateDirectory CreateDirectoryA
 inline void ExitProcess(UINT code) { exit(code); }
+
+// ---- Keyboard stubs ----
+inline SHORT GetKeyState(int vkey) { (void)vkey; return 0; }
+inline SHORT GetAsyncKeyState(int vkey) { (void)vkey; return 0; }
 
 // ---- Cursor stubs ----
 inline BOOL GetCursorPos(LPPOINT pt) { (void)pt; return TRUE; }
@@ -680,15 +755,444 @@ inline BOOL GlobalUnlock(HGLOBAL mem) { (void)mem; return TRUE; }
 #define GPTR (GMEM_FIXED | GMEM_ZEROINIT)
 
 // ---- Time ----
-inline BOOL QueryPerformanceCounter(LONGLONG* counter) { (void)counter; return FALSE; }
-inline BOOL QueryPerformanceFrequency(LONGLONG* freq) { (void)freq; return FALSE; }
-typedef struct _LARGE_INTEGER {
+typedef union _LARGE_INTEGER {
+    struct {
+        DWORD LowPart;
+        LONG  HighPart;
+    };
     LONGLONG QuadPart;
 } LARGE_INTEGER;
+inline BOOL QueryPerformanceCounter(LARGE_INTEGER* counter) { (void)counter; return FALSE; }
+inline BOOL QueryPerformanceFrequency(LARGE_INTEGER* freq) { (void)freq; return FALSE; }
 
 // ---- Interlocked ----
 inline LONG InterlockedIncrement(volatile LONG* val) { return ++(*val); }
 inline LONG InterlockedDecrement(volatile LONG* val) { return --(*val); }
+
+// ---- Memory-mapped file stubs ----
+#define PAGE_READONLY       0x02
+#define PAGE_READWRITE      0x04
+#define FILE_MAP_READ       0x0004
+#define FILE_MAP_WRITE      0x0002
+
+inline HANDLE CreateFileMappingA(HANDLE hFile, void* lpAttr, DWORD flProtect,
+                                  DWORD dwMaxHigh, DWORD dwMaxLow, LPCSTR lpName) {
+    (void)hFile; (void)lpAttr; (void)flProtect;
+    (void)dwMaxHigh; (void)dwMaxLow; (void)lpName;
+    return NULL;
+}
+#define CreateFileMapping CreateFileMappingA
+
+inline LPVOID MapViewOfFile(HANDLE hMap, DWORD dwAccess, DWORD dwOffHigh,
+                             DWORD dwOffLow, size_t dwBytes) {
+    (void)hMap; (void)dwAccess; (void)dwOffHigh; (void)dwOffLow; (void)dwBytes;
+    return NULL;
+}
+inline BOOL UnmapViewOfFile(LPCVOID lpBase) { (void)lpBase; return TRUE; }
+
+// ---- Locale stubs ----
+typedef DWORD LCID;
+typedef WORD LANGID;
+#define LOCALE_SISO639LANGNAME 0x00000059
+#define LOCALE_SISO3166CTRYNAME 0x0000005A
+#define MAKELCID(lgid, srtid) ((LCID)((((DWORD)((WORD)(srtid))) << 16) | ((DWORD)((WORD)(lgid)))))
+#define SORT_DEFAULT 0x0
+#define SUBLANG_DEFAULT 0x01
+#define LANG_NEUTRAL 0x00
+#define MAKELANGID(p, s) ((((WORD)(s)) << 10) | (WORD)(p))
+inline LCID GetSystemDefaultLCID() { return 0; }
+inline LANGID GetSystemDefaultUILanguage() { return 0; }
+inline LANGID GetUserDefaultUILanguage() { return 0; }
+inline int GetLocaleInfoA(LCID lcid, DWORD lctype, LPSTR lpData, int cchData) {
+    (void)lcid; (void)lctype; (void)lpData; (void)cchData; return 0;
+}
+
+// ---- Command line ----
+inline LPSTR GetCommandLineA() { return (LPSTR)""; }
+#define GetCommandLine GetCommandLineA
+
+// ---- Event stubs ----
+inline HANDLE CreateEventA(void* lpAttr, BOOL bManual, BOOL bInitial, LPCSTR lpName) {
+    (void)lpAttr; (void)bManual; (void)bInitial; (void)lpName; return NULL;
+}
+#define CreateEvent CreateEventA
+inline BOOL SetEvent(HANDLE hEvent) { (void)hEvent; return TRUE; }
+inline BOOL ResetEvent(HANDLE hEvent) { (void)hEvent; return TRUE; }
+
+// ---- Waitable timer / misc threading ----
+inline DWORD WaitForMultipleObjects(DWORD nCount, const HANDLE* lpHandles, BOOL bWaitAll, DWORD dwMs) {
+    (void)nCount; (void)lpHandles; (void)bWaitAll; (void)dwMs; return 0;
+}
+inline DWORD ResumeThread(HANDLE hThread) { (void)hThread; return 0; }
+inline DWORD SuspendThread(HANDLE hThread) { (void)hThread; return 0; }
+inline BOOL TerminateThread(HANDLE hThread, DWORD dwExitCode) { (void)hThread; (void)dwExitCode; return TRUE; }
+#define CREATE_SUSPENDED 0x00000004
+
+// ---- GetPrivateProfileString / WritePrivateProfileString ----
+inline DWORD GetPrivateProfileStringA(LPCSTR lpApp, LPCSTR lpKey, LPCSTR lpDef,
+                                       LPSTR lpRet, DWORD nSize, LPCSTR lpFile) {
+    (void)lpApp; (void)lpKey; (void)lpFile;
+    if (lpDef && lpRet && nSize > 0) { strncpy(lpRet, lpDef, nSize); lpRet[nSize-1]=0; return (DWORD)strlen(lpRet); }
+    return 0;
+}
+#define GetPrivateProfileString GetPrivateProfileStringA
+inline DWORD GetPrivateProfileIntA(LPCSTR lpApp, LPCSTR lpKey, INT nDef, LPCSTR lpFile) {
+    (void)lpApp; (void)lpKey; (void)lpFile; return nDef;
+}
+#define GetPrivateProfileInt GetPrivateProfileIntA
+inline BOOL WritePrivateProfileStringA(LPCSTR lpApp, LPCSTR lpKey, LPCSTR lpVal, LPCSTR lpFile) {
+    (void)lpApp; (void)lpKey; (void)lpVal; (void)lpFile; return TRUE;
+}
+#define WritePrivateProfileString WritePrivateProfileStringA
+
+// ---- GetWindowRect / SetWindowPos / MoveWindow ----
+inline BOOL GetWindowRect(HWND hw, LPRECT lpRect) { (void)hw; (void)lpRect; return TRUE; }
+inline BOOL GetClientRect(HWND hw, LPRECT lpRect) { (void)hw; (void)lpRect; return TRUE; }
+inline BOOL SetWindowPos(HWND hw, HWND hwAfter, int x, int y, int cx, int cy, UINT flags) {
+    (void)hw; (void)hwAfter; (void)x; (void)y; (void)cx; (void)cy; (void)flags; return TRUE;
+}
+inline BOOL MoveWindow(HWND hw, int x, int y, int w, int h, BOOL repaint) {
+    (void)hw; (void)x; (void)y; (void)w; (void)h; (void)repaint; return TRUE;
+}
+#define HWND_TOPMOST ((HWND)(intptr_t)-1)
+#define HWND_NOTOPMOST ((HWND)(intptr_t)-2)
+#define SWP_NOSIZE 0x0001
+#define SWP_NOMOVE 0x0002
+#define SWP_SHOWWINDOW   0x0040
+#define SWP_NOZORDER     0x0004
+#define SWP_NOACTIVATE   0x0010
+#define SWP_FRAMECHANGED 0x0020
+#define SWP_NOSENDCHANGING 0x0400
+
+// ---- Screen metrics ----
+inline int GetSystemMetrics(int nIndex) { (void)nIndex; return 0; }
+#define SM_CXSCREEN 0
+#define SM_CYSCREEN 1
+
+// ---- Clipboard stubs ----
+inline BOOL OpenClipboard(HWND hw) { (void)hw; return TRUE; }
+inline BOOL CloseClipboard() { return TRUE; }
+inline BOOL EmptyClipboard() { return TRUE; }
+inline HANDLE SetClipboardData(UINT fmt, HANDLE hMem) { (void)fmt; (void)hMem; return NULL; }
+inline HANDLE GetClipboardData(UINT fmt) { (void)fmt; return NULL; }
+#define CF_TEXT 1
+
+// ---- Misc Win32 ----
+inline BOOL SetForegroundWindow(HWND hw) { (void)hw; return TRUE; }
+inline HWND GetForegroundWindow() { return NULL; }
+inline HWND SetFocus(HWND hw) { (void)hw; return NULL; }
+inline HWND GetActiveWindow() { return NULL; }
+inline BOOL InvalidateRect(HWND hw, const RECT* lpRect, BOOL bErase) { (void)hw; (void)lpRect; (void)bErase; return TRUE; }
+inline int GetDeviceCaps(HDC hdc, int index) { (void)hdc; (void)index; return 0; }
+#define HORZRES 8
+#define VERTRES 10
+#define BITSPIXEL 12
+
+// ---- File attributes ----
+inline DWORD GetFileAttributesA(LPCSTR lpFile) { (void)lpFile; return 0xFFFFFFFF; }
+#define GetFileAttributes GetFileAttributesA
+#define INVALID_FILE_ATTRIBUTES ((DWORD)-1)
+#define FILE_ATTRIBUTE_NORMAL 0x00000080
+
+// ---- Atom/String ----
+typedef WORD ATOM;
+
+// ---- Window class registration ----
+inline ATOM RegisterClassA(const WNDCLASSA* lpWndClass) { (void)lpWndClass; return 1; }
+#define RegisterClass RegisterClassA
+inline HWND CreateWindowExA(DWORD dwExStyle, LPCSTR lpClass, LPCSTR lpName, DWORD dwStyle,
+                             int x, int y, int w, int h, HWND hwParent, HMENU hMenu,
+                             HINSTANCE hInst, LPVOID lpParam) {
+    (void)dwExStyle; (void)lpClass; (void)lpName; (void)dwStyle;
+    (void)x; (void)y; (void)w; (void)h; (void)hwParent; (void)hMenu;
+    (void)hInst; (void)lpParam;
+    return NULL;
+}
+#define CreateWindowEx CreateWindowExA
+#define CreateWindowA(cls,name,style,x,y,w,h,parent,menu,inst,param) \
+    CreateWindowExA(0,(cls),(name),(style),(x),(y),(w),(h),(parent),(menu),(inst),(param))
+#define CreateWindow CreateWindowA
+#define CW_USEDEFAULT ((int)0x80000000)
+
+// ---- Timer ----
+typedef uintptr_t UINT_PTR;
+typedef intptr_t INT_PTR;
+inline UINT_PTR SetTimer(HWND hw, UINT_PTR nID, UINT uElapse, void* lpTimerFunc) {
+    (void)hw; (void)nID; (void)uElapse; (void)lpTimerFunc; return nID;
+}
+inline BOOL KillTimer(HWND hw, UINT_PTR nID) { (void)hw; (void)nID; return TRUE; }
+
+// ---- Additional string/path ----
+inline LPSTR CharLowerA(LPSTR lpsz) { for (char* p = lpsz; *p; p++) *p = tolower(*p); return lpsz; }
+#define CharLower CharLowerA
+inline LPSTR CharUpperA(LPSTR lpsz) { for (char* p = lpsz; *p; p++) *p = toupper(*p); return lpsz; }
+#define CharUpper CharUpperA
+
+// ---- _splitpath / _makepath ----
+inline void _splitpath(const char* path, char* drive, char* dir, char* fname, char* ext) {
+    if (drive) drive[0] = 0;
+    if (dir) dir[0] = 0;
+    if (fname) fname[0] = 0;
+    if (ext) ext[0] = 0;
+    if (!path) return;
+    const char* p = strrchr(path, '/');
+    const char* p2 = strrchr(path, '\\');
+    if (p2 && (!p || p2 > p)) p = p2;
+    if (p) {
+        if (dir) { size_t n = p - path + 1; strncpy(dir, path, n); dir[n] = 0; }
+        p++;
+    } else { p = path; }
+    const char* dot = strrchr(p, '.');
+    if (dot) {
+        if (fname) { size_t n = dot - p; strncpy(fname, p, n); fname[n] = 0; }
+        if (ext) strcpy(ext, dot);
+    } else {
+        if (fname) strcpy(fname, p);
+    }
+}
+inline void _makepath(char* path, const char* drive, const char* dir, const char* fname, const char* ext) {
+    path[0] = 0;
+    if (drive && drive[0]) { strcat(path, drive); strcat(path, ":"); }
+    if (dir && dir[0]) strcat(path, dir);
+    if (fname) strcat(path, fname);
+    if (ext && ext[0]) { if (ext[0] != '.') strcat(path, "."); strcat(path, ext); }
+}
+
+// ---- WideChar / MultiByte conversion stubs ----
+#define CP_ACP   0
+#define CP_UTF8  65001
+#define MB_PRECOMPOSED 0x00000001
+
+inline int MultiByteToWideChar(UINT cp, DWORD flags, LPCSTR lpMB, int cbMB,
+                                LPWSTR lpWC, int cchWC) {
+    (void)cp; (void)flags;
+    if (!lpMB) return 0;
+    int len = (cbMB == -1) ? (int)strlen(lpMB) + 1 : cbMB;
+    if (cchWC == 0) return len;
+    int i;
+    for (i = 0; i < len && i < cchWC; i++) lpWC[i] = (WCHAR)(unsigned char)lpMB[i];
+    return i;
+}
+
+inline int WideCharToMultiByte(UINT cp, DWORD flags, LPCWSTR lpWC, int cchWC,
+                                LPSTR lpMB, int cbMB, LPCSTR lpDef, LPBOOL lpUsedDef) {
+    (void)cp; (void)flags; (void)lpDef; (void)lpUsedDef;
+    if (!lpWC) return 0;
+    int len = cchWC;
+    if (cchWC == -1) { len = 0; while (lpWC[len]) len++; len++; }
+    if (cbMB == 0) return len;
+    int i;
+    for (i = 0; i < len && i < cbMB; i++) lpMB[i] = (char)(lpWC[i] & 0xFF);
+    return i;
+}
+
+// ---- Additional misc stubs ----
+inline DWORD GetLastError() { return 0; }
+inline void SetLastError(DWORD dwErr) { (void)dwErr; }
+inline BOOL IsBadReadPtr(const void* lp, UINT_PTR ucb) { (void)lp; (void)ucb; return FALSE; }
+inline BOOL IsBadWritePtr(void* lp, UINT_PTR ucb) { (void)lp; (void)ucb; return FALSE; }
+
+// ---- Heap stubs ----
+inline HANDLE GetProcessHeap() { return NULL; }
+inline LPVOID HeapAlloc(HANDLE hHeap, DWORD dwFlags, size_t dwBytes) {
+    (void)hHeap; (void)dwFlags; return malloc(dwBytes);
+}
+inline BOOL HeapFree(HANDLE hHeap, DWORD dwFlags, LPVOID lpMem) {
+    (void)hHeap; (void)dwFlags; free(lpMem); return TRUE;
+}
+#define HEAP_ZERO_MEMORY 0x00000008
+
+// ---- Handle types ----
+typedef HANDLE* LPHANDLE;
+
+// ---- Cursor/Window functions ----
+inline BOOL ClipCursor(const RECT* lpRect) { (void)lpRect; return TRUE; }
+inline int MapWindowPoints(HWND hwFrom, HWND hwTo, LPPOINT lpPoints, UINT cPoints) {
+    (void)hwFrom; (void)hwTo; (void)lpPoints; (void)cPoints; return 0;
+}
+inline BOOL AdjustWindowRect(LPRECT lpRect, DWORD dwStyle, BOOL bMenu) {
+    (void)lpRect; (void)dwStyle; (void)bMenu; return TRUE;
+}
+inline BOOL AdjustWindowRectEx(LPRECT lpRect, DWORD dwStyle, BOOL bMenu, DWORD dwExStyle) {
+    (void)lpRect; (void)dwStyle; (void)bMenu; (void)dwExStyle; return TRUE;
+}
+inline BOOL ScreenToClient(HWND hw, LPPOINT lpPoint) { (void)hw; (void)lpPoint; return TRUE; }
+inline BOOL ClientToScreen(HWND hw, LPPOINT lpPoint) { (void)hw; (void)lpPoint; return TRUE; }
+
+// ---- Keyboard stubs ----
+inline BOOL GetKeyboardState(BYTE* lpKeyState) { (void)lpKeyState; return FALSE; }
+inline int ToAscii(UINT uVirtKey, UINT uScanCode, const BYTE* lpKeyState, LPWORD lpChar, UINT uFlags) {
+    (void)uVirtKey; (void)uScanCode; (void)lpKeyState; (void)lpChar; (void)uFlags; return 0;
+}
+inline int ToUnicode(UINT wVirtKey, UINT wScanCode, const BYTE* lpKeyState,
+                      LPWSTR pwszBuff, int cchBuff, UINT wFlags) {
+    (void)wVirtKey; (void)wScanCode; (void)lpKeyState; (void)pwszBuff; (void)cchBuff; (void)wFlags; return 0;
+}
+
+// ---- More VK codes ----
+#define VK_NUMPAD0      0x60
+#define VK_NUMPAD1      0x61
+#define VK_NUMPAD2      0x62
+#define VK_NUMPAD3      0x63
+#define VK_NUMPAD4      0x64
+#define VK_NUMPAD5      0x65
+#define VK_NUMPAD6      0x66
+#define VK_NUMPAD7      0x67
+#define VK_NUMPAD8      0x68
+#define VK_NUMPAD9      0x69
+#define VK_MULTIPLY     0x6A
+#define VK_ADD          0x6B
+#define VK_SUBTRACT     0x6D
+#define VK_DECIMAL      0x6E
+#define VK_DIVIDE       0x6F
+#define VK_CAPITAL      0x14
+#define VK_INSERT       0x2D
+#define VK_PRIOR        0x21
+#define VK_NEXT         0x22
+#define VK_END          0x23
+#define VK_HOME         0x24
+
+// ---- Mouse key flags ----
+#define MK_LBUTTON      0x0001
+#define MK_RBUTTON      0x0002
+#define MK_MBUTTON      0x0010
+
+// ---- More window messages ----
+#define WM_ACTIVATEAPP  0x001C
+#define WM_SETCURSOR    0x0020
+#define WM_EXITSIZEMOVE 0x0232
+#define WM_SYSCOMMAND   0x0112
+#define MM_MCINOTIFY    0x03B9
+#define SIZE_RESTORED   0
+#define SIZE_MINIMIZED  1
+#define SIZE_MAXIMIZED  2
+
+// ---- MessageBox extras ----
+#define MB_ICONSTOP     0x00000010L
+#define MB_ICONHAND     0x00000010L
+#define MB_ICONQUESTION 0x00000020L
+#define MB_SETFOREGROUND 0x00010000L
+
+// ---- Class styles ----
+#define CS_HREDRAW      0x0002
+#define CS_VREDRAW      0x0001
+#define CS_DBLCLKS      0x0008
+
+// ---- FARPROC ----
+typedef void* FARPROC;
+
+// ---- WA_ constants ----
+#define WA_INACTIVE     0
+#define WA_ACTIVE       1
+#define WA_CLICKACTIVE  2
+
+// ---- SetActiveWindow ----
+inline HWND SetActiveWindow(HWND hw) { (void)hw; return NULL; }
+
+// ---- Window styles ----
+#define WS_THICKFRAME   0x00040000L
+#define WS_CLIPCHILDREN 0x02000000L
+#define WS_CLIPSIBLINGS 0x04000000L
+
+// ---- DEVMODE ----
+typedef struct _DEVMODEA {
+    CHAR  dmDeviceName[32];
+    WORD  dmSpecVersion;
+    WORD  dmDriverVersion;
+    WORD  dmSize;
+    WORD  dmDriverExtra;
+    DWORD dmFields;
+    LONG  dmPelsWidth;
+    LONG  dmPelsHeight;
+    DWORD dmBitsPerPel;
+    DWORD dmDisplayFrequency;
+} DEVMODEA;
+#define DEVMODE DEVMODEA
+#define DM_PELSWIDTH    0x00080000L
+#define DM_PELSHEIGHT   0x00100000L
+#define DM_BITSPERPEL   0x00040000L
+#define DISP_CHANGE_SUCCESSFUL 0
+#define CDS_FULLSCREEN  0x00000004
+#define ENUM_CURRENT_SETTINGS ((DWORD)-1)
+inline LONG ChangeDisplaySettingsA(DEVMODEA* lpDevMode, DWORD dwFlags) { (void)lpDevMode; (void)dwFlags; return 0; }
+#define ChangeDisplaySettings ChangeDisplaySettingsA
+inline BOOL EnumDisplaySettingsA(LPCSTR lpDevice, DWORD iModeNum, DEVMODEA* lpDevMode) {
+    (void)lpDevice; (void)iModeNum; (void)lpDevMode; return FALSE;
+}
+#define EnumDisplaySettings EnumDisplaySettingsA
+
+// ---- ShowCursor ----
+inline int ShowCursor(BOOL bShow) { (void)bShow; return 0; }
+
+// ---- IDC cursor constants ----
+#define IDC_ARROW ((LPCSTR)(intptr_t)32512)
+#define IDC_WAIT  ((LPCSTR)(intptr_t)32514)
+
+// ---- Misc window ----
+inline LONG GetWindowLongA(HWND hw, int nIndex) { (void)hw; (void)nIndex; return 0; }
+#define GetWindowLong GetWindowLongA
+inline LONG SetWindowLongA(HWND hw, int nIndex, LONG dwNewLong) { (void)hw; (void)nIndex; (void)dwNewLong; return 0; }
+#define SetWindowLong SetWindowLongA
+#define GWL_STYLE (-16)
+#define GWL_EXSTYLE (-20)
+
+// ---- SC_ commands ----
+#define SC_MAXIMIZE 0xF030
+#define SC_MONITORPOWER 0xF170
+#define SC_SCREENSAVE 0xF140
+
+// ---- Window extended styles ----
+#define WS_EX_APPWINDOW 0x00040000L
+#define WS_EX_TOPMOST   0x00000008L
+#define WS_EX_WINDOWEDGE 0x00000100L
+
+// ---- ShowWindow constants ----
+#define SW_SHOWNORMAL   1
+
+// ---- PeekMessage flags ----
+#define PM_REMOVE  0x0001
+#define PM_NOREMOVE 0x0000
+
+// ---- LoadIcon / LoadImage ----
+#define IDI_APPLICATION ((LPCSTR)(intptr_t)32512)
+inline HICON LoadIconA(HINSTANCE hi, LPCSTR name) { (void)hi; (void)name; return NULL; }
+#define LoadIcon LoadIconA
+
+// ---- Misc ----
+inline BOOL IsIconic(HWND hw) { (void)hw; return FALSE; }
+inline BOOL BringWindowToTop(HWND hw) { (void)hw; return TRUE; }
+inline HWND GetDesktopWindow() { return NULL; }
+inline BOOL IsWindow(HWND hw) { (void)hw; return TRUE; }
+inline int GetClassName(HWND hw, LPSTR lpClassName, int nMaxCount) { (void)hw; (void)lpClassName; (void)nMaxCount; return 0; }
+
+// ---- Bitmap info ----
+typedef struct tagBITMAPINFO {
+    BITMAPINFOHEADER bmiHeader;
+    RGBQUAD          bmiColors[1];
+} BITMAPINFO;
+
+// ---- GDI extras ----
+inline HBITMAP CreateDIBSection(HDC hdc, const BITMAPINFO* pbmi, UINT usage,
+                                 void** ppvBits, HANDLE hSection, DWORD offset) {
+    (void)hdc; (void)pbmi; (void)usage; (void)ppvBits; (void)hSection; (void)offset;
+    return NULL;
+}
+#define DIB_RGB_COLORS 0
+inline BOOL BitBlt(HDC hdc, int x, int y, int cx, int cy, HDC hdcSrc, int x1, int y1, DWORD rop) {
+    (void)hdc; (void)x; (void)y; (void)cx; (void)cy; (void)hdcSrc; (void)x1; (void)y1; (void)rop;
+    return TRUE;
+}
+typedef void* HGDIOBJ;
+inline HGDIOBJ SelectObject(HDC hdc, void* h) { (void)hdc; (void)h; return NULL; }
+inline BOOL DeleteObject(void* ho) { (void)ho; return TRUE; }
+inline HDC CreateCompatibleDC(HDC hdc) { (void)hdc; return NULL; }
+inline BOOL DeleteDC(HDC hdc) { (void)hdc; return TRUE; }
+#define SRCCOPY 0x00CC0020
+
+// ---- Interlocked exchange ----
+inline LONG InterlockedExchange(volatile LONG* target, LONG value) {
+    LONG old = *target; *target = value; return old;
+}
 
 #ifdef __cplusplus
 }

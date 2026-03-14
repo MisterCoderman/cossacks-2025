@@ -313,7 +313,7 @@ int RegisterEventHandler( EventHandPro* pro, int Type, void* param )
 
 void CloseEventHandler( int i )
 {
-	memset( &Events[i], 0, sizeof Events[i] );
+	memset( &Events[i], 0, sizeof(Events)[i] );
 }
 
 HWND hwnd;
@@ -788,7 +788,7 @@ MouseStack* ReadMEvent()
 		CURMS = MSTC[0];
 		if (NInStack > 1)
 		{
-			memcpy( MSTC, MSTC + 1, ( NInStack - 1 ) * sizeof MouseStack );
+			memcpy( MSTC, MSTC + 1, ( NInStack - 1 ) * sizeof(MouseStack) );
 		}
 		NInStack--;
 		return &CURMS;
@@ -816,7 +816,7 @@ void UnPress()
 }
 
 extern int CurPalette;
-LRESULT CD_MCINotify( WPARAM wFlags, LONG lDevId );
+LRESULT CD_MCINotify( UINT wFlags, LONG lDevId );
 int SHIFT_VAL = 0;
 void HandleMouse( int x, int y );
 extern bool PalDone;
@@ -3084,7 +3084,7 @@ void PrepareToGame()
 	}
 
 	MI_Mode = 1;
-	memset( TIMECHANGE, 0, sizeof TIMECHANGE );
+	memset( TIMECHANGE, 0, sizeof(TIMECHANGE) );
 	AddTime = 0;
 	NeedAddTime = 0;
 
@@ -3475,7 +3475,7 @@ int PASCAL WinMain(
 	//Load fonts(?)
 	LoadRLC( "xrcross.rlc", &RCross );
 
-	memset( Events, 0, sizeof Events );
+	memset( Events, 0, sizeof(Events) );
 
 	//Probably just to define PREVT
 	GetRealTime();

@@ -155,7 +155,7 @@ void FreeCell(int x, int y, byte NI)
 };
 void City::CreateCity(byte N)
 {
-	memset(this, 0, sizeof City);
+	memset(this, 0, sizeof(City));
 	NATIONS[N].CITY = this;
 	Nat = &NATIONS[N];
 	NI = N;
@@ -336,7 +336,7 @@ int  City::GetFreeBrigade()
 {
 	for (int i = 0; i < MaxBrig - 9; i++)if (!Brigs[i].Enabled)
 	{
-		memset(Brigs + i, 0, sizeof Brigade);
+		memset(Brigs + i, 0, sizeof(Brigade));
 		Brigs[i].CT = this;
 		Brigs[i].ID = i;
 		Brigs[i].SN = rando();
@@ -670,7 +670,7 @@ void City::CloseCity()
 	for (int i = 0; i < MaxArm; i++)if (ARMS[i].Enabled)ARMS[i].ClearArmy();
 	DelInform();
 	DelIdeas();
-	memset(this, 0, sizeof City);
+	memset(this, 0, sizeof(City));
 	if (NDefn)
 	{
 		for (int i = 0; i < NDefn; i++)
@@ -878,7 +878,7 @@ void City::UnRegisterNewUnit(OneObject* OB)
 				BR->MaxMemb = 0;
 				BR->NMemb = 0;
 				BR->Enabled = false;
-				memset(&BR->BM, 0, sizeof BR->BM);
+				memset(&BR->BM, 0, sizeof(BR)->BM);
 			};
 		};
 	};
@@ -894,11 +894,11 @@ void City::EnumUnits()
 
 	OneObject* OB;
 
-	memset(UnitAmount, 0, sizeof UnitAmount);
-	memset(ReadyAmount, 0, sizeof ReadyAmount);
-	memset(UnBusyAmount, 0, sizeof UnBusyAmount);
-	memset(PRPIndex, 255, sizeof PRPIndex);
-	memset(UPGIndex, 255, sizeof UPGIndex);
+	memset(UnitAmount, 0, sizeof(UnitAmount));
+	memset(ReadyAmount, 0, sizeof(ReadyAmount));
+	memset(UnBusyAmount, 0, sizeof(UnBusyAmount));
+	memset(PRPIndex, 255, sizeof(PRPIndex));
+	memset(UPGIndex, 255, sizeof(UPGIndex));
 
 	Amount = 0;
 	Nat->NFarms = 0; // Сбрасываем NFarms для всех наций перед подсчётом
@@ -2678,7 +2678,7 @@ void Branch::Check(byte NI)
 };
 void Branch::Init()
 {
-	memset(this, 0, sizeof Branch);
+	memset(this, 0, sizeof(Branch));
 };
 int Branch::GetMonsterCostPercent(byte NI, word NIndex)
 {
@@ -3128,7 +3128,7 @@ BeginMine:
 			Brigade* BR = CT->Brigs + N;
 			BR->Enabled = true;
 			BrigMemb BMEM;
-			memset(&BMEM, 0, sizeof BrigMemb);
+			memset(&BMEM, 0, sizeof(BrigMemb));
 			BMEM.Peons = Npeons;
 			BMEM.Infantry = Ninf;
 			BMEM.Strelkov = Nstrel;
@@ -3149,7 +3149,7 @@ BeginMine:
 			SendPInform* IN1 = new SendPInform;
 			IN1->ID = 0x1256;
 			IN1->time = tmtmt;
-			IN1->Size = sizeof SendPInform;
+			IN1->Size = sizeof(SendPInform);
 			IN1->Essence = SID;
 			CT->AddInform(IN1, NULL);
 			return;
@@ -3606,7 +3606,7 @@ void City::ProtectMine()
 		Brigade* BR = Brigs + N1;
 		BR->Enabled = true;
 		BrigMemb BMEM;
-		memset(&BMEM, 0, sizeof BrigMemb);
+		memset(&BMEM, 0, sizeof(BrigMemb));
 		BMEM.Peons = 9;
 		BMEM.Infantry = 6;
 		BMEM.Strelkov = 2;
@@ -3728,6 +3728,7 @@ void HandleGeology()
 				if (x > 0 && x < MiniLx && y>0 && y < MiniLy)
 				{
 					int ofst = int(ScreenPtr) + x + minix + (miniy + y) * ScrWidth;
+					#if defined(_MSC_VER) && defined(_M_IX86)
 					__asm {
 						push	edi
 						mov		edi, ofst
@@ -3741,6 +3742,7 @@ void HandleGeology()
 						mov[edi + edx], al
 						pop		edi
 					};
+					#endif
 				};
 			};
 		};
@@ -3846,7 +3848,7 @@ void City::AddDefending(byte x, byte y, byte Imp)
 	if (NDefn >= MaxDefn)
 	{
 		MaxDefn += 32;
-		DefInf = (DefendInfo*)realloc(DefInf, MaxDefn * sizeof DefendInfo);
+		DefInf = (DefendInfo*)realloc(DefInf, MaxDefn * sizeof(DefendInfo));
 	};
 	DefendInfo* DI = DefInf + NDefn;
 	DI->x = x;
@@ -3919,7 +3921,7 @@ word DefBriMin[MaxBT] = { 4 ,16 , 16, 16, 16, 1, 16,16, 25,  4 };
 
 void AI_Army::InitArmy(City* C)
 {
-	memset(this, 0, sizeof AI_Army);
+	memset(this, 0, sizeof(AI_Army));
 	CT = C;
 	NT = C->Nat;
 	NI = C->NI;
@@ -3942,7 +3944,7 @@ int CheckMinArmyCreationAbility(Brigade* BR)
 	int N = BR->NMemb;
 	word* Mem = BR->Memb;
 	word NBMEM[MaxBT + 4];
-	memset(NBMEM, 0, sizeof NBMEM);
+	memset(NBMEM, 0, sizeof(NBMEM));
 
 	for (int i = 0; i < N; i++)
 	{
@@ -3984,7 +3986,7 @@ int CheckSuperMinArmyCreationAbility(Brigade* BR)
 	int N = BR->NMemb;
 	word* Mem = BR->Memb;
 	word NBMEM[MaxBT + 4];
-	memset(NBMEM, 0, sizeof NBMEM);
+	memset(NBMEM, 0, sizeof(NBMEM));
 	for (int i = 0; i < N; i++)
 	{
 		word MID = Mem[i];
@@ -4673,7 +4675,7 @@ void ArmyConnectToArmyLink(AI_Army* ARM)
 };
 void AI_Army::ConnectToArmy(int ID, byte Prio, byte OrdType)
 {
-	ACTA_Order* AOR = (ACTA_Order*)CreateOrder(OrdType, sizeof ACTA_Order);
+	ACTA_Order* AOR = (ACTA_Order*)CreateOrder(OrdType, sizeof(ACTA_Order));
 	AOR->Message = ACTA_Message;
 	AOR->Prio = Prio;
 	AOR->ID = ID;
@@ -6134,10 +6136,10 @@ void AI_Army::Bitva()
 	if (SpecialOrder)return;
 	if (tmtmt - LastBitvaTime < 64 || (AOrder && AOrder->ALink == &A_BitvaLink))return;
 	LastBitvaTime = tmtmt;
-	Army_Bitva* OR1 = (Army_Bitva*)CreateOrder(1, sizeof Army_Bitva);
+	Army_Bitva* OR1 = (Army_Bitva*)CreateOrder(1, sizeof(Army_Bitva));
 	OR1->Message = ABIT_Message;
-	OR1->Size = sizeof Army_Bitva;
-	memset(OR1->BitMask, 0, sizeof OR1->BitMask);
+	OR1->Size = sizeof(Army_Bitva);
+	memset(OR1->BitMask, 0, sizeof(OR1)->BitMask);
 	OR1->NEn = 0;
 
 	int MinX = 10000000;
@@ -6527,12 +6529,12 @@ void A_DiversiaLink(AI_Army* ARM)
 
 void AI_Army::Diversia()
 {
-	DiversionOrder* OR1 = (DiversionOrder*)CreateOrder(0, sizeof DiversionOrder);
+	DiversionOrder* OR1 = (DiversionOrder*)CreateOrder(0, sizeof(DiversionOrder));
 	OR1->ALink = &A_DiversiaLink;
 	OR1->EnMID = 0xFFFF;
 	OR1->LastEnemyTime = tmtmt;
 	OR1->Message = ADIV_Message;
-	OR1->Size = sizeof DiversionOrder;
+	OR1->Size = sizeof(DiversionOrder);
 	OR1->MotionMethod = 0;
 	SpecialOrder = true;
 };
@@ -6651,7 +6653,7 @@ void SmartGamer(City* CT)
 		word* units = NatList[NNUM];
 		int NDanger = 0;
 		byte UseFlags[512];
-		memset(UseFlags, 0, sizeof UseFlags);
+		memset(UseFlags, 0, sizeof(UseFlags));
 		word Danger[128];
 		if (N)
 		{
@@ -7467,8 +7469,8 @@ int GetBestVictimForArchers(byte NI, int x, int y, int R, int MyTop)
 	// глобальные буферы
 	char ARRAY[64 * 64];
 	word BESTID[64 * 64];
-	memset(ARRAY, 0, sizeof ARRAY);
-	memset(BESTID, 0xFF, sizeof BESTID);
+	memset(ARRAY, 0, sizeof(ARRAY));
+	memset(BESTID, 0xFF, sizeof(BESTID));
 
 	const int totalObjs = MAXOBJECT;
 	int minx = (x - 1024 + 64) << 4;

@@ -655,7 +655,7 @@ void TakeUnitFromCash( byte NI, word ID )
 		{
 			if ( i < CSSIZE - 1 )
 			{
-				memcpy( UNICASH + i, UNICASH + i + 1, ( CSSIZE - i - 1 ) * sizeof ProCash );
+				memcpy( UNICASH + i, UNICASH + i + 1, ( CSSIZE - i - 1 ) * sizeof(ProCash) );
 			};
 			CSSIZE--;
 			i--;
@@ -673,7 +673,7 @@ bool AddUnitsToCash( byte NI, word ID )
 		cps = CSSIZE;
 		CSSIZE++;
 		addc = 1;
-		memset( UNICASH + cps, 0, sizeof ProCash );
+		memset( UNICASH + cps, 0, sizeof(ProCash) );
 	};
 	int COST[8];
 	int CMON[8];

@@ -531,5 +531,5 @@ int GetNominalCost( byte Buy, byte Sell, int Amount )
 int GetEconomyData( byte** EC )
 {
 	*EC = (byte*) &ECO;
-	return sizeof ECO;
+	return sizeof(ECO);
 }

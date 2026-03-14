@@ -27,7 +27,7 @@ void TotalPeerEngine::AddPlayer(char* nick){
 	};
 	if(NPlayers>=MaxPlayers){
 		MaxPlayers+=32;
-		Players=(TPE_Player*)realloc(Players,MaxPlayers*sizeof TPE_Player);
+		Players=(TPE_Player*)realloc(Players,MaxPlayers*sizeof(TPE_Player));
 	};
 	strcpy(Players[NPlayers].Name,nick);
 	Players[NPlayers].Ping=-1;
@@ -39,7 +39,7 @@ void TotalPeerEngine::DelPlayer(char* nick){
 	if(!Connected)return;
 	for(int i=0;i<NPlayers;i++)if(!strcmp(Players[i].Name,nick)){
 		if(i<NPlayers-1)
-			memcpy(Players+i,Players+i+1,(NPlayers-i-i)*sizeof TPE_Player);
+			memcpy(Players+i,Players+i+1,(NPlayers-i-i)*sizeof(TPE_Player));
 		NPlayers--;
 		i--;
 	};
@@ -53,7 +53,7 @@ void TotalPeerEngine::SetPing(char* nick,int Ping){
 	Change=1;
 };
 TotalPeerEngine::TotalPeerEngine(){
-	memset(this,0,sizeof TotalPeerEngine);
+	memset(this,0,sizeof(TotalPeerEngine));
 	PTIME=GetTickCount();
 };
 TotalPeerEngine::~TotalPeerEngine(){
@@ -65,7 +65,7 @@ TotalPeerEngine::~TotalPeerEngine(){
 		Peer=NULL;
 	};
 	if(MaxPlayers)free(Players);
-	memset(this,0,sizeof TotalPeerEngine);
+	memset(this,0,sizeof(TotalPeerEngine));
 };
 // Called when the connection to the server gets disconnected.
 //////////////////////////////////////////////////////////////
@@ -496,12 +496,12 @@ void ChatQueue::Clear(){
 	if(CStr){
 		free(CStr);
 	};
-	memset(this,0,sizeof ChatQueue);
+	memset(this,0,sizeof(ChatQueue));
 };
 void ChatQueue::Add(char* nick,char* Message){
 	if(NCStr>=MaxCStr){
 		MaxCStr+=16;
-		CStr=(ChatString*)realloc(CStr,MaxCStr*sizeof ChatString);
+		CStr=(ChatString*)realloc(CStr,MaxCStr*sizeof(ChatString));
 	};
 	CStr[NCStr].Message=new char[strlen(Message)+1];
 	strcpy(CStr[NCStr].Message,Message);
@@ -576,7 +576,7 @@ void PEER_JoinRoomCallback3(
 void TotalPeerEngine::CreateStagingRoom(char* Name,char* Password,int MaxPlayers){
 	if(!Connected)return;
 	MyRoom=new TPE_MyRoom;
-	memset(MyRoom,0,sizeof TPE_MyRoom);
+	memset(MyRoom,0,sizeof(TPE_MyRoom));
 	MyRoom->TPE=this;
 	strcpy(MyRoom->Name,Name);
 	MyRoom->MaxPlayer=MaxPlayers;
@@ -597,7 +597,7 @@ void TotalPeerEngine::AddServer(char* Name,GServer server){
 void TotalPeerEngine::DelServer(char* Name,GServer server){
 	if(!Connected)return;
 	for(int i=0;i<NRooms;i++)if(Room[i].G==server&&!strcmp(Room[i].Name,Name)){
-		if(i<NRooms-1)memcpy(Room+i,Room+i+1,(NRooms-i-1)*sizeof TPE_Room);
+		if(i<NRooms-1)memcpy(Room+i,Room+i+1,(NRooms-i-1)*sizeof(TPE_Room));
 		NRooms--;
 		ChangeServer=1;
 		return;
@@ -616,7 +616,7 @@ void TPE_MyRoom::AddPlayer(char* nick){
 	};
 	if(NPlayers>=MaxPlayers){
 		MaxPlayers+=32;
-		Players=(TPE_Player*)realloc(Players,MaxPlayers*sizeof TPE_Player);
+		Players=(TPE_Player*)realloc(Players,MaxPlayers*sizeof(TPE_Player));
 	};
 	strcpy(Players[NPlayers].Name,nick);
 	Players[NPlayers].Ping=-1;
@@ -628,7 +628,7 @@ void TPE_MyRoom::AddPlayer(char* nick){
 void TPE_MyRoom::DelPlayer(char* nick){
 	for(int i=0;i<NPlayers;i++)if(!strcmp(Players[i].Name,nick)){
 		if(i<NPlayers-1)
-			memcpy(Players+i,Players+i+1,(NPlayers-i-i)*sizeof TPE_Player);
+			memcpy(Players+i,Players+i+1,(NPlayers-i-i)*sizeof(TPE_Player));
 		NPlayers--;
 		i--;
 	};
@@ -688,7 +688,7 @@ void TotalPeerEngine::JoinRoom(TPE_Room* Room){
 	if(!Connected)return;
 	if(MyRoom)return;
 	MyRoom=new TPE_MyRoom;
-	memset(MyRoom,0,sizeof TPE_MyRoom);
+	memset(MyRoom,0,sizeof(TPE_MyRoom));
 	MyRoom->TPE=this;
 	strcpy(MyRoom->Name,Room->Name);
 	MyRoom->MaxPlayer=Room->MaxPlayer;

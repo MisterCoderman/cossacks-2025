@@ -54,7 +54,7 @@ WallCluster::~WallCluster()
 
 void WallCluster::SetSize( int N )
 {
-	Cells = (WallCell*) realloc( (void*) Cells, ( NCells + 1 ) * sizeof WallCell );
+	Cells = (WallCell*) realloc( (void*) Cells, ( NCells + 1 ) * sizeof(WallCell) );
 	NCells = N;
 }
 
@@ -427,7 +427,7 @@ void WallSystem::AddCluster( WallCluster* WC )
 	WCLUS->NM = WC->NM;
 	WCLUS->NIndex = WC->NIndex;
 	WCLUS->NI = WC->NI;
-	memcpy( WCLUS->Cells, WC->Cells, WC->NCells * sizeof WallCell );
+	memcpy( WCLUS->Cells, WC->Cells, WC->NCells * sizeof(WallCell) );
 	WallCell* W1 = WCL[NClusters]->Cells;
 	NClusters++;
 	for ( int i = 0; i < WC->NCells; i++ )
@@ -998,7 +998,7 @@ void LoadAllWalls()
 						sprintf( gy, "Walls.lst : incorrect parameters for %s (GATE_COST)", gx );
 						ErrM( gy );
 					};
-					memset( WChar[NChar].GateCost, 0, sizeof WChar[NChar].GateCost );
+					memset( WChar[NChar].GateCost, 0, sizeof(WChar)[NChar].GateCost );
 					for ( int j = 0; j < p1; j++ )
 					{
 						zz = Gscanf( f1, "%s%d", ic1, &p2 );
@@ -2246,7 +2246,7 @@ int AddGate( short x, short y, byte NI )
 		if ( NGates == MaxGates )
 		{
 			MaxGates += 32;
-			Gates = (Gate*) realloc( Gates, MaxGates * sizeof Gate );
+			Gates = (Gate*) realloc( Gates, MaxGates * sizeof(Gate) );
 		};
 		curg = NGates;
 		NGates++;

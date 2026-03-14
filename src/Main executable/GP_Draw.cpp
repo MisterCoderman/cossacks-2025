@@ -44,9 +44,9 @@ GP_System::GP_System()
 	GPSize = new int[NGPReady];
 	GPLastTime = new int[NGPReady];
 	RLCImage = new RLCTable[NGPReady];
-	memset(RLCImage, 0, (sizeof RLCImage) * NGPReady);
+	memset(RLCImage, 0, (sizeof(RLCImage)) * NGPReady);
 	RLCShadow = new RLCTable[NGPReady];
-	memset(RLCShadow, 0, (sizeof RLCShadow) * NGPReady);
+	memset(RLCShadow, 0, (sizeof(RLCShadow)) * NGPReady);
 	GPNFrames = new word[NGPReady];
 	ImageType = new byte[NGPReady];
 	UNITBL = (UNICODETABLE**)malloc(NGPReady << 2);
@@ -65,7 +65,7 @@ GP_System::GP_System()
 	memset(CASHREF, 0, NGPReady << 2);
 	memset(Mapping, 0, NGPReady);
 	//PreLoadGPImage("gets2");
-	memset(GP_L_IDXS, 0, sizeof GP_L_IDXS);
+	memset(GP_L_IDXS, 0, sizeof(GP_L_IDXS));
 };
 GP_System::~GP_System()
 {
@@ -327,11 +327,13 @@ int GP_Header::GetLx()
 		DIFF = GPH->NextPict;
 		int Lxx = GPH->dx + GPH->Lx;
 		if (Lxx > LxMax)LxMax = Lxx;
+		#if defined(_MSC_VER) && defined(_M_IX86)
 		__asm {
 			mov	eax, GPS
 			add	eax, DIFF
 			mov	GPH, eax
 		};
+		#endif
 	} while (DIFF != -1);
 	return LxMax;
 };
@@ -346,11 +348,13 @@ int GP_Header::GetLy()
 		DIFF = GPH->NextPict;
 		int Lyy = GPH->dy + GPH->Ly;
 		if (Lyy > LyMax)LyMax = Lyy;
+		#if defined(_MSC_VER) && defined(_M_IX86)
 		__asm {
 			mov	eax, GPS
 			add	eax, DIFF
 			mov	GPH, eax
 		};
+		#endif
 	} while (DIFF != -1);
 	return LyMax;
 };
@@ -365,11 +369,13 @@ int GP_Header::GetDx()
 		DIFF = GPH->NextPict;
 		int Lxx = GPH->dx;
 		if (Lxx < LxMax)LxMax = Lxx;
+		#if defined(_MSC_VER) && defined(_M_IX86)
 		__asm {
 			mov	eax, GPS
 			add	eax, DIFF
 			mov	GPH, eax
 		};
+		#endif
 	} while (DIFF != -1);
 	return LxMax;
 };
@@ -384,11 +390,13 @@ int GP_Header::GetDy()
 		DIFF = GPH->NextPict;
 		int Lxx = GPH->dy;
 		if (Lxx < LxMax)LxMax = Lxx;
+		#if defined(_MSC_VER) && defined(_M_IX86)
 		__asm {
 			mov	eax, GPS
 			add	eax, DIFF
 			mov	GPH, eax
 		};
+		#endif
 	} while (DIFF != -1);
 	return LxMax;
 }
@@ -495,7 +503,7 @@ int GP_System::PreLoadGPImage(char* Name)
 	return fidx;
 }
 
-#define GPX(x,y) ((GP_Header*)(int(x)+x##->##y))
+#define GPX(x,y) ((GP_Header*)((intptr_t)(x)+(x)->y))
 
 bool GP_System::LoadGP(int i)
 {
@@ -569,11 +577,13 @@ bool GP_System::LoadGP(int i)
 				{
 					DIFF = LGP->NextPict;
 					csz++;
+					#if defined(_MSC_VER) && defined(_M_IX86)
 					__asm {
 						mov	eax, LGP0
 						add	eax, DIFF
 						mov	LGP, eax
 					};
+					#endif
 				} while (DIFF != -1);
 			};
 			CASHREF[i] = new DWORD[csz + 1];
@@ -591,11 +601,13 @@ bool GP_System::LoadGP(int i)
 				{
 					DIFF = LGP->NextPict;
 					csz++;
+					#if defined(_MSC_VER) && defined(_M_IX86)
 					__asm {
 						mov	eax, LGP0;
 						add	eax, DIFF
 							mov	LGP, eax
 					};
+					#endif
 				} while (DIFF != -1);
 			};
 			return true;
@@ -663,6 +675,7 @@ void GP_ShowMaskedPict(int x, int y, GP_Header* Pic, byte* CData, byte* Encoder)
 
 	if (y < WindY)
 	{
+		#if defined(_MSC_VER) && defined(_M_IX86)
 		__asm
 		{
 			mov		ecx, WindY
@@ -708,6 +721,7 @@ void GP_ShowMaskedPict(int x, int y, GP_Header* Pic, byte* CData, byte* Encoder)
 				jnz		NLINE
 				END_VCLIP : mov		ofst, ebx
 		}
+		#endif
 	}
 	//bottom clipper
 
@@ -734,6 +748,7 @@ void GP_ShowMaskedPict(int x, int y, GP_Header* Pic, byte* CData, byte* Encoder)
 		//******************(((((((((((())))))))))))*****************//
 		//***********************************************************//
 				//no clipping
+		#if defined(_MSC_VER) && defined(_M_IX86)
 		__asm
 		{
 			pushf
@@ -833,6 +848,7 @@ void GP_ShowMaskedPict(int x, int y, GP_Header* Pic, byte* CData, byte* Encoder)
 				pop		esi
 				popf
 		}
+		#endif
 	}
 	else
 	{
@@ -847,6 +863,7 @@ void GP_ShowMaskedPict(int x, int y, GP_Header* Pic, byte* CData, byte* Encoder)
 			//****************************************************************//
 			//****************************************************************//
 			CLIP = WindX - x;
+			#if defined(_MSC_VER) && defined(_M_IX86)
 			__asm
 			{
 				pushf
@@ -989,6 +1006,7 @@ void GP_ShowMaskedPict(int x, int y, GP_Header* Pic, byte* CData, byte* Encoder)
 					pop		esi
 					popf
 			}
+			#endif
 		}
 		else
 		{
@@ -1003,6 +1021,7 @@ void GP_ShowMaskedPict(int x, int y, GP_Header* Pic, byte* CData, byte* Encoder)
 				//****************************************************************//
 				CLIP = WindX1 - x + 1;
 				int ADDESI;
+				#if defined(_MSC_VER) && defined(_M_IX86)
 				__asm
 				{
 					pushf
@@ -1151,6 +1170,7 @@ void GP_ShowMaskedPict(int x, int y, GP_Header* Pic, byte* CData, byte* Encoder)
 						pop		esi
 						popf
 				}
+				#endif
 			}
 		}
 	}
@@ -1169,6 +1189,7 @@ void GP_ShowMaskedPictInv(int x, int y, GP_Header* Pic, byte* CData, byte* Encod
 	int CDPOS = int(CData);
 	if (y < WindY)
 	{
+		#if defined(_MSC_VER) && defined(_M_IX86)
 		__asm {
 			mov		ecx, WindY
 			sub		ecx, y
@@ -1213,6 +1234,7 @@ void GP_ShowMaskedPictInv(int x, int y, GP_Header* Pic, byte* CData, byte* Encod
 				jnz		NLINE
 				END_VCLIP : mov		ofst, ebx
 		};
+		#endif
 	};
 	//bottom clipper
 	if (y + NLines > WindY1)NLines = WindY1 - y + 1;
@@ -1233,6 +1255,7 @@ void GP_ShowMaskedPictInv(int x, int y, GP_Header* Pic, byte* CData, byte* Encod
 		//******************(((((((((((())))))))))))*****************//
 		//***********************************************************//
 				//no clipping
+		#if defined(_MSC_VER) && defined(_M_IX86)
 		__asm {
 			pushf
 			push	esi
@@ -1333,6 +1356,7 @@ void GP_ShowMaskedPictInv(int x, int y, GP_Header* Pic, byte* CData, byte* Encod
 				pop		esi
 				popf
 		};
+		#endif
 	}
 	else
 	{
@@ -1347,6 +1371,7 @@ void GP_ShowMaskedPictInv(int x, int y, GP_Header* Pic, byte* CData, byte* Encod
 			//****************************************************************//
 			//****************************************************************//
 			CLIP = x - WindX1;
+			#if defined(_MSC_VER) && defined(_M_IX86)
 			__asm {
 				pushf
 				push	esi
@@ -1490,6 +1515,7 @@ void GP_ShowMaskedPictInv(int x, int y, GP_Header* Pic, byte* CData, byte* Encod
 					pop		esi
 					popf
 			};
+			#endif
 		}
 		else
 		{
@@ -1504,6 +1530,7 @@ void GP_ShowMaskedPictInv(int x, int y, GP_Header* Pic, byte* CData, byte* Encod
 				//****************************************************************//
 				CLIP = x - WindX + 1;
 				int ADDESI;
+				#if defined(_MSC_VER) && defined(_M_IX86)
 				__asm {
 					pushf
 					push	esi
@@ -1653,6 +1680,7 @@ void GP_ShowMaskedPictInv(int x, int y, GP_Header* Pic, byte* CData, byte* Encod
 						pop		esi
 						popf
 				};
+				#endif
 			};
 		};
 	};
@@ -1682,6 +1710,7 @@ void GP_ShowMaskedPictShadow(int x, int y, GP_Header* Pic, byte* CData, byte* En
 	int CDPOS = int(CData);
 	if (y < WindY)
 	{
+		#if defined(_MSC_VER) && defined(_M_IX86)
 		__asm {
 			mov		ecx, WindY
 			sub		ecx, y
@@ -1726,6 +1755,7 @@ void GP_ShowMaskedPictShadow(int x, int y, GP_Header* Pic, byte* CData, byte* En
 				jnz		NLINE
 				END_VCLIP : mov		ofst, ebx
 		};
+		#endif
 	};
 	//bottom clipper
 	if (y + NLines > WindY1)NLines = WindY1 - y + 1;
@@ -1746,6 +1776,7 @@ void GP_ShowMaskedPictShadow(int x, int y, GP_Header* Pic, byte* CData, byte* En
 		//******************(((((((((((())))))))))))*****************//
 		//***********************************************************//
 				//no clipping
+		#if defined(_MSC_VER) && defined(_M_IX86)
 		__asm {
 			pushf
 			push	esi
@@ -1852,6 +1883,7 @@ void GP_ShowMaskedPictShadow(int x, int y, GP_Header* Pic, byte* CData, byte* En
 				pop		esi
 				popf
 		};
+		#endif
 	}
 	else
 	{
@@ -1866,6 +1898,7 @@ void GP_ShowMaskedPictShadow(int x, int y, GP_Header* Pic, byte* CData, byte* En
 			//****************************************************************//
 			//****************************************************************//
 			CLIP = WindX - x;
+			#if defined(_MSC_VER) && defined(_M_IX86)
 			__asm {
 				pushf
 				push	esi
@@ -2015,6 +2048,7 @@ void GP_ShowMaskedPictShadow(int x, int y, GP_Header* Pic, byte* CData, byte* En
 					pop		esi
 					popf
 			};
+			#endif
 		}
 		else
 		{
@@ -2029,6 +2063,7 @@ void GP_ShowMaskedPictShadow(int x, int y, GP_Header* Pic, byte* CData, byte* En
 				//****************************************************************//
 				CLIP = WindX1 - x + 1;
 				int ADDESI;
+				#if defined(_MSC_VER) && defined(_M_IX86)
 				__asm {
 					pushf
 					push	esi
@@ -2184,6 +2219,7 @@ void GP_ShowMaskedPictShadow(int x, int y, GP_Header* Pic, byte* CData, byte* En
 						pop		esi
 						popf
 				};
+				#endif
 			};
 		};
 	};
@@ -2201,6 +2237,7 @@ void GP_ShowMaskedPictShadowInv(int x, int y, GP_Header* Pic, byte* CData, byte*
 	int CDPOS = int(CData);
 	if (y < WindY)
 	{
+		#if defined(_MSC_VER) && defined(_M_IX86)
 		__asm {
 			mov		ecx, WindY
 			sub		ecx, y
@@ -2245,6 +2282,7 @@ void GP_ShowMaskedPictShadowInv(int x, int y, GP_Header* Pic, byte* CData, byte*
 				jnz		NLINE
 				END_VCLIP : mov		ofst, ebx
 		};
+		#endif
 	};
 	//bottom clipper
 	if (y + NLines > WindY1)NLines = WindY1 - y + 1;
@@ -2265,6 +2303,7 @@ void GP_ShowMaskedPictShadowInv(int x, int y, GP_Header* Pic, byte* CData, byte*
 		//******************(((((((((((())))))))))))*****************//
 		//***********************************************************//
 				//no clipping
+		#if defined(_MSC_VER) && defined(_M_IX86)
 		__asm {
 			pushf
 			push	esi
@@ -2371,6 +2410,7 @@ void GP_ShowMaskedPictShadowInv(int x, int y, GP_Header* Pic, byte* CData, byte*
 				pop		esi
 				popf
 		};
+		#endif
 	}
 	else
 	{
@@ -2385,6 +2425,7 @@ void GP_ShowMaskedPictShadowInv(int x, int y, GP_Header* Pic, byte* CData, byte*
 			//****************************************************************//
 			//****************************************************************//
 			CLIP = x - WindX1;
+			#if defined(_MSC_VER) && defined(_M_IX86)
 			__asm {
 				pushf
 				push	esi
@@ -2534,6 +2575,7 @@ void GP_ShowMaskedPictShadowInv(int x, int y, GP_Header* Pic, byte* CData, byte*
 					pop		esi
 					popf
 			};
+			#endif
 		}
 		else
 		{
@@ -2548,6 +2590,7 @@ void GP_ShowMaskedPictShadowInv(int x, int y, GP_Header* Pic, byte* CData, byte*
 				//****************************************************************//
 				CLIP = x - WindX + 1;
 				int ADDESI;
+				#if defined(_MSC_VER) && defined(_M_IX86)
 				__asm {
 					pushf
 					push	esi
@@ -2703,6 +2746,7 @@ void GP_ShowMaskedPictShadowInv(int x, int y, GP_Header* Pic, byte* CData, byte*
 						pop		esi
 						popf
 				};
+				#endif
 			};
 		};
 	};
@@ -2733,6 +2777,7 @@ void GP_ShowMaskedPictOverpoint(int x, int y, GP_Header* Pic, byte* CData, byte*
 	int CDPOS = int(CData);
 	if (y < WindY)
 	{
+		#if defined(_MSC_VER) && defined(_M_IX86)
 		__asm {
 			mov		ecx, WindY
 			sub		ecx, y
@@ -2777,6 +2822,7 @@ void GP_ShowMaskedPictOverpoint(int x, int y, GP_Header* Pic, byte* CData, byte*
 				jnz		NLINE
 				END_VCLIP : mov		ofst, ebx
 		};
+		#endif
 		OCNTR = WindY;
 	};
 	//bottom clipper
@@ -2798,6 +2844,7 @@ void GP_ShowMaskedPictOverpoint(int x, int y, GP_Header* Pic, byte* CData, byte*
 		//******************(((((((((((())))))))))))*****************//
 		//***********************************************************//
 				//no clipping
+		#if defined(_MSC_VER) && defined(_M_IX86)
 		__asm {
 			pushf
 			push	esi
@@ -2910,6 +2957,7 @@ void GP_ShowMaskedPictOverpoint(int x, int y, GP_Header* Pic, byte* CData, byte*
 				pop		esi
 				popf
 		};
+		#endif
 	}
 	else
 	{
@@ -2924,6 +2972,7 @@ void GP_ShowMaskedPictOverpoint(int x, int y, GP_Header* Pic, byte* CData, byte*
 			//****************************************************************//
 			//****************************************************************//
 			CLIP = WindX - x;
+			#if defined(_MSC_VER) && defined(_M_IX86)
 			__asm {
 				pushf
 				push	esi
@@ -3079,6 +3128,7 @@ void GP_ShowMaskedPictOverpoint(int x, int y, GP_Header* Pic, byte* CData, byte*
 					pop		esi
 					popf
 			};
+			#endif
 		}
 		else
 		{
@@ -3093,6 +3143,7 @@ void GP_ShowMaskedPictOverpoint(int x, int y, GP_Header* Pic, byte* CData, byte*
 				//****************************************************************//
 				CLIP = WindX1 - x + 1;
 				int ADDESI;
+				#if defined(_MSC_VER) && defined(_M_IX86)
 				__asm {
 					pushf
 					push	esi
@@ -3254,6 +3305,7 @@ void GP_ShowMaskedPictOverpoint(int x, int y, GP_Header* Pic, byte* CData, byte*
 						pop		esi
 						popf
 				};
+				#endif
 			};
 		};
 	};
@@ -3271,6 +3323,7 @@ void GP_ShowMaskedPictOverpointInv(int x, int y, GP_Header* Pic, byte* CData, by
 	int CDPOS = int(CData);
 	if (y < WindY)
 	{
+		#if defined(_MSC_VER) && defined(_M_IX86)
 		__asm {
 			mov		ecx, WindY
 			sub		ecx, y
@@ -3315,6 +3368,7 @@ void GP_ShowMaskedPictOverpointInv(int x, int y, GP_Header* Pic, byte* CData, by
 				jnz		NLINE
 				END_VCLIP : mov		ofst, ebx
 		};
+		#endif
 	};
 	//bottom clipper
 	if (y + NLines > WindY1)NLines = WindY1 - y + 1;
@@ -3335,6 +3389,7 @@ void GP_ShowMaskedPictOverpointInv(int x, int y, GP_Header* Pic, byte* CData, by
 		//******************(((((((((((())))))))))))*****************//
 		//***********************************************************//
 				//no clipping
+		#if defined(_MSC_VER) && defined(_M_IX86)
 		__asm {
 			pushf
 			push	esi
@@ -3441,6 +3496,7 @@ void GP_ShowMaskedPictOverpointInv(int x, int y, GP_Header* Pic, byte* CData, by
 				pop		esi
 				popf
 		};
+		#endif
 	}
 	else
 	{
@@ -3455,6 +3511,7 @@ void GP_ShowMaskedPictOverpointInv(int x, int y, GP_Header* Pic, byte* CData, by
 			//****************************************************************//
 			//****************************************************************//
 			CLIP = x - WindX1;
+			#if defined(_MSC_VER) && defined(_M_IX86)
 			__asm {
 				pushf
 				push	esi
@@ -3604,6 +3661,7 @@ void GP_ShowMaskedPictOverpointInv(int x, int y, GP_Header* Pic, byte* CData, by
 					pop		esi
 					popf
 			};
+			#endif
 		}
 		else
 		{
@@ -3618,6 +3676,7 @@ void GP_ShowMaskedPictOverpointInv(int x, int y, GP_Header* Pic, byte* CData, by
 				//****************************************************************//
 				CLIP = x - WindX + 1;
 				int ADDESI;
+				#if defined(_MSC_VER) && defined(_M_IX86)
 				__asm {
 					pushf
 					push	esi
@@ -3773,6 +3832,7 @@ void GP_ShowMaskedPictOverpointInv(int x, int y, GP_Header* Pic, byte* CData, by
 						pop		esi
 						popf
 				};
+				#endif
 			};
 		};
 	};
@@ -3803,6 +3863,7 @@ void GP_ShowMaskedPalPict(int x, int y, GP_Header* Pic, byte* CData, byte* Encod
 	int CDPOS = int(CData);
 	if (y < WindY)
 	{
+		#if defined(_MSC_VER) && defined(_M_IX86)
 		__asm {
 			mov		ecx, WindY
 			sub		ecx, y
@@ -3847,6 +3908,7 @@ void GP_ShowMaskedPalPict(int x, int y, GP_Header* Pic, byte* CData, byte* Encod
 				jnz		NLINE
 				END_VCLIP : mov		ofst, ebx
 		};
+		#endif
 	};
 	//bottom clipper
 	if (y + NLines > WindY1)NLines = WindY1 - y + 1;
@@ -3867,6 +3929,7 @@ void GP_ShowMaskedPalPict(int x, int y, GP_Header* Pic, byte* CData, byte* Encod
 		//******************(((((((((((())))))))))))*****************//
 		//***********************************************************//
 				//no clipping
+		#if defined(_MSC_VER) && defined(_M_IX86)
 		__asm {
 			pushf
 			push	esi
@@ -3971,6 +4034,7 @@ void GP_ShowMaskedPalPict(int x, int y, GP_Header* Pic, byte* CData, byte* Encod
 				pop		esi
 				popf
 		};
+		#endif
 	}
 	else
 	{
@@ -3985,6 +4049,7 @@ void GP_ShowMaskedPalPict(int x, int y, GP_Header* Pic, byte* CData, byte* Encod
 			//****************************************************************//
 			//****************************************************************//
 			CLIP = WindX - x;
+			#if defined(_MSC_VER) && defined(_M_IX86)
 			__asm {
 				pushf
 				push	esi
@@ -4132,6 +4197,7 @@ void GP_ShowMaskedPalPict(int x, int y, GP_Header* Pic, byte* CData, byte* Encod
 					pop		esi
 					popf
 			};
+			#endif
 		}
 		else
 		{
@@ -4146,6 +4212,7 @@ void GP_ShowMaskedPalPict(int x, int y, GP_Header* Pic, byte* CData, byte* Encod
 				//****************************************************************//
 				CLIP = WindX1 - x + 1;
 				int ADDESI;
+				#if defined(_MSC_VER) && defined(_M_IX86)
 				__asm {
 					pushf
 					push	esi
@@ -4299,6 +4366,7 @@ void GP_ShowMaskedPalPict(int x, int y, GP_Header* Pic, byte* CData, byte* Encod
 						pop		esi
 						popf
 				};
+				#endif
 			};
 		};
 	};
@@ -4316,6 +4384,7 @@ void GP_ShowMaskedPalPictInv(int x, int y, GP_Header* Pic, byte* CData, byte* En
 	int CDPOS = int(CData);
 	if (y < WindY)
 	{
+		#if defined(_MSC_VER) && defined(_M_IX86)
 		__asm {
 			mov		ecx, WindY
 			sub		ecx, y
@@ -4360,6 +4429,7 @@ void GP_ShowMaskedPalPictInv(int x, int y, GP_Header* Pic, byte* CData, byte* En
 				jnz		NLINE
 				END_VCLIP : mov		ofst, ebx
 		};
+		#endif
 	};
 	//bottom clipper
 	if (y + NLines > WindY1)NLines = WindY1 - y + 1;
@@ -4380,6 +4450,7 @@ void GP_ShowMaskedPalPictInv(int x, int y, GP_Header* Pic, byte* CData, byte* En
 		//******************(((((((((((())))))))))))*****************//
 		//***********************************************************//
 				//no clipping
+		#if defined(_MSC_VER) && defined(_M_IX86)
 		__asm {
 			pushf
 			push	esi
@@ -4486,6 +4557,7 @@ void GP_ShowMaskedPalPictInv(int x, int y, GP_Header* Pic, byte* CData, byte* En
 				pop		esi
 				popf
 		};
+		#endif
 	}
 	else
 	{
@@ -4500,6 +4572,7 @@ void GP_ShowMaskedPalPictInv(int x, int y, GP_Header* Pic, byte* CData, byte* En
 			//****************************************************************//
 			//****************************************************************//
 			CLIP = x - WindX1;
+			#if defined(_MSC_VER) && defined(_M_IX86)
 			__asm {
 				pushf
 				push	esi
@@ -4649,6 +4722,7 @@ void GP_ShowMaskedPalPictInv(int x, int y, GP_Header* Pic, byte* CData, byte* En
 					pop		esi
 					popf
 			};
+			#endif
 		}
 		else
 		{
@@ -4663,6 +4737,7 @@ void GP_ShowMaskedPalPictInv(int x, int y, GP_Header* Pic, byte* CData, byte* En
 				//****************************************************************//
 				CLIP = x - WindX + 1;
 				int ADDESI;
+				#if defined(_MSC_VER) && defined(_M_IX86)
 				__asm {
 					pushf
 					push	esi
@@ -4818,6 +4893,7 @@ void GP_ShowMaskedPalPictInv(int x, int y, GP_Header* Pic, byte* CData, byte* En
 						pop		esi
 						popf
 				};
+				#endif
 			};
 		};
 	};
@@ -4847,6 +4923,7 @@ void GP_ShowMaskedMultiPalPict(int x, int y, GP_Header* Pic, byte* CData, byte* 
 	int CDPOS = int(CData);
 	if (y < WindY)
 	{
+		#if defined(_MSC_VER) && defined(_M_IX86)
 		__asm {
 			mov		ecx, WindY
 			sub		ecx, y
@@ -4891,6 +4968,7 @@ void GP_ShowMaskedMultiPalPict(int x, int y, GP_Header* Pic, byte* CData, byte* 
 				jnz		NLINE
 				END_VCLIP : mov		ofst, ebx
 		};
+		#endif
 	};
 	//bottom clipper
 	if (y + NLines > WindY1)NLines = WindY1 - y + 1;
@@ -4911,6 +4989,7 @@ void GP_ShowMaskedMultiPalPict(int x, int y, GP_Header* Pic, byte* CData, byte* 
 		//******************(((((((((((())))))))))))*****************//
 		//***********************************************************//
 				//no clipping
+		#if defined(_MSC_VER) && defined(_M_IX86)
 		__asm {
 			pushf
 			push	esi
@@ -5019,6 +5098,7 @@ void GP_ShowMaskedMultiPalPict(int x, int y, GP_Header* Pic, byte* CData, byte* 
 				pop		esi
 				popf
 		};
+		#endif
 	}
 	else
 	{
@@ -5033,6 +5113,7 @@ void GP_ShowMaskedMultiPalPict(int x, int y, GP_Header* Pic, byte* CData, byte* 
 			//****************************************************************//
 			//****************************************************************//
 			CLIP = WindX - x;
+			#if defined(_MSC_VER) && defined(_M_IX86)
 			__asm {
 				pushf
 				push	esi
@@ -5184,6 +5265,7 @@ void GP_ShowMaskedMultiPalPict(int x, int y, GP_Header* Pic, byte* CData, byte* 
 					pop		esi
 					popf
 			};
+			#endif
 		}
 		else
 		{
@@ -5198,6 +5280,7 @@ void GP_ShowMaskedMultiPalPict(int x, int y, GP_Header* Pic, byte* CData, byte* 
 				//****************************************************************//
 				CLIP = WindX1 - x + 1;
 				int ADDESI;
+				#if defined(_MSC_VER) && defined(_M_IX86)
 				__asm {
 					pushf
 					push	esi
@@ -5355,6 +5438,7 @@ void GP_ShowMaskedMultiPalPict(int x, int y, GP_Header* Pic, byte* CData, byte* 
 						pop		esi
 						popf
 				};
+				#endif
 			};
 		};
 	};
@@ -5372,6 +5456,7 @@ void GP_ShowMaskedMultiPalPictInv(int x, int y, GP_Header* Pic, byte* CData, byt
 	int CDPOS = int(CData);
 	if (y < WindY)
 	{
+		#if defined(_MSC_VER) && defined(_M_IX86)
 		__asm {
 			mov		ecx, WindY
 			sub		ecx, y
@@ -5416,6 +5501,7 @@ void GP_ShowMaskedMultiPalPictInv(int x, int y, GP_Header* Pic, byte* CData, byt
 				jnz		NLINE
 				END_VCLIP : mov		ofst, ebx
 		};
+		#endif
 	};
 	//bottom clipper
 	if (y + NLines > WindY1)NLines = WindY1 - y + 1;
@@ -5436,6 +5522,7 @@ void GP_ShowMaskedMultiPalPictInv(int x, int y, GP_Header* Pic, byte* CData, byt
 		//******************(((((((((((())))))))))))*****************//
 		//***********************************************************//
 				//no clipping
+		#if defined(_MSC_VER) && defined(_M_IX86)
 		__asm {
 			pushf
 			push	esi
@@ -5546,6 +5633,7 @@ void GP_ShowMaskedMultiPalPictInv(int x, int y, GP_Header* Pic, byte* CData, byt
 				pop		esi
 				popf
 		};
+		#endif
 	}
 	else
 	{
@@ -5560,6 +5648,7 @@ void GP_ShowMaskedMultiPalPictInv(int x, int y, GP_Header* Pic, byte* CData, byt
 			//****************************************************************//
 			//****************************************************************//
 			CLIP = x - WindX1;
+			#if defined(_MSC_VER) && defined(_M_IX86)
 			__asm {
 				pushf
 				push	esi
@@ -5713,6 +5802,7 @@ void GP_ShowMaskedMultiPalPictInv(int x, int y, GP_Header* Pic, byte* CData, byt
 					pop		esi
 					popf
 			};
+			#endif
 		}
 		else
 		{
@@ -5727,6 +5817,7 @@ void GP_ShowMaskedMultiPalPictInv(int x, int y, GP_Header* Pic, byte* CData, byt
 				//****************************************************************//
 				CLIP = x - WindX + 1;
 				int ADDESI;
+				#if defined(_MSC_VER) && defined(_M_IX86)
 				__asm {
 					pushf
 					push	esi
@@ -5886,6 +5977,7 @@ void GP_ShowMaskedMultiPalPictInv(int x, int y, GP_Header* Pic, byte* CData, byt
 						pop		esi
 						popf
 				};
+				#endif
 			};
 		};
 	};
@@ -5915,6 +6007,7 @@ void GP_ShowMaskedMultiPalTPict(int x, int y, GP_Header* Pic, byte* CData, byte*
 	int CDPOS = int(CData);
 	if (y < WindY)
 	{
+		#if defined(_MSC_VER) && defined(_M_IX86)
 		__asm {
 			mov		ecx, WindY
 			sub		ecx, y
@@ -5959,6 +6052,7 @@ void GP_ShowMaskedMultiPalTPict(int x, int y, GP_Header* Pic, byte* CData, byte*
 				jnz		NLINE
 				END_VCLIP : mov		ofst, ebx
 		};
+		#endif
 	};
 	//bottom clipper
 	if (y + NLines > WindY1)NLines = WindY1 - y + 1;
@@ -5979,6 +6073,7 @@ void GP_ShowMaskedMultiPalTPict(int x, int y, GP_Header* Pic, byte* CData, byte*
 		//******************(((((((((((())))))))))))*****************//
 		//***********************************************************//
 				//no clipping
+		#if defined(_MSC_VER) && defined(_M_IX86)
 		__asm {
 			pushf
 			push	esi
@@ -6085,6 +6180,7 @@ void GP_ShowMaskedMultiPalTPict(int x, int y, GP_Header* Pic, byte* CData, byte*
 				pop		esi
 				popf
 		};
+		#endif
 	}
 	else
 	{
@@ -6099,6 +6195,7 @@ void GP_ShowMaskedMultiPalTPict(int x, int y, GP_Header* Pic, byte* CData, byte*
 			//****************************************************************//
 			//****************************************************************//
 			CLIP = WindX - x;
+			#if defined(_MSC_VER) && defined(_M_IX86)
 			__asm {
 				pushf
 				push	esi
@@ -6248,6 +6345,7 @@ void GP_ShowMaskedMultiPalTPict(int x, int y, GP_Header* Pic, byte* CData, byte*
 					pop		esi
 					popf
 			};
+			#endif
 		}
 		else
 		{
@@ -6262,6 +6360,7 @@ void GP_ShowMaskedMultiPalTPict(int x, int y, GP_Header* Pic, byte* CData, byte*
 				//****************************************************************//
 				CLIP = WindX1 - x + 1;
 				int ADDESI;
+				#if defined(_MSC_VER) && defined(_M_IX86)
 				__asm {
 					pushf
 					push	esi
@@ -6417,6 +6516,7 @@ void GP_ShowMaskedMultiPalTPict(int x, int y, GP_Header* Pic, byte* CData, byte*
 						pop		esi
 						popf
 				};
+				#endif
 			};
 		};
 	};
@@ -6435,6 +6535,7 @@ void GP_ShowMaskedMultiPalTPictInv(int x, int y, GP_Header* Pic, byte* CData, by
 	int CDPOS = int(CData);
 	if (y < WindY)
 	{
+		#if defined(_MSC_VER) && defined(_M_IX86)
 		__asm {
 			mov		ecx, WindY
 			sub		ecx, y
@@ -6479,6 +6580,7 @@ void GP_ShowMaskedMultiPalTPictInv(int x, int y, GP_Header* Pic, byte* CData, by
 				jnz		NLINE
 				END_VCLIP : mov		ofst, ebx
 		};
+		#endif
 	};
 	//bottom clipper
 	if (y + NLines > WindY1)NLines = WindY1 - y + 1;
@@ -6499,6 +6601,7 @@ void GP_ShowMaskedMultiPalTPictInv(int x, int y, GP_Header* Pic, byte* CData, by
 		//******************(((((((((((())))))))))))*****************//
 		//***********************************************************//
 				//no clipping
+		#if defined(_MSC_VER) && defined(_M_IX86)
 		__asm {
 			pushf
 			push	esi
@@ -6607,6 +6710,7 @@ void GP_ShowMaskedMultiPalTPictInv(int x, int y, GP_Header* Pic, byte* CData, by
 				pop		esi
 				popf
 		};
+		#endif
 	}
 	else
 	{
@@ -6621,6 +6725,7 @@ void GP_ShowMaskedMultiPalTPictInv(int x, int y, GP_Header* Pic, byte* CData, by
 			//****************************************************************//
 			//****************************************************************//
 			CLIP = x - WindX1;
+			#if defined(_MSC_VER) && defined(_M_IX86)
 			__asm {
 				pushf
 				push	esi
@@ -6772,6 +6877,7 @@ void GP_ShowMaskedMultiPalTPictInv(int x, int y, GP_Header* Pic, byte* CData, by
 					pop		esi
 					popf
 			};
+			#endif
 		}
 		else
 		{
@@ -6786,6 +6892,7 @@ void GP_ShowMaskedMultiPalTPictInv(int x, int y, GP_Header* Pic, byte* CData, by
 				//****************************************************************//
 				CLIP = x - WindX + 1;
 				int ADDESI;
+				#if defined(_MSC_VER) && defined(_M_IX86)
 				__asm {
 					pushf
 					push	esi
@@ -6943,6 +7050,7 @@ void GP_ShowMaskedMultiPalTPictInv(int x, int y, GP_Header* Pic, byte* CData, by
 						pop		esi
 						popf
 				};
+				#endif
 			};
 		};
 	};
@@ -6976,6 +7084,7 @@ void GP_ShowMaskedMirrorPict(int x, int y, GP_Header* Pic, byte* CData, int* WSH
 	int CDPOS = int(CData);
 	if (y < WindY)
 	{
+		#if defined(_MSC_VER) && defined(_M_IX86)
 		__asm
 		{
 			mov		ecx, WindY
@@ -7021,6 +7130,7 @@ void GP_ShowMaskedMirrorPict(int x, int y, GP_Header* Pic, byte* CData, int* WSH
 				jnz		NLINE
 				END_VCLIP : mov		ofst, ebx
 		};
+		#endif
 	};
 	//bottom clipper
 	if (y + NLines > WindY1)NLines = WindY1 - y + 1;
@@ -7041,6 +7151,7 @@ void GP_ShowMaskedMirrorPict(int x, int y, GP_Header* Pic, byte* CData, int* WSH
 		//******************(((((((((((())))))))))))*****************//
 		//***********************************************************//
 				//no clipping
+		#if defined(_MSC_VER) && defined(_M_IX86)
 		__asm {
 			pushf
 			push	esi
@@ -7164,6 +7275,7 @@ void GP_ShowMaskedMirrorPict(int x, int y, GP_Header* Pic, byte* CData, int* WSH
 				pop		esi
 				popf
 		};
+		#endif
 	}
 	else
 	{
@@ -7178,6 +7290,7 @@ void GP_ShowMaskedMirrorPict(int x, int y, GP_Header* Pic, byte* CData, int* WSH
 			//****************************************************************//
 			//****************************************************************//
 			CLIP = WindX - x;
+			#if defined(_MSC_VER) && defined(_M_IX86)
 			__asm {
 				pushf
 				push	esi
@@ -7345,6 +7458,7 @@ void GP_ShowMaskedMirrorPict(int x, int y, GP_Header* Pic, byte* CData, int* WSH
 					pop		esi
 					popf
 			};
+			#endif
 		}
 		else
 		{
@@ -7359,6 +7473,7 @@ void GP_ShowMaskedMirrorPict(int x, int y, GP_Header* Pic, byte* CData, int* WSH
 				//****************************************************************//
 				CLIP = WindX1 - x + 1;
 				int ADDESI;
+				#if defined(_MSC_VER) && defined(_M_IX86)
 				__asm {
 					pushf
 					push	esi
@@ -7534,6 +7649,7 @@ void GP_ShowMaskedMirrorPict(int x, int y, GP_Header* Pic, byte* CData, int* WSH
 						pop		esi
 						popf
 				};
+				#endif
 			};
 		};
 	};
@@ -7551,6 +7667,7 @@ void GP_ShowMaskedMirrorPictInv(int x, int y, GP_Header* Pic, byte* CData, int* 
 	int CDPOS = int(CData);
 	if (y < WindY)
 	{
+		#if defined(_MSC_VER) && defined(_M_IX86)
 		__asm {
 			mov		ecx, WindY
 			sub		ecx, y
@@ -7595,6 +7712,7 @@ void GP_ShowMaskedMirrorPictInv(int x, int y, GP_Header* Pic, byte* CData, int* 
 				jnz		NLINE
 				END_VCLIP : mov		ofst, ebx
 		};
+		#endif
 	};
 	//bottom clipper
 	if (y + NLines > WindY1)NLines = WindY1 - y + 1;
@@ -7615,6 +7733,7 @@ void GP_ShowMaskedMirrorPictInv(int x, int y, GP_Header* Pic, byte* CData, int* 
 		//******************(((((((((((())))))))))))*****************//
 		//***********************************************************//
 				//no clipping
+		#if defined(_MSC_VER) && defined(_M_IX86)
 		__asm {
 			pushf
 			push	esi
@@ -7738,6 +7857,7 @@ void GP_ShowMaskedMirrorPictInv(int x, int y, GP_Header* Pic, byte* CData, int* 
 				pop		esi
 				popf
 		};
+		#endif
 	}
 	else
 	{
@@ -7752,6 +7872,7 @@ void GP_ShowMaskedMirrorPictInv(int x, int y, GP_Header* Pic, byte* CData, int* 
 			//****************************************************************//
 			//****************************************************************//
 			CLIP = x - WindX1;
+			#if defined(_MSC_VER) && defined(_M_IX86)
 			__asm {
 				pushf
 				push	esi
@@ -7917,6 +8038,7 @@ void GP_ShowMaskedMirrorPictInv(int x, int y, GP_Header* Pic, byte* CData, int* 
 					pop		esi
 					popf
 			};
+			#endif
 		}
 		else
 		{
@@ -7931,6 +8053,7 @@ void GP_ShowMaskedMirrorPictInv(int x, int y, GP_Header* Pic, byte* CData, int* 
 				//****************************************************************//
 				CLIP = x - WindX + 1;
 				int ADDESI;
+				#if defined(_MSC_VER) && defined(_M_IX86)
 				__asm {
 					pushf
 					push	esi
@@ -8101,12 +8224,14 @@ void GP_ShowMaskedMirrorPictInv(int x, int y, GP_Header* Pic, byte* CData, int* 
 						pop		esi
 						popf
 				};
+				#endif
 			};
 		};
 	};
 };
 inline void NatUnpack(byte* Dest, byte* Src, int Len)
 {
+	#if defined(_MSC_VER) && defined(_M_IX86)
 	__asm {
 		push	esi
 		push	edi
@@ -8138,10 +8263,12 @@ inline void NatUnpack(byte* Dest, byte* Src, int Len)
 		pop		edi
 		pop		esi
 	};
+	#endif
 };
 inline void GreyUnpack(byte* Dest, byte* Src, int Len)
 {
 	Len >>= 1;
+	#if defined(_MSC_VER) && defined(_M_IX86)
 	__asm {
 		push	esi
 		push	edi
@@ -8167,11 +8294,13 @@ inline void GreyUnpack(byte* Dest, byte* Src, int Len)
 		pop		edi
 		pop		esi
 	};
+	#endif
 };
 inline void StdUnpack(byte* Dest, byte* Src, int Len, byte* Voc)
 {
 	//COUNTER++;
 	byte Calc;
+	#if defined(_MSC_VER) && defined(_M_IX86)
 	__asm {
 		push	esi
 		push	edi
@@ -8218,10 +8347,12 @@ inline void StdUnpack(byte* Dest, byte* Src, int Len, byte* Voc)
 			pop		edi
 			pop		esi
 	};
+	#endif
 };
 inline void LZUnpack(byte* Dest, byte* Src, int Len)
 {
 	byte Calc;
+	#if defined(_MSC_VER) && defined(_M_IX86)
 	__asm {
 		push	esi
 		push	edi
@@ -8270,6 +8401,7 @@ inline void LZUnpack(byte* Dest, byte* Src, int Len)
 			pop		edi
 			pop		esi
 	};
+	#endif
 };
 extern byte Bright[8192];
 
@@ -8619,11 +8751,13 @@ void GP_System::ShowGP(int x, int y, int FileIndex, int SprIndex, byte Nation)
 			break;
 		}
 		DIFF = lpGPCUR->NextPict;
+		#if defined(_MSC_VER) && defined(_M_IX86)
 		__asm {
 			mov     eax, lpGP
 			add     eax, DIFF
 			mov     lpGPCUR, eax
 		}
+		#endif
 		UnpackLen = lpGPCUR->CData >> 14;
 		CDOffs = lpGPCUR->CData & 16383;
 		byte Optx = lpGPCUR->Options;
@@ -8918,11 +9052,13 @@ void GP_System::ShowGPLayers(//IMPORTANT: color masking for units and buildings
 			break;
 		};
 		DIFF = lpGPCUR->NextPict;
+		#if defined(_MSC_VER) && defined(_M_IX86)
 		__asm {
 			mov		eax, lpGP
 			add		eax, DIFF
 			mov		lpGPCUR, eax
 		};
+		#endif
 		UnpackLen = lpGPCUR->CData >> 14;
 		CDOffs = lpGPCUR->CData & 16383;
 		byte Optx = lpGPCUR->Options;
@@ -9034,11 +9170,13 @@ void GP_System::ShowGPTransparent(int x, int y, int FileIndex, int SprIndex, byt
 			break;
 		};
 		DIFF = lpGPCUR->NextPict;
+		#if defined(_MSC_VER) && defined(_M_IX86)
 		__asm {
 			mov		eax, lpGP
 			add		eax, DIFF
 			mov		lpGPCUR, eax
 		};
+		#endif
 		UnpackLen = lpGPCUR->CData >> 14;
 		CDOffs = lpGPCUR->CData & 16383;
 		byte Optx = lpGPCUR->Options;
@@ -9190,11 +9328,13 @@ void GP_System::ShowGPTransparentLayers(int x, int y, int FileIndex, int SprInde
 			break;
 		};
 		DIFF = lpGPCUR->NextPict;
+		#if defined(_MSC_VER) && defined(_M_IX86)
 		__asm {
 			mov		eax, lpGP
 			add		eax, DIFF
 			mov		lpGPCUR, eax
 		};
+		#endif
 		UnpackLen = lpGPCUR->CData >> 14;
 		CDOffs = lpGPCUR->CData & 16383;
 		byte Optx = lpGPCUR->Options;
@@ -9251,12 +9391,14 @@ void GP_System::FreeRefs(int FileIndex)
 			*PAK = 0xFFFFFFFF;
 			DIFF = lpGPCUR->NextPict;
 
+			#if defined(_MSC_VER) && defined(_M_IX86)
 			__asm
 			{
 				mov		eax, lpGP
 				add		eax, DIFF
 				mov		lpGPCUR, eax
 			}
+			#endif
 
 			UnpackLen = lpGPCUR->CData >> 14;
 			CDOffs = lpGPCUR->CData & 16383;
@@ -9469,11 +9611,13 @@ void GP_System::ShowGPPal(//IMPORTANT: color masking for buildings (only in plac
 			break;
 		};
 		DIFF = lpGPCUR->NextPict;
+		#if defined(_MSC_VER) && defined(_M_IX86)
 		__asm {
 			mov		eax, lpGP
 			add		eax, DIFF
 			mov		lpGPCUR, eax
 		};
+		#endif
 		UnpackLen = lpGPCUR->CData >> 14;
 		CDOffs = lpGPCUR->CData & 16383;
 		byte Optx = lpGPCUR->Options;
@@ -9704,11 +9848,13 @@ void GP_System::ShowGPPalLayers(//IMPORTANT: color masking for buildings (only w
 			break;
 		};
 		DIFF = lpGPCUR->NextPict;
+		#if defined(_MSC_VER) && defined(_M_IX86)
 		__asm {
 			mov		eax, lpGP
 			add		eax, DIFF
 			mov		lpGPCUR, eax
 		};
+		#endif
 		UnpackLen = lpGPCUR->CData >> 14;
 		CDOffs = lpGPCUR->CData & 16383;
 		byte Optx = lpGPCUR->Options;
@@ -9771,6 +9917,7 @@ static int npp = 0;
 void OvpBar1(int x, int y, int Lx, int Ly, byte c)
 {
 	int ofst = int(ScreenPtr) + x + y * ScrWidth;
+	#if defined(_MSC_VER) && defined(_M_IX86)
 	__asm {
 		push	edi
 		mov		eax, ScrWidth
@@ -9790,10 +9937,12 @@ void OvpBar1(int x, int y, int Lx, int Ly, byte c)
 		jnz		lppy
 		pop		edi
 	};
+	#endif
 };
 void OvpBar2(int x, int y, int Lx, int Ly, byte c)
 {
 	int ofst = int(ScreenPtr) + x + y * ScrWidth;
+	#if defined(_MSC_VER) && defined(_M_IX86)
 	__asm {
 		push	edi
 		mov		eax, ScrWidth
@@ -9813,6 +9962,7 @@ void OvpBar2(int x, int y, int Lx, int Ly, byte c)
 		jnz		lppy
 		pop		edi
 	};
+	#endif
 };
 extern byte WaterCost[65536];
 //Waves
@@ -9828,6 +9978,7 @@ void ShowGradPicture(int x, int y, int Lx, int Ly,
 	int ofst = int(ScreenPtr) + x + y * ScrWidth;
 	int addo = ScrWidth - Lx;
 
+	#if defined(_MSC_VER) && defined(_M_IX86)
 	__asm
 	{
 		push	esi
@@ -9862,6 +10013,7 @@ void ShowGradPicture(int x, int y, int Lx, int Ly,
 		pop		edi
 		pop		esi
 	}
+	#endif
 }
 
 class WaterSpot
@@ -10237,6 +10389,7 @@ bool CheckInsideMask(GP_Header* Pic, int x, int y)
 	//skipping lines
 	if (y > 0)
 	{
+		#if defined(_MSC_VER) && defined(_M_IX86)
 		__asm
 		{
 			mov  ecx, y
@@ -10261,11 +10414,13 @@ bool CheckInsideMask(GP_Header* Pic, int x, int y)
 				END_SKIP :
 			mov  ofst, ebx
 		}
+		#endif
 	}
 
 	int SPACE_MASK = 0;
 	int DATA_MASK = 0;
 
+	#if defined(_MSC_VER) && defined(_M_IX86)
 	__asm
 	{
 		mov  ebx, ofst
@@ -10323,6 +10478,7 @@ bool CheckInsideMask(GP_Header* Pic, int x, int y)
 		mov  eax, 1
 			DO_END :
 	}
+	#endif
 }
 
 __declspec(dllexport) bool CheckGP_Inside(int FileIndex, int SprIndex, int dx, int dy)
@@ -10375,12 +10531,14 @@ __declspec(dllexport) bool CheckGP_Inside(int FileIndex, int SprIndex, int dx, i
 		}
 
 		DIFF = lpGPCUR->NextPict;
+		#if defined(_MSC_VER) && defined(_M_IX86)
 		__asm
 		{
 			mov		eax, lpGP
 			add		eax, DIFF
 			mov		lpGPCUR, eax
 		}
+		#endif
 
 	} while (DIFF != -1);
 	return false;
@@ -10421,7 +10579,7 @@ void RegisterVisibleGP(word Index, int FileIndex, int SprIndex, int x, int y)
 	if (N_GP_Reg >= Max_GP_Reg)
 	{
 		Max_GP_Reg += 512;
-		GP_Reg = (GP_IMG*)realloc(GP_Reg, Max_GP_Reg * sizeof GP_IMG);
+		GP_Reg = (GP_IMG*)realloc(GP_Reg, Max_GP_Reg * sizeof(GP_IMG));
 	}
 
 	GP_Reg[N_GP_Reg].GPID = FileIndex;

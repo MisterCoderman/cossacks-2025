@@ -22,6 +22,7 @@ void Hline(int x, int y, int xend, byte c) {
 	};
 	int scr = int(ScreenPtr) + xr + y * ScrWidth;
 	if (Lxr <= 0)return;
+	#if defined(_MSC_VER) && defined(_M_IX86)
 	__asm {
 		mov		edi, scr
 		mov		al, c
@@ -29,6 +30,7 @@ void Hline(int x, int y, int xend, byte c) {
 		cld
 		rep		stosb
 	};
+	#endif
 };
 void Vline(int x, int y, int yend, byte c) {
 	if (x<WindX || x>WindX1)return;
@@ -47,6 +49,7 @@ void Vline(int x, int y, int yend, byte c) {
 	};
 	int scr = int(ScreenPtr) + x + yr * ScrWidth;
 	if (Lyr <= 0)return;
+	#if defined(_MSC_VER) && defined(_M_IX86)
 	__asm {
 		mov		edi, scr
 		mov		al, c
@@ -58,6 +61,7 @@ void Vline(int x, int y, int yend, byte c) {
 		add		edi, edx
 		loop	uuuuu
 	};
+	#endif
 };
 void Xbar(int x, int y, int lx, int ly, byte c) {
 	Hline(x, y, x + lx - 1, c);
@@ -123,6 +127,7 @@ void DrawLine(int x, int y, int x1, int y1, byte c) {
 	if (y < y1) {
 		Ly = y1 - y;
 		if (Lx < Ly) {
+			#if defined(_MSC_VER) && defined(_M_IX86)
 			__asm {
 				push	edi
 				mov		edi, ofst
@@ -142,8 +147,10 @@ void DrawLine(int x, int y, int x1, int y1, byte c) {
 				jnz		lpp1
 				pop		edi
 			};
+			#endif
 		}
 		else {
+			#if defined(_MSC_VER) && defined(_M_IX86)
 			__asm {
 				push	edi
 				mov		edi, ofst
@@ -163,11 +170,13 @@ void DrawLine(int x, int y, int x1, int y1, byte c) {
 				jnz		lpp1_1
 				pop		edi
 			};
+			#endif
 		};
 	}
 	else {
 		Ly = y - y1;
 		if (Lx < Ly) {
+			#if defined(_MSC_VER) && defined(_M_IX86)
 			__asm {
 				push	edi
 				mov		edi, ofst
@@ -187,8 +196,10 @@ void DrawLine(int x, int y, int x1, int y1, byte c) {
 				jnz		lpp1_2
 				pop		edi
 			};
+			#endif
 		}
 		else {
+			#if defined(_MSC_VER) && defined(_M_IX86)
 			__asm {
 				push	edi
 				mov		edi, ofst
@@ -208,6 +219,7 @@ void DrawLine(int x, int y, int x1, int y1, byte c) {
 				jnz		lpp1_3
 				pop		edi
 			};
+			#endif
 		};
 	};
 };

@@ -14,7 +14,7 @@ Remaining: pointer-to-int casts in FnDefine.cpp (64-bit porting issue),
 and Main executable not yet attempted. Compat stubs may need further
 extension as the Main executable is tackled.
 
-## ~~3. Fix pointer-to-int casts (64-bit porting)~~ DONE (IntExplorer)
+## ~~3. Fix pointer-to-int casts (64-bit porting)~~ DONE
 ~~FnDefine.cpp (IntExplorer) — 17 casts blocking compilation.~~
 Fixed by changing `UserParam`, `ComplexBox::param`, `CustomBox::param`
 from `int` to `intptr_t` in dialogs.h, and updating cast sites.
@@ -22,7 +22,10 @@ Also replaced inline assembly in MapDiscr.h (`DistTo`) and NewMon.h
 (`Norma`) with portable C equivalents. Fixed `WallSystem::Show` extra
 qualification in walls.h. More pointer-to-int casts likely in Main executable.
 
-## 4. Rewrite x86 inline assembly
+## 4. Rewrite x86 inline assembly (PARTIALLY DONE)
+3DGraph.cpp, MapDiscr.h, NewMon.h, AntiBug.cpp have real C implementations.
+Remaining files have assembly wrapped in `#ifdef` with empty stubs or no
+fallback — the game compiles but these functions are non-functional on ARM64.
 **Hard blocker on ARM64** — x86 assembly cannot compile at all on Apple Silicon.
 - `Fastdraw.cpp` — RLC sprite decoding/blitting (`__asm` blocks with
   `rep movsb`/`rep movsd`). Self-contained: decode run-length data and
@@ -51,10 +54,9 @@ The project uses DLL exports between the main exe and the libraries. Options:
 - `FindFirstFile`/`FindNextFile` → `std::filesystem` or `dirent.h`
 - Registry access → config file or `SDL_GetPrefPath`
 
-## 9. Replace WinMain with SDL_main
-SDL2 provides a cross-platform entry point mechanism.
-Change in `Ddex1.cpp` — replace `WinMain(HINSTANCE, ...)` with
-`int main(int argc, char* argv[])` using `SDL_main.h`.
+## ~~9. Replace WinMain with SDL_main~~ DONE
+Added `platform_main.cpp` with `main()` that calls `WinMain()`.
+Also contains stubs for DirectPlayLobby and CPinger.
 
 ## 10. Replace Win32 window/message loop with SDL events
 The game currently uses `CreateWindow`, `PeekMessage`, `DispatchMessage` etc.
@@ -64,12 +66,49 @@ This includes keyboard/mouse input handling in `Interface.cpp` and `Mouse_X.cpp`
 
 ## Notes
 
+## NEXT: Fix duplicate symbol definitions
+24 symbols are defined in multiple .cpp files (MSVC merges these, macOS
+linker doesn't). Need to make one definition the primary and others `extern`.
+Examples: `HiMap`, `TerrMap`, `SelCenter`, `CurPalette`, `ChatMess`, etc.
+This is the **only remaining blocker** for linking.
+
+### Assembly rewrite status by file
+Files needing C implementations (priority order):
+
+**Critical (rendering — game won't display without these):**
+- `Fastdraw.cpp` — 8 RLC sprite functions (empty stubs exist). Core sprite renderer.
+- `GP_Draw.cpp` — 79 asm blocks. Graphics primitives (pixel fills, blends, sprites).
+- `fog.cpp` — 13 blocks. Fog/atmosphere rendering.
+- `RealWater.cpp` — 15 blocks. Water surface simulation.
+- `Lines.cpp` — 6 blocks. Vector line drawing.
+- `Masks.cpp` — 7 blocks. Sprite masking.
+
+**Important (gameplay — game won't play correctly):**
+- `path.cpp` — 16 blocks. Pathfinding algorithms.
+- `mapa.cpp` — 4 blocks. Map operations.
+- `ShipTrace.cpp` — 4 blocks. Naval movement.
+
+**Minor (small/simple blocks):**
+- `Multi.cpp` — 1 block. Memory zero fill.
+- `Stringshash.cpp` — 1 block. String hash (byte sum).
+- `ZBuffer.cpp` — 1 block. Z-buffer sort.
+- `Megapolis.cpp` — 1 block. Marker pixel.
+- `Nation.cpp` — 1 block. State marker.
+- `NewMon.cpp` — 3 blocks. Memory zeroing.
+- `Groups.cpp` — 1 block. Group management.
+
+**Already done:**
+- `3DGraph.cpp` — full C rewrite
+- `MapDiscr.h` (`DistTo`) — Chebyshev distance
+- `NewMon.h` (`Norma`) — approximate distance
+- `AntiBug.cpp` — checksum calculation
+
 ### Build status on macOS ARM64
 - **CommCore** — compiles and links (static lib)
 - **IChat** — compiles and links (static lib)
 - **IntExplorer** — compiles and links (static lib)
-- **Main executable** — compilation started, blocked by x86 inline assembly
-  in 3DGraph.cpp (first file alphabetically that has `__asm` blocks)
+- **Main executable** — ALL 97 source files compile, linking blocked by
+  24 duplicate symbol definitions across translation units
 
 ### Graphics pipeline (already mostly portable)
 The rendering is software-based: all drawing goes to an 8-bit `ScreenPtr`

@@ -1,6 +1,9 @@
 #ifndef _ICMP_PINGER_H_INCLUDED_
 #define _ICMP_PINGER_H_INCLUDED_
 
+#ifndef _WIN32
+#include <winsock2.h>
+#endif
 #define _COOL_
 /*
 #include <Winsock2.h>

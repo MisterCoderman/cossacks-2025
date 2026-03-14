@@ -90,6 +90,7 @@ void ShowBlob(int x, int y, byte* Blob, int Lx, int Ly) {
 	int scadd = ScrWidth - BLX;
 	int badd = Lx - BLX;
 	if (BLX & 3) {
+		#if defined(_MSC_VER) && defined(_M_IX86)
 		__asm {
 			push	esi
 			push	edi
@@ -115,9 +116,11 @@ void ShowBlob(int x, int y, byte* Blob, int Lx, int Ly) {
 				pop		edi
 				pop		esi
 		};
+		#endif
 	}
 	else {
 		BLX >>= 2;
+		#if defined(_MSC_VER) && defined(_M_IX86)
 		__asm {
 			push	esi
 			push	edi
@@ -172,6 +175,7 @@ void ShowBlob(int x, int y, byte* Blob, int Lx, int Ly) {
 				pop		edi
 				pop		esi
 		};
+		#endif
 	};
 };
 void Blob::Show(int x, int y, int m) {
@@ -214,6 +218,7 @@ void ProcessBlobs() {
 	int MaxY = ((mapy + smaply) << 9) + 32 * 16;
 	memset(BlobVisible, 0, MaxBlob);
 	int ddd = !(tmtmt & 3);
+	#if defined(_MSC_VER) && defined(_M_IX86)
 	__asm {
 		push	esi
 		push	edi
@@ -252,6 +257,7 @@ void ProcessBlobs() {
 		pop		edi
 			pop		esi
 	}
+	#endif
 
 	MinX = mapx * 32;
 	MinY = mapy * 16;
@@ -329,6 +335,7 @@ void AddBlob(int x, int y, byte Dir, bool dir2)
 	}
 	else
 	{
+		#if defined(_MSC_VER) && defined(_M_IX86)
 		__asm
 		{
 			mov		eax, CurBlob
@@ -345,6 +352,7 @@ void AddBlob(int x, int y, byte Dir, bool dir2)
 			inc		eax
 			lpp3 : mov		CurBlob, eax
 		}
+		#endif
 	}
 
 	if (CurBlob >= MaxBlob)

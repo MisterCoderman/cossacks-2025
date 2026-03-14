@@ -2,6 +2,7 @@
 #include <windows.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <stdarg.h>
 #include "ResFile.h"
 #include <assert.h>
 #include "gFile.h"
@@ -18,7 +19,7 @@ public:
 
 GFSYSTEM::GFSYSTEM()
 {
-	memset(FILES, 0, sizeof FILES);
+	memset(FILES, 0, sizeof(FILES));
 }
 
 GFSYSTEM::~GFSYSTEM()
@@ -30,7 +31,7 @@ GFSYSTEM::~GFSYSTEM()
 			FILES[i]->Close();
 		}
 	}
-	memset(FILES, 0, sizeof FILES);
+	memset(FILES, 0, sizeof(FILES));
 }
 
 GFILE* GFSYSTEM::GetFile()

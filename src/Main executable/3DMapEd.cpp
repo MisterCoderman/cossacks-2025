@@ -1032,7 +1032,7 @@ void CreateLandLocking(int TAlp, bool ForVision) {
 				};
 			};
 		};
-	//memcpy(TMF,MFIELDS,sizeof MotionField);
+	//memcpy(TMF,MFIELDS,sizeof(MotionField));
 	//memcpy(TMF->MapH,MFIELDS->MapH,MAPSY*BMSX);
 	memcpy(TMF->MapV, MFIELDS->MapV, MAPSY*BMSX);
 	for (int ix = 1; ix < mxx; ix++)
@@ -1286,8 +1286,8 @@ void DrawCurves1() {
 	if (!NCurves)return;
 
 	int NC = NCurves;
-	memcpy(CurveXt, CurveX, sizeof CurveX);
-	memcpy(CurveYt, CurveY, sizeof CurveY);
+	memcpy(CurveXt, CurveX, sizeof(CurveX));
+	memcpy(CurveYt, CurveY, sizeof(CurveY));
 
 	if (NCurves >= 3)InterpolateCurve();
 
@@ -1313,8 +1313,8 @@ void DrawCurves1() {
 	};
 
 	NCurves = NC;
-	memcpy(CurveX, CurveXt, sizeof CurveX);
-	memcpy(CurveY, CurveYt, sizeof CurveY);
+	memcpy(CurveX, CurveXt, sizeof(CurveX));
+	memcpy(CurveY, CurveYt, sizeof(CurveY));
 
 };
 bool CheckPointInside(int x, int y) {

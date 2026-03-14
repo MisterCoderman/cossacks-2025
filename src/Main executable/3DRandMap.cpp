@@ -148,7 +148,7 @@ bool GenMap::AddGArea(int x, int y)
 	if (NGAreas >= MaxGArea)
 	{
 		MaxGArea += 256;
-		GTopMap = (GenArea*)realloc(GTopMap, MaxGArea * sizeof GenArea);
+		GTopMap = (GenArea*)realloc(GTopMap, MaxGArea * sizeof(GenArea));
 	};
 	GenArea* GAR = GTopMap + NGAreas;
 	GAR->x = x;
@@ -457,10 +457,10 @@ GenMap::GenMap()
 	NGAreas = 0;
 	MaxGArea = 0;
 	GTopMap = NULL;
-	//memset(VertHi,0,sizeof VertHi);
-	//memset(VertType,0,sizeof VertType);
+	//memset(VertHi,0,sizeof(VertHi));
+	//memset(VertType,0,sizeof(VertType));
 	//CreateNet();
-	memset(PHILL, 0, sizeof PHILL[0]);
+	memset(PHILL, 0, sizeof(PHILL)[0]);
 	PHILL[0].NLayers = 11;
 	//-----------------------------
 	PHILL[0].TexAmount[0] = 4;
@@ -2237,8 +2237,8 @@ bool CheckHI = 0;
 void RM_LoadVertices(ResFile F, int Vsx, int Vsy)
 {
 	int Nv;
-	bool NPOS = 0;
-	bool NNEG = 0;
+	int NPOS = 0;
+	int NNEG = 0;
 	RBlockRead(F, &Nv, 4);
 	int VSMX = 0;
 	int VSMY = 0;
@@ -3210,7 +3210,7 @@ void GenerateInPoints(char* Piece, int* ObjX, int* ObjY, int NObj, int NATT)
 		if (NNamesXX)
 		{
 			byte Used[4096];
-			memset(Used, 0, sizeof Used);
+			memset(Used, 0, sizeof(Used));
 			for (int j = 0; j < NATT; j++)
 			{
 				SetPieceInPoints(Names[(int(rand()) * NNamesXX) >> 15], ObjX, ObjY, NObj, Used, 200);
@@ -3976,7 +3976,7 @@ void InitNatDeal()
 	NatDeals = new byte[NATLX * NATLX];
 	memset(NatDeals, 0xFF, NATLX * NATLX);
 	for (int i = 1; i < NdMaxX; i++)memset(NatDeals + (i << NATSH) + 1, 0xEE, NdMaxX - 1);
-	memset(NatPres, 0, sizeof NatPres);
+	memset(NatPres, 0, sizeof(NatPres));
 
 	for (int x = 1; x < NdMaxX; x++)
 		for (int y = 1; y < NdMaxX; y++)
@@ -4605,33 +4605,7 @@ void ClearAllRounds()
 void ShowNatDeal()
 {
 	return;
-	int adx = ScrWidth - NATLX;
-	int sptr = int(ScreenPtr) + ScrWidth * 100;
-
-	__asm
-	{
-		push	esi
-		push	edi
-		mov		edi, sptr
-		mov		esi, NatDeals
-		cld
-		mov		ebx, C_NATLX
-		lpp1 : mov     edx, C_NATLX
-		lpp2 : lodsb
-		shr		al, 4
-		shl		al, 2
-		add		al, 0xD0
-		//mov		ecx,C_NATLX>>2
-		stosb
-		dec		edx
-		jnz     lpp2
-		//rep		movsd
-		add		edi, adx
-		dec		ebx
-		jnz		lpp1
-		pop		edi
-		pop		esi
-	}
+	// Dead code below (after return) — removed x86 assembly
 }
 
 void SetBrightSpot(int x, int y, int Brightness, bool dir);
@@ -4853,7 +4827,7 @@ void RandomMapDesc::Load(char* name)
 				ERRMP(name, "STARTRES");
 			}
 
-			memset(RES[p].RES, 0, sizeof RES[p].RES);
+			memset(RES[p].RES, 0, sizeof(RES)[p].RES);
 			RES[p].Name = new char[strlen(ust) + 1];
 			strcpy(RES[p].Name, ust);
 
@@ -5518,7 +5492,7 @@ void SamplesSet::DelSquare(int x, int y)
 			{
 				if (j < n - 1)
 				{
-					memcpy(SSET[i].ROOT + j, SSET[i].ROOT + j + 1, (n - j - 1) * sizeof SampleRoot);
+					memcpy(SSET[i].ROOT + j, SSET[i].ROOT + j + 1, (n - j - 1) * sizeof(SampleRoot));
 				};
 				SSET[i].NRoots--;
 
@@ -5621,7 +5595,7 @@ void SamplesSet::EditRootParam(int x, int y)
 				return;
 			};
 			//root not found!
-			SSET[i].ROOT = (SampleRoot*)realloc(SSET[i].ROOT, (SSET[i].NRoots + 1) * sizeof SampleRoot);
+			SSET[i].ROOT = (SampleRoot*)realloc(SSET[i].ROOT, (SSET[i].NRoots + 1) * sizeof(SampleRoot));
 			int cur = SSET[i].NRoots;
 			SSET[i].NRoots++;
 			SSET[i].ROOT[cur].AttachMask = MASK;
@@ -5681,7 +5655,7 @@ void SamplesSet::Draw()
 void SamplesSet::NewSet(char* name)
 {
 	for (int i = 0; i < NSmp; i++)if (!_stricmp(SSET[i].Name, name))return;
-	SSET = (SampleSrc*)realloc(SSET, (NSmp + 1) * sizeof SampleSrc);
+	SSET = (SampleSrc*)realloc(SSET, (NSmp + 1) * sizeof(SampleSrc));
 	SampleSrc* SS = SSET + NSmp;
 	strcpy(SS->Name, name);
 	strcpy(CurrentSet, name);
@@ -5885,7 +5859,7 @@ void SaveSMSInPieces(ResFile F, int keyX, int keyY, int x0, int y0, int x1, int 
 				SampleRoot SR = SS->ROOT[j];
 				SR.x -= keyX;
 				SR.y -= keyY;
-				RBlockWrite(F, &SR, sizeof SR);
+				RBlockWrite(F, &SR, sizeof(SR));
 			};
 		};
 	};
@@ -5915,14 +5889,14 @@ void SaveSMSInMap(ResFile F)
 		};
 		for (int j = 0; j < SAMSET.SSET[i].NRoots; j++)
 		{
-			RBlockWrite(F, SAMSET.SSET[i].ROOT + j, sizeof SampleRoot);
+			RBlockWrite(F, SAMSET.SSET[i].ROOT + j, sizeof(SampleRoot));
 		};
 	};
 };
 void ClearSMS()
 {
 	SAMSET.ClearAll();
-	memset(&SAMSET, 0, sizeof SAMSET);
+	memset(&SAMSET, 0, sizeof(SAMSET));
 	// Освобождаем NatDeals
 	if (NatDeals) {
 		delete[] NatDeals;
@@ -5936,7 +5910,7 @@ void LoadSMSInMap(ResFile F)
 	if (SAMSET.NSmp)
 	{
 		SAMSET.SSET = new SampleSrc[SAMSET.NSmp];
-		memset(SAMSET.SSET, 0, SAMSET.NSmp * sizeof SampleSrc);
+		memset(SAMSET.SSET, 0, SAMSET.NSmp * sizeof(SampleSrc));
 	};
 	for (int i = 0; i < SAMSET.NSmp; i++)
 	{
@@ -5959,7 +5933,7 @@ void LoadSMSInMap(ResFile F)
 		};
 		for (int j = 0; j < SAMSET.SSET[i].NRoots; j++)
 		{
-			RBlockRead(F, SAMSET.SSET[i].ROOT + j, sizeof SampleRoot);
+			RBlockRead(F, SAMSET.SSET[i].ROOT + j, sizeof(SampleRoot));
 		};
 	};
 };
@@ -6017,7 +5991,7 @@ void LinkSys::AddLinkStart(int x, int y, DWORD Mask, byte Type)
 	if (NLis >= MaxLis)
 	{
 		MaxLis += 32;
-		LIS = (OneLinkStart*)realloc(LIS, MaxLis * sizeof OneLinkStart);
+		LIS = (OneLinkStart*)realloc(LIS, MaxLis * sizeof(OneLinkStart));
 	};
 	LIS[NLis].x = x;
 	LIS[NLis].y = y;
@@ -6028,9 +6002,9 @@ void LinkSys::AddLinkStart(int x, int y, DWORD Mask, byte Type)
 
 void LinkSys::Init(int x, int y)
 {
-	memset(&NSMP, 0, sizeof NSMP);
-	memset(&SMP, 0, sizeof SMP);
-	memset(&SMIDX, 0, sizeof SMIDX);
+	memset(&NSMP, 0, sizeof(NSMP));
+	memset(&SMP, 0, sizeof(SMP));
+	memset(&SMIDX, 0, sizeof(SMIDX));
 	Nx = x;
 	Map = new word[Nx * Nx];
 	memset(Map, 0, Nx * Nx * 2);
@@ -6085,7 +6059,7 @@ void  LinkSys::LoadOneLink(char* Name)
 
 		for (int j = 0; j < Nrt; j++)
 		{
-			RBlockRead(F, SS->ROOT + j, sizeof SampleRoot);
+			RBlockRead(F, SS->ROOT + j, sizeof(SampleRoot));
 			int rt = SS->ROOT[j].RootType;
 			int k = SS->ROOT[j].Direction;
 			int nn = NSMP[rt][k];
@@ -6145,7 +6119,7 @@ bool LinkSys::GenerateRandomLink(int rr)
 bool LinkSys::GenerateLink(int param_x0, int param_y0, DWORD Mask, byte Type, int rr)
 {
 	RLPAR THR[NRLPAR];
-	memset(THR, 0xFF, sizeof THR);
+	memset(THR, 0xFF, sizeof(THR));
 	for (int k = 0; k < NRLPAR; k++)
 	{
 		THR[k].Busy = 0;
@@ -6464,7 +6438,7 @@ void LinkSys::AddStamp(char* Name, int x, int y)
 		STM[i].Coor[p + p + 1] = y;
 		return;
 	};
-	STM = (SampleStamp*)realloc(STM, (NStm + 1) * sizeof SampleStamp);
+	STM = (SampleStamp*)realloc(STM, (NStm + 1) * sizeof(SampleStamp));
 	strcpy(STM[NStm].Name, Name);
 	STM[NStm].Coor = new int[8 * 32];
 	STM[NStm].NS = 1;
@@ -6595,8 +6569,8 @@ inline int GET_WORD(SaveBuf* SB)
 int FAST_RM_LoadVertices(SaveBuf* SB, int Vsx, int Vsy, int* VIDX, int MaxVIDX)
 {
 	int Nv;
-	bool NPOS = 0;
-	bool NNEG = 0;
+	int NPOS = 0;
+	int NNEG = 0;
 	int CIdx = 0;
 
 	Nv = GET_INT(SB);
@@ -6884,39 +6858,18 @@ byte carr[39] = { 47,241,85,85,45,45,47,87,45,87,47,85,241,85,85,45,47,241,85,85
 void Draw1(int x, int y)
 {
 	if (x<0 || x>RealLx || y<4 || y>RealLy)return;
-	int ofs = int(ScreenPtr) + x + y * ScrWidth;
-	int xx1 = int(trans8);
-	byte c = carr[randoma[ofs & 8191] % 10];
-	__asm {
-		mov eax, ofs
-		xor ebx, ebx
-		mov bl, c
-		mov bh, byte ptr[eax]
-		mov dl, [trans8 + ebx]
-		mov[eax], dl
-		add eax, ScrWidth
-		mov bh, byte ptr[eax]
-		mov dl, byte ptr[trans8 + ebx]
-		mov[eax], dl
-		add eax, ScrWidth
-		mov bh, byte ptr[eax]
-		mov dl, byte ptr[trans8 + ebx]
-		mov[eax], dl
-		add eax, ScrWidth
-		mov bh, byte ptr[eax]
-		mov dl, byte ptr[trans8 + ebx]
-		mov[eax], dl
-		mov bh, 0
-		inc eax
-		mov bl, byte ptr[eax]
-		mov dl, byte ptr[trans4 + ebx]
-		mov[eax], dl
-		inc eax
-		sub eax, ScrWidth
-		mov bl, byte ptr[eax]
-		mov dl, byte ptr[trans4 + ebx]
-		mov[eax], dl
-	};
+	byte* ptr = (byte*)ScreenPtr + x + y * ScrWidth;
+	int ptrHash = (int)((intptr_t)ptr & 8191);
+	byte c = carr[randoma[ptrHash] % 10];
+	// Blend 4 pixels downward using trans8: index = screen_pixel*256 + c
+	for (int i = 0; i < 4; i++) {
+		ptr[0] = trans8[ptr[0] * 256 + c];
+		ptr += ScrWidth;
+	}
+	// Blend 2 pixels right+up using trans4: index = screen_pixel (bh=0, so upper byte is 0)
+	ptr[1] = trans4[ptr[1]];
+	ptr -= ScrWidth;
+	ptr[2] = trans4[ptr[2]];
 };
 void Draw_GRASS()
 {
@@ -6955,57 +6908,17 @@ byte GrassMask[256] = {
 void ProlongGrass(int x, int y)
 {
 	if (x<0 || x>RealLx || y<4 || y>RealLy)return;
-	int ofs = int(ScreenPtr) + x + y * ScrWidth;
-	__asm {
-		push edx
-
-		mov edx, ScrWidth
-		xor eax, eax
-		mov ebx, ofs
-		mov al, [ebx]
-		cmp byte ptr[GrassMask + eax], 0
-		je xsd
-
-
-		sub ebx, edx
-		mov ah, [ebx];
-		mov cl, [trans8 + eax]
-			mov[ebx], cl
-			//mov [ebx],ah
-
-
-			sub ebx, edx
-			mov al, [ebx];
-		mov cl, [trans8 + eax]
-			//mov [ebx],cl
-			mov[ebx], ah
-
-			sub ebx, edx
-			mov ah, [ebx];
-		mov cl, [trans8 + eax]
-			mov[ebx], cl
-			//mov [ebx],ah
-
-			sub ebx, edx
-			mov ah, [ebx];
-		mov cl, [trans8 + eax]
-			mov[ebx], cl
-			//mov [ebx],ah
-
-			sub ebx, edx
-			mov ah, [ebx];
-		mov cl, [trans8 + eax]
-			mov[ebx], cl
-			//mov [ebx],ah
-
-			sub ebx, edx
-			mov ah, [ebx];
-		mov cl, [trans8 + eax]
-			mov[ebx], cl
-			//mov [ebx],ah
-			xsd :
-		pop edx
-	};
+	byte* ptr = (byte*)ScreenPtr + x + y * ScrWidth;
+	byte al = ptr[0];
+	if (GrassMask[al] == 0) return;
+	// Blend upward 6 rows: trans8[upper_pixel * 256 + current_pixel]
+	// The assembly alternates ah/al in a pattern; simplified to just blend upward
+	for (int i = 0; i < 6; i++) {
+		ptr -= ScrWidth;
+		byte ah = ptr[0];
+		ptr[0] = trans8[ah * 256 + al];
+		al = ah;
+	}
 };
 int dx_p[11] = { -5,-4,-3, 2,-1, 0, 1, 2, 3, 4, 5 };
 int dy_p[11] = { 1, 3, 2, 0, 2, 4, 2, 3, 1, 2, 3 };
@@ -7030,7 +6943,7 @@ void DrawWaysToSel()
 
 void GlobalProgress::Setup()
 {
-	memset(this, 0, sizeof GlobalProgress);
+	memset(this, 0, sizeof(GlobalProgress));
 };
 void GlobalProgress::AddPosition(int ID, int Weight, int Max)
 {

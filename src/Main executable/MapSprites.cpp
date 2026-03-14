@@ -300,8 +300,8 @@ void addSprite( int x, int y, SprGroup* SG, word id )
 	{
 		int psp = MaxSprt;
 		MaxSprt += 32768;
-		Sprites = (OneSprite*) realloc( Sprites, MaxSprt * sizeof OneSprite );
-		memset( Sprites + psp, 0, ( MaxSprt - psp ) * sizeof OneSprite );
+		Sprites = (OneSprite*) realloc( Sprites, MaxSprt * sizeof(OneSprite) );
+		memset( Sprites + psp, 0, ( MaxSprt - psp ) * sizeof(OneSprite) );
 	};
 	//int i=0;
 	while (Sprites[i].Enabled&&i < MaxSprt)i++;
@@ -357,8 +357,8 @@ void addSpriteAnyway( int x, int y, SprGroup* SG, word id )
 	{
 		int psp = MaxSprt;
 		MaxSprt += 32768;
-		Sprites = (OneSprite*) realloc( Sprites, MaxSprt * sizeof OneSprite );
-		memset( Sprites + psp, 0, ( MaxSprt - psp ) * sizeof OneSprite );
+		Sprites = (OneSprite*) realloc( Sprites, MaxSprt * sizeof(OneSprite) );
+		memset( Sprites + psp, 0, ( MaxSprt - psp ) * sizeof(OneSprite) );
 	};
 	while (Sprites[i].Enabled&&i < MaxSprt)i++;
 	if (i >= MaxSprt)

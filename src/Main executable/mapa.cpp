@@ -415,6 +415,7 @@ void RedSquare(int x, int y)
 		(((y - mapy) << 5) + smapy) * SCRSizeX;
 
 	int ddx = SCRSizeX + SCRSizeX - 32;
+	#if defined(_MSC_VER) && defined(_M_IX86)
 	__asm
 	{
 		push	edi
@@ -430,6 +431,7 @@ void RedSquare(int x, int y)
 
 		pop		edi
 	}
+	#endif
 }
 
 void RedMiniSquare(int x, int y)
@@ -443,6 +445,7 @@ void RedMiniSquare(int x, int y)
 		(((y - mapy) << 4) + smapy) * SCRSizeX;
 
 	int ddx = SCRSizeX + SCRSizeX - 16;
+	#if defined(_MSC_VER) && defined(_M_IX86)
 	__asm
 	{
 		push	edi
@@ -458,6 +461,7 @@ void RedMiniSquare(int x, int y)
 
 		pop		edi
 	}
+	#endif
 }
 
 void RedBar(int x, int y, int lx, int ly)
@@ -480,6 +484,7 @@ void WhiteSquare(int x, int y)
 	int sco = int(ScreenPtr) + smapx + ((x - mapx) << 5) +
 		(((y - mapy) << 5) + smapy) * SCRSizeX;
 	int ddx = SCRSizeX + SCRSizeX - 32;
+	#if defined(_MSC_VER) && defined(_M_IX86)
 	__asm {
 		push	edi
 		mov		edi, sco
@@ -494,6 +499,7 @@ void WhiteSquare(int x, int y)
 
 		pop		edi
 	}
+	#endif
 }
 
 void WhiteMiniSquare(int x, int y)
@@ -502,6 +508,7 @@ void WhiteMiniSquare(int x, int y)
 	int sco = int(ScreenPtr) + smapx + ((x - mapx) << 4) +
 		(((y - mapy) << 4) + smapy) * SCRSizeX;
 	int ddx = SCRSizeX + SCRSizeX - 16;
+	#if defined(_MSC_VER) && defined(_M_IX86)
 	__asm {
 		push	edi
 		mov		edi, sco
@@ -516,6 +523,7 @@ void WhiteMiniSquare(int x, int y)
 
 		pop		edi
 	};
+	#endif
 };
 void WhiteBar(int x, int y, int lx, int ly)
 {
@@ -570,8 +578,8 @@ void FreeAsmBlock(char* p)
 };
 void InitAsmBuf()
 {
-	memset(AsmUsage, 0, sizeof AsmUsage);
-	memset(AsmBuf, 0, sizeof AsmBuf);
+	memset(AsmUsage, 0, sizeof(AsmUsage));
+	memset(AsmBuf, 0, sizeof(AsmBuf));
 	LastAsmRequest = 0;
 };
 //Получить блок для LocalOrder
@@ -580,7 +588,7 @@ int CHSM1;
 Order1* GetOrdBlock()
 {
 	Order1* OR1 = new Order1;
-	memset(OR1, 0, sizeof Order1);
+	memset(OR1, 0, sizeof(Order1));
 	return OR1;
 }
 
@@ -592,8 +600,8 @@ void OneObject::FreeOrdBlock(Order1* p)
 
 void InitOrdBuf()
 {
-	memset(OrdUsage, 0, sizeof OrdUsage);
-	memset(OrdBuf, 0, sizeof OrdBuf);
+	memset(OrdUsage, 0, sizeof(OrdUsage));
+	memset(OrdBuf, 0, sizeof(OrdBuf));
 	//LastOrdRequest=0;
 };
 
@@ -678,14 +686,14 @@ void NewMap(int szX, int szY)//Standard map size is 480x480
 	MAXOBJECT = 0;
 	MAXSPR = 0;
 
-	memset(Group, 0, sizeof Group);
-	memset(NLocks, 0, sizeof NLocks);
+	memset(Group, 0, sizeof(Group));
+	memset(NLocks, 0, sizeof(NLocks));
 
 	ClearMaps();
 
 	BuildMode = false;
 
-	memset(&HiMap[0][0], 0, sizeof HiMap);
+	memset(&HiMap[0][0], 0, sizeof(HiMap));
 
 	MFIELDS[0].ClearMaps();
 	MFIELDS[1].ClearMaps();
@@ -2493,7 +2501,7 @@ void GMiniShow()
 	byte val;
 	byte mycl = CLRT[MyNation];
 
-	memset(BMASK, 0, sizeof BMASK);
+	memset(BMASK, 0, sizeof(BMASK));
 
 	byte mmsk = GM(MyNation);
 
@@ -3050,7 +3058,7 @@ void HandleMouse(int x, int y)
 		}
 
 		HaveExComm = 0;
-		memset(EXCOMM, 0, sizeof EXCOMM);
+		memset(EXCOMM, 0, sizeof(EXCOMM));
 	}
 
 	HandlwSMSMouse();
@@ -5068,7 +5076,7 @@ public:
 };
 UnitInfo::UnitInfo()
 {
-	memset(this, 0, sizeof UnitInfo);
+	memset(this, 0, sizeof(UnitInfo));
 };
 void UnitInfo::Close()
 {
@@ -5079,7 +5087,7 @@ void UnitInfo::Close()
 		free(Hints);
 	};
 	if (SDS)free(SDS);
-	memset(this, 0, sizeof UnitInfo);
+	memset(this, 0, sizeof(UnitInfo));
 };
 char* UnitInfo::AddHint(char* Hint)
 {
@@ -5102,7 +5110,7 @@ void UnitInfo::AddSD(SimpleDialog* SD, int Page)
 	if (N_SD >= MaxSD)
 	{
 		MaxSD += 32;
-		SDS = (SD_Strip*)realloc(SDS, MaxSD * sizeof SD_Strip);
+		SDS = (SD_Strip*)realloc(SDS, MaxSD * sizeof(SD_Strip));
 	};
 	SDS[N_SD].SD = SD;
 	SDS[N_SD].Page = Page;
@@ -5987,7 +5995,7 @@ int GetFinPower(int* Fin, int Nation);
 char* GetPName(int i);
 void GetSquare()
 {
-	memset(NatSquare, 0, sizeof NatSquare);
+	memset(NatSquare, 0, sizeof(NatSquare));
 	for (int i = 0; i < MAXOBJECT; i++)
 	{
 		OneObject* OB = Group[i];
@@ -6282,7 +6290,7 @@ void NamesHash::AddString(char* Str, int Parm1, int Parm2)
 	if (NHash >= MaxHash)
 	{
 		MaxHash += 32;
-		HASH = (HashItem*)realloc(HASH, MaxHash * sizeof HashItem);
+		HASH = (HashItem*)realloc(HASH, MaxHash * sizeof(HashItem));
 	};
 	HASH[NHash].Param1 = Parm1;
 	HASH[NHash].Param2 = Parm2;

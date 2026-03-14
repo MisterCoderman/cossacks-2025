@@ -1024,7 +1024,7 @@ void SaveGates( ResFile f1 )
 	if ( !NGates )return;
 	int i = '1TAG';
 	RBlockWrite( f1, &i, 4 );
-	i = 12 + NGates * sizeof Gate;
+	i = 12 + NGates * sizeof(Gate);
 	RBlockWrite( f1, &i, 4 );
 	RBlockWrite( f1, &NGates, 4 );
 	RBlockWrite( f1, &MaxGates, 4 );
@@ -1034,8 +1034,8 @@ void LoadGates( ResFile f1 )
 {
 	RBlockRead( f1, &NGates, 4 );
 	RBlockRead( f1, &MaxGates, 4 );
-	Gates = (Gate*) realloc( Gates, MaxGates * sizeof Gate );
-	RBlockRead( f1, Gates, NGates * sizeof Gate );
+	Gates = (Gate*) realloc( Gates, MaxGates * sizeof(Gate) );
+	RBlockRead( f1, Gates, NGates * sizeof(Gate) );
 };
 extern byte* WaterBright;
 void SaveWaterCost( ResFile f1 )
@@ -1127,7 +1127,7 @@ void SaveTopology( ResFile f1 )
 	for ( int j = 0; j < NAreas; j++ )
 	{
 		Area Ar1 = TopMap[j];
-		RBlockWrite( f1, &Ar1, sizeof Area );
+		RBlockWrite( f1, &Ar1, sizeof(Area) );
 		Ar1.MaxLink = Ar1.NLinks;
 		if ( Ar1.NMines )RBlockWrite( f1, Ar1.MinesIdx, Ar1.NMines << 1 );
 		if ( Ar1.NLinks )RBlockWrite( f1, Ar1.Link, Ar1.NLinks << 2 );
@@ -1148,7 +1148,7 @@ void LoadTopology( ResFile f1 )
 	for ( int j = 0; j < NAreas; j++ )
 	{
 		Area* Ar1 = TopMap + j;
-		RBlockRead( f1, Ar1, sizeof Area );
+		RBlockRead( f1, Ar1, sizeof(Area) );
 		if ( Ar1->NMines )Ar1->MinesIdx = new word[Ar1->NMines];
 		else Ar1->MinesIdx = NULL;
 		if ( Ar1->NLinks )Ar1->Link = new word[Ar1->NLinks];
@@ -1177,7 +1177,7 @@ void SaveWTopology( ResFile f1 )
 	for ( int j = 0; j < WNAreas; j++ )
 	{
 		Area Ar1 = WTopMap[j];
-		RBlockWrite( f1, &Ar1, sizeof Area );
+		RBlockWrite( f1, &Ar1, sizeof(Area) );
 		Ar1.MaxLink = Ar1.NLinks;
 		if ( Ar1.NMines )RBlockWrite( f1, Ar1.MinesIdx, Ar1.NMines << 1 );
 		if ( Ar1.NLinks )RBlockWrite( f1, Ar1.Link, Ar1.NLinks << 2 );
@@ -1197,7 +1197,7 @@ void LoadTopology1( ResFile f1 )
 	for ( int j = 0; j < NAreas; j++ )
 	{
 		Area* Ar1 = TopMap + j;
-		RBlockRead( f1, Ar1, sizeof Area );
+		RBlockRead( f1, Ar1, sizeof(Area) );
 		if ( Ar1->NMines )Ar1->MinesIdx = new word[Ar1->NMines];
 		else Ar1->MinesIdx = NULL;
 		if ( Ar1->NLinks )Ar1->Link = new word[Ar1->MaxLink << 1];
@@ -1220,7 +1220,7 @@ void LoadWTopology1( ResFile f1 )
 	for ( int j = 0; j < WNAreas; j++ )
 	{
 		Area* Ar1 = WTopMap + j;
-		RBlockRead( f1, Ar1, sizeof Area );
+		RBlockRead( f1, Ar1, sizeof(Area) );
 		if ( Ar1->NMines )Ar1->MinesIdx = new word[Ar1->NMines];
 		else Ar1->MinesIdx = NULL;
 		if ( Ar1->NLinks )Ar1->Link = new word[Ar1->MaxLink << 1];
@@ -1242,7 +1242,7 @@ void SaveZonesAndGroups( ResFile f1 )
 {
 	int i = '1NOZ';
 	RBlockWrite( f1, &i, 4 );
-	int sz = 4 + 8 + NAZones*( sizeof ActiveZone ) + NAGroups*( sizeof ActiveGroup );
+	int sz = 4 + 8 + NAZones*( sizeof(ActiveZone) ) + NAGroups*( sizeof(ActiveGroup) );
 	for ( int i = 0; i < NAZones; i++ )
 	{
 		ActiveZone* AZ = AZones + i;
@@ -1260,7 +1260,7 @@ void SaveZonesAndGroups( ResFile f1 )
 	for ( int i = 0; i < NAZones; i++ )
 	{
 		ActiveZone* AZ = AZones + i;
-		RBlockWrite( f1, AZ, sizeof ActiveZone );
+		RBlockWrite( f1, AZ, sizeof(ActiveZone) );
 		sz = strlen( AZ->Name ) + 1;
 		RBlockWrite( f1, &sz, 1 );
 		RBlockWrite( f1, AZ->Name, sz );
@@ -1268,7 +1268,7 @@ void SaveZonesAndGroups( ResFile f1 )
 	for ( int i = 0; i < NAGroups; i++ )
 	{
 		ActiveGroup* AG = AGroups + i;
-		RBlockWrite( f1, AG, sizeof ActiveGroup );
+		RBlockWrite( f1, AG, sizeof(ActiveGroup) );
 		sz = strlen( AG->Name ) + 1;
 		RBlockWrite( f1, &sz, 1 );
 		RBlockWrite( f1, AG->Name, sz );
@@ -1310,7 +1310,7 @@ void LoadZonesAndGroups( ResFile f1 )
 	for ( int i = 0; i < NAZones; i++ )
 	{
 		ActiveZone* AZ = AZones + i;
-		RBlockRead( f1, AZ, sizeof ActiveZone );
+		RBlockRead( f1, AZ, sizeof(ActiveZone) );
 		byte L;
 		RBlockRead( f1, &L, 1 );
 		AZ->Name = new char[L];
@@ -1319,7 +1319,7 @@ void LoadZonesAndGroups( ResFile f1 )
 	for ( int q = 0; q < NAGroups; q++ )
 	{
 		ActiveGroup* AG = AGroups + q;
-		RBlockRead( f1, AG, sizeof ActiveGroup );
+		RBlockRead( f1, AG, sizeof(ActiveGroup) );
 		byte L;
 		RBlockRead( f1, &L, 1 );
 		AG->Name = new char[L];
@@ -1384,14 +1384,14 @@ void SaveFormations( ResFile f1 )
 			{
 				RBlockWrite( f1, &i, 4 );
 				RBlockWrite( f1, &j, 4 );
-				RBlockWrite( f1, &BR->AddDamage, sizeof BR->AddDamage );
-				RBlockWrite( f1, &BR->AddShield, sizeof BR->AddShield );
-				RBlockWrite( f1, &BR->BM, sizeof BR->BM );
-				RBlockWrite( f1, &BR->Direction, sizeof BR->Direction );
-				RBlockWrite( f1, &BR->NMemb, sizeof BR->NMemb );
-				RBlockWrite( f1, &BR->WarType, sizeof BR->WarType );
-				RBlockWrite( f1, &BR->SN, sizeof BR->SN );
-				RBlockWrite( f1, &BR->MembID, sizeof BR->MembID );
+				RBlockWrite( f1, &BR->AddDamage, sizeof(BR)->AddDamage );
+				RBlockWrite( f1, &BR->AddShield, sizeof(BR)->AddShield );
+				RBlockWrite( f1, &BR->BM, sizeof(BR)->BM );
+				RBlockWrite( f1, &BR->Direction, sizeof(BR)->Direction );
+				RBlockWrite( f1, &BR->NMemb, sizeof(BR)->NMemb );
+				RBlockWrite( f1, &BR->WarType, sizeof(BR)->WarType );
+				RBlockWrite( f1, &BR->SN, sizeof(BR)->SN );
+				RBlockWrite( f1, &BR->MembID, sizeof(BR)->MembID );
 				if ( BR->NMemb )
 				{
 					for ( int k = 0; k < BR->NMemb; k++ )RBlockWrite( f1, &BR->posX[k], 2 );
@@ -1447,22 +1447,22 @@ void LoadFormations( ResFile f1 )
 		tmp[i] = bid;
 		tmp1[i] = nat;
 		Brigade* BR = CITY[nat].Brigs + bid;
-		memset( BR, 0, sizeof Brigade );
+		memset( BR, 0, sizeof(Brigade) );
 		BR->Enabled = true;
 		BR->ArmyID = 0xFFFF;
-		RBlockRead( f1, &BR->AddDamage, sizeof BR->AddDamage );
-		RBlockRead( f1, &BR->AddShield, sizeof BR->AddShield );
-		RBlockRead( f1, &BR->BM, sizeof BR->BM );
-		RBlockRead( f1, &BR->Direction, sizeof BR->Direction );
-		RBlockRead( f1, &BR->NMemb, sizeof BR->NMemb );
-		RBlockRead( f1, &BR->WarType, sizeof BR->WarType );
-		RBlockRead( f1, &BR->SN, sizeof BR->SN );
-		RBlockRead( f1, &BR->MembID, sizeof BR->MembID );
+		RBlockRead( f1, &BR->AddDamage, sizeof(BR)->AddDamage );
+		RBlockRead( f1, &BR->AddShield, sizeof(BR)->AddShield );
+		RBlockRead( f1, &BR->BM, sizeof(BR)->BM );
+		RBlockRead( f1, &BR->Direction, sizeof(BR)->Direction );
+		RBlockRead( f1, &BR->NMemb, sizeof(BR)->NMemb );
+		RBlockRead( f1, &BR->WarType, sizeof(BR)->WarType );
+		RBlockRead( f1, &BR->SN, sizeof(BR)->SN );
+		RBlockRead( f1, &BR->MembID, sizeof(BR)->MembID );
 		if ( BR->NMemb - 2 != ElementaryOrders[BR->WarType - 1].NUnits )oldvers = 1;
 		BR->MaxMemb = BR->NMemb;
 		BR->CT = CITY + nat;
 		BR->ID = bid;
-		memset( &BR->BM, 0, sizeof BR->BM );
+		memset( &BR->BM, 0, sizeof(BR)->BM );
 		if ( BR->NMemb )
 		{
 			BR->PosCreated = 1;
@@ -1569,18 +1569,18 @@ void SaveFormationsNew( ResFile f1 )
 			{
 				RBlockWrite( f1, &i, 4 );
 				RBlockWrite( f1, &j, 4 );
-				RBlockWrite( f1, &BR->AddDamage, sizeof BR->AddDamage );
-				RBlockWrite( f1, &BR->AddShield, sizeof BR->AddShield );
-				RBlockWrite( f1, &BR->BM, sizeof BR->BM );
-				RBlockWrite( f1, &BR->Direction, sizeof BR->Direction );
-				RBlockWrite( f1, &BR->NMemb, sizeof BR->NMemb );
+				RBlockWrite( f1, &BR->AddDamage, sizeof(BR)->AddDamage );
+				RBlockWrite( f1, &BR->AddShield, sizeof(BR)->AddShield );
+				RBlockWrite( f1, &BR->BM, sizeof(BR)->BM );
+				RBlockWrite( f1, &BR->Direction, sizeof(BR)->Direction );
+				RBlockWrite( f1, &BR->NMemb, sizeof(BR)->NMemb );
 				memset( FRMNM, 0, 32 );
 				OrderDescription* ODE = ElementaryOrders + BR->WarType - 1;
 				strcpy( FRMNM, ODE->ID );
-				//RBlockWrite(f1,&BR->WarType,sizeof BR->WarType);
+				//RBlockWrite(f1,&BR->WarType,sizeof(BR)->WarType);
 				RBlockWrite( f1, FRMNM, 32 );
-				RBlockWrite( f1, &BR->SN, sizeof BR->SN );
-				RBlockWrite( f1, &BR->MembID, sizeof BR->MembID );
+				RBlockWrite( f1, &BR->SN, sizeof(BR)->SN );
+				RBlockWrite( f1, &BR->MembID, sizeof(BR)->MembID );
 				if ( BR->NMemb )
 				{
 					for ( int k = 0; k < BR->NMemb; k++ )RBlockWrite( f1, &BR->posX[k], 2 );
@@ -1627,14 +1627,14 @@ void LoadFormationsNew( ResFile f1 )
 		RBlockRead( f1, &nat, 4 );
 		RBlockRead( f1, &bid, 4 );
 		Brigade* BR = CITY[nat].Brigs + bid;
-		memset( BR, 0, sizeof Brigade );
+		memset( BR, 0, sizeof(Brigade) );
 		BR->Enabled = true;
 		BR->ArmyID = 0xFFFF;
-		RBlockRead( f1, &BR->AddDamage, sizeof BR->AddDamage );
-		RBlockRead( f1, &BR->AddShield, sizeof BR->AddShield );
-		RBlockRead( f1, &BR->BM, sizeof BR->BM );
-		RBlockRead( f1, &BR->Direction, sizeof BR->Direction );
-		RBlockRead( f1, &BR->NMemb, sizeof BR->NMemb );
+		RBlockRead( f1, &BR->AddDamage, sizeof(BR)->AddDamage );
+		RBlockRead( f1, &BR->AddShield, sizeof(BR)->AddShield );
+		RBlockRead( f1, &BR->BM, sizeof(BR)->BM );
+		RBlockRead( f1, &BR->Direction, sizeof(BR)->Direction );
+		RBlockRead( f1, &BR->NMemb, sizeof(BR)->NMemb );
 		RBlockRead( f1, FRMNM, 32 );
 		int wt = -1;
 		for ( int j = 0; j < NEOrders&&wt == -1; j++ )
@@ -1643,9 +1643,9 @@ void LoadFormationsNew( ResFile f1 )
 		};
 		//assert(wt!=-1);
 		BR->WarType = wt + 1;
-		//RBlockRead(f1,&BR->WarType,sizeof BR->WarType);
-		RBlockRead( f1, &BR->SN, sizeof BR->SN );
-		RBlockRead( f1, &BR->MembID, sizeof BR->MembID );
+		//RBlockRead(f1,&BR->WarType,sizeof(BR)->WarType);
+		RBlockRead( f1, &BR->SN, sizeof(BR)->SN );
+		RBlockRead( f1, &BR->MembID, sizeof(BR)->MembID );
 		BR->MaxMemb = BR->NMemb;
 		BR->CT = CITY + nat;
 		BR->ID = bid;
@@ -2038,7 +2038,7 @@ void Load3DMap( char* Map )
 
 	for ( int i = 0; i < 8; i++ )
 	{
-		memset( NATIONS[i].NProduced, 0, sizeof NATIONS[i].NProduced );
+		memset( NATIONS[i].NProduced, 0, sizeof(NATIONS)[i].NProduced );
 	}
 
 	ResFile f1 = RReset( Map );

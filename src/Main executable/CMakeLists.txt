@@ -96,6 +96,7 @@ add_executable(Cossacks
     Waves.cpp
     Weapon.cpp
     ZBuffer.cpp
+    platform_main.cpp
 )
 
 target_include_directories(Cossacks PRIVATE
@@ -112,12 +113,26 @@ target_include_directories(Cossacks PRIVATE
 )
 
 target_link_libraries(Cossacks PRIVATE CommCore)
-
-if(SDL2_FOUND AND NOT WIN32)
-    target_link_libraries(Cossacks PRIVATE ${SDL2_LIBRARIES})
+# On non-Windows, link IChat and IntExplorer as static libraries.
+# Use -ld_classic linker to handle duplicate symbols (the exe and DLLs
+# shared symbol definitions via dllexport/dllimport on Windows).
+if(NOT WIN32)
+    target_link_libraries(Cossacks PRIVATE IChat IntExplorer)
+    if(APPLE)
+        target_compile_options(Cossacks PRIVATE -fcommon)
+        # MSVC merges duplicate symbol definitions across translation units.
+        # The macOS linker doesn't allow this. Use ld_classic which is more permissive.
+        target_link_options(Cossacks PRIVATE "LINKER:-ld_classic,-multiply_defined,suppress")
+    endif()
 endif()
-if(SDL2_MIXER_FOUND AND NOT WIN32)
-    target_link_libraries(Cossacks PRIVATE ${SDL2_MIXER_LIBRARIES})
+
+if(NOT WIN32)
+    target_link_directories(Cossacks PRIVATE ${SDL2_LIBRARY_DIRS} ${SDL2_MIXER_LIBRARY_DIRS})
+    target_link_libraries(Cossacks PRIVATE ${SDL2_LIBRARIES} ${SDL2_MIXER_LIBRARIES})
+    # Allow duplicate symbols from static libs (were separate DLLs on Windows)
+    if(APPLE)
+        # No special linker flags needed
+    endif()
 endif()
 
 # On Windows, link Windows system libraries

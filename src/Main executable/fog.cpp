@@ -84,6 +84,7 @@ void ProcessFog1_1()
 
 	byte z = 1;
 
+	#if defined(_MSC_VER) && defined(_M_IX86)
 	__asm
 	{
 		push	esi
@@ -121,6 +122,7 @@ void ProcessFog1_1()
 		pop		edi
 		pop		esi
 	}
+	#endif
 }
 
 #undef FMSX_C
@@ -137,6 +139,7 @@ void ProcessFog1_2()
 	int fDV = (mlx * mly) << 1;
 	int fDH = (mlx << 1) - 2;
 	byte z = 1;
+	#if defined(_MSC_VER) && defined(_M_IX86)
 	__asm {
 		push	esi
 		push	edi
@@ -175,6 +178,7 @@ void ProcessFog1_2()
 		pop		edi
 		pop		esi
 	};
+	#endif
 };
 
 
@@ -192,6 +196,7 @@ void ProcessFog1_3()
 	int fDV = (mlx * mly) << 1;
 	int fDH = (mlx << 1) - 2;
 	byte z = 1;
+	#if defined(_MSC_VER) && defined(_M_IX86)
 	__asm {
 		push	esi
 		push	edi
@@ -229,6 +234,7 @@ void ProcessFog1_3()
 		pop		edi
 		pop		esi
 	};
+	#endif
 };
 
 void ProcessFog1()
@@ -343,6 +349,7 @@ void SetScreenFog16x16()
 	int Daddy = (64 - smaplx) << 1;
 	word MinShad = (MaxShad - (32 << Shifter));
 	//filling
+	#if defined(_MSC_VER) && defined(_M_IX86)
 	__asm
 	{
 		push	esi
@@ -380,6 +387,7 @@ void SetScreenFog16x16()
 			pop		edi
 			pop		esi
 	}
+	#endif
 
 	smaplx--;
 	smaply--;
@@ -390,6 +398,7 @@ void ProcessScreenFog16x16()
 	smaplx++;
 	smaply++;
 	int	ads = 64 - (smaplx << 1);
+	#if defined(_MSC_VER) && defined(_M_IX86)
 	__asm
 	{
 		push	esi
@@ -412,6 +421,7 @@ void ProcessScreenFog16x16()
 		jnz		gt0
 		pop		esi
 	}
+	#endif
 	smaplx--;
 	smaply--;
 }
@@ -441,6 +451,7 @@ void ShowSuperFluentFog32_160_16(int x, int y, int z1x, int z2x, int z3x, int z4
 
 	if (z1x >= 96 && z2x >= 96 && z3x >= 96 && z4x >= 96)
 	{
+		#if defined(_MSC_VER) && defined(_M_IX86)
 		__asm
 		{
 			push	edi
@@ -456,6 +467,7 @@ void ShowSuperFluentFog32_160_16(int x, int y, int z1x, int z2x, int z3x, int z4
 			jnz		iug
 			pop		edi
 		}
+		#endif
 		return;
 	}
 	else
@@ -463,6 +475,7 @@ void ShowSuperFluentFog32_160_16(int x, int y, int z1x, int z2x, int z3x, int z4
 		int a, b, p;
 		int c = (z3 - z1) >> 4;
 		int d = (z1 + z4 - z3 - z2) >> 9;
+		#if defined(_MSC_VER) && defined(_M_IX86)
 		__asm
 		{
 			push	edi
@@ -719,6 +732,7 @@ void ShowSuperFluentFog32_160_16(int x, int y, int z1x, int z2x, int z3x, int z4
 			pop		esi
 			pop		edi
 		}
+		#endif
 	}
 }
 
@@ -738,6 +752,7 @@ void ShowSuperFluentFog16_160(int x, int y, int z1x, int z2x, int z3x, int z4x)
 
 	if (z1x >= 96 && z2x >= 96 && z3x >= 96 && z4x >= 96)
 	{
+		#if defined(_MSC_VER) && defined(_M_IX86)
 		__asm
 		{
 			push	edi
@@ -753,11 +768,13 @@ void ShowSuperFluentFog16_160(int x, int y, int z1x, int z2x, int z3x, int z4x)
 			jnz		iug
 			pop		edi
 		}
+		#endif
 		return;
 	}
 	else
 	{
 		int a, b, c, d, p;
+		#if defined(_MSC_VER) && defined(_M_IX86)
 		__asm
 		{
 			push	edi
@@ -914,6 +931,7 @@ void ShowSuperFluentFog16_160(int x, int y, int z1x, int z2x, int z3x, int z4x)
 			pop		esi
 			pop		edi
 		}
+		#endif
 	}
 }
 
@@ -928,6 +946,7 @@ void ShowSuperFluentFog12_160(int x, int y, int z1x, int z2x, int z3x, int z4x)
 	if (z1x <= 63 && z2x <= 63 && z3x <= 63 && z4x <= 63)return;
 	if (z1x >= 96 && z2x >= 96 && z3x >= 96 && z4x >= 96)
 	{
+		#if defined(_MSC_VER) && defined(_M_IX86)
 		__asm {
 			push	edi
 			mov		ebx, adds
@@ -942,6 +961,7 @@ void ShowSuperFluentFog12_160(int x, int y, int z1x, int z2x, int z3x, int z4x)
 			jnz		iug
 			pop		edi
 		};
+		#endif
 		return;
 	}
 	else
@@ -950,6 +970,7 @@ void ShowSuperFluentFog12_160(int x, int y, int z1x, int z2x, int z3x, int z4x)
 		int c = div(z3 - z1, 12).quot;
 		int d = div(z1 + z4 - z3 - z2, 192).quot;
 		int p;
+		#if defined(_MSC_VER) && defined(_M_IX86)
 		__asm {
 			push	edi
 			push	esi
@@ -1105,6 +1126,7 @@ void ShowSuperFluentFog12_160(int x, int y, int z1x, int z2x, int z3x, int z4x)
 			pop		esi
 			pop		edi
 		};
+		#endif
 	};
 };
 #define shf 300
@@ -1153,6 +1175,7 @@ void SetLightPoint(int x, int y)
 	yy1 = y >> 5;
 	if (yy1 < 0)yy1 = 0;
 	if (yy1 >= msy)yy1 = msy - 1;
+	#if defined(_MSC_VER) && defined(_M_IX86)
 	__asm
 	{
 		xor eax, eax
@@ -1161,6 +1184,7 @@ void SetLightPoint(int x, int y)
 		shl		eax, 1
 		mov		word ptr[fmap + eax], 16383;
 	}
+	#endif
 }
 
 void FogSpot(int x, int y);
@@ -1472,6 +1496,7 @@ void DrawMiniFog()
 	int F_add = (FMSX2 << (ADDSH - 1)) - (MMSX << ADDSH);
 	int DDDX = 1 << ADDSH;
 
+	#if defined(_MSC_VER) && defined(_M_IX86)
 	__asm
 	{
 		push	esi
@@ -1501,4 +1526,5 @@ void DrawMiniFog()
 			pop		edi
 			pop		esi
 	}
+	#endif
 }

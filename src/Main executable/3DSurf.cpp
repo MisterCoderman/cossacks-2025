@@ -42,16 +42,16 @@ static char* RendSurf = nullptr;
 
 void InitRenderStack()
 {
-	memset(RXCoor, 0, sizeof RXCoor);
-	memset(RYCoor, 0, sizeof RYCoor);
-	memset(&RefMap[0][0], 255, sizeof RefMap);
+	memset(RXCoor, 0, sizeof(RXCoor));
+	memset(RYCoor, 0, sizeof(RYCoor));
+	memset(&RefMap[0][0], 255, sizeof(RefMap));
 	STHead = 0;
 	STTile = 0;
 }
 
 void ReRenderMap()
 {
-	memset(&RefMap[0][0], 255, sizeof RefMap);
+	memset(&RefMap[0][0], 255, sizeof(RefMap));
 	STHead = 0;
 	STTile = 0;
 }
@@ -162,5 +162,5 @@ void InitRenderMap()
 
 	SetLight(0, 20, 30);
 
-	memset(&HiMap[0][0], 0, sizeof HiMap);
+	memset(&HiMap[0][0], 0, sizeof(HiMap));
 }

@@ -5,6 +5,7 @@ typedef unsigned char byte;
 #include "StringHash.h"
 
 __forceinline byte CalcHash(char* s) {
+	#if defined(_MSC_VER) && defined(_M_IX86)
 	__asm {
 		mov esi, s
 		cld
@@ -16,9 +17,10 @@ __forceinline byte CalcHash(char* s) {
 		jnz strlp1
 		mov al, bl
 	};
+	#endif
 };
 StrHash::StrHash(){
-	memset(this,0,sizeof StrHash);
+	memset(this,0,sizeof(StrHash));
 };
 void StrHash::Clear(){
 	for(int i=0;i<256;i++){
@@ -29,7 +31,7 @@ void StrHash::Clear(){
 			free(lpSHI->Value);
 		};
 	};
-	memset(this,0,sizeof StrHash);
+	memset(this,0,sizeof(StrHash));
 };
 StrHash::~StrHash(){
 	Clear();

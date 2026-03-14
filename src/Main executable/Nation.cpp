@@ -188,6 +188,7 @@ void AddAsk(word ReqID, byte x, byte y, char zdx, char zdy)
 	OneObject* OB = Group[ReqID];
 	OB->AskMade = true;
 	//ENDDEBUG
+	#if defined(_MSC_VER) && defined(_M_IX86)
 	__asm {
 		//		inc		NAsk
 		mov		eax, NAsk
@@ -204,6 +205,7 @@ void AddAsk(word ReqID, byte x, byte y, char zdx, char zdy)
 		mov		word ptr[eax + 6], bx
 		inc		NAsk
 	};
+	#endif
 };
 
 //Обработка запросов, сначала освобождаем все старые клетки
@@ -365,9 +367,9 @@ void COrd( Order1* ordr )
 		return;
 	}
 
-	if (( int( ordr ) - int( OrdBuf ) ) / sizeof Order1 >= MaxOrdCount)
+	if (( int( ordr ) - int( OrdBuf ) ) / sizeof(Order1) >= MaxOrdCount)
 	{
-		int RRRR = ( int( ordr ) - int( OrdBuf ) ) / sizeof Order1;
+		int RRRR = ( int( ordr ) - int( OrdBuf ) ) / sizeof(Order1);
 	}
 }
 
@@ -1593,8 +1595,8 @@ word NNuc;
 //Zero NucList, NucSN, NNuc
 void InitNucList()
 {
-	memset( NucList, 255, sizeof NucList );
-	memset( NucSN, 255, sizeof NucSN );
+	memset( NucList, 255, sizeof(NucList) );
+	memset( NucSN, 255, sizeof(NucSN) );
 	NNuc = 0;
 }
 

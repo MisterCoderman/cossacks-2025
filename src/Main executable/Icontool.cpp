@@ -357,7 +357,7 @@ OneIcon* IconSet::AddIcon( word FileID, word SpriteID )
 			OneIcon* Ico = new OneIcon[NIcons + 8];
 			if (Space > 0)
 			{
-				memcpy( Ico, Icons, NIcons * sizeof OneIcon );
+				memcpy( Ico, Icons, NIcons * sizeof(OneIcon) );
 				free( Icons );
 			}
 			Space = NIcons + 8;

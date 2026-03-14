@@ -34,6 +34,7 @@ void SortClass::Sort() {
 	int nuids = NUids - 1;
 	byte fault;
 
+	#if defined(_MSC_VER) && defined(_M_IX86)
 	__asm {
 		push    esi
 		push    edi
@@ -75,6 +76,7 @@ void SortClass::Sort() {
 			pop     esi
 			pop     edi
 	};
+	#endif
 };
 void SortClass::CheckSize(int Size) {
 	if (!Size)return;

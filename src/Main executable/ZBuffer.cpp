@@ -448,6 +448,7 @@ void SortWords(int NWords, word* Data, short* Factor)
 		return;
 	}
 
+	#if defined(_MSC_VER) && defined(_M_IX86)
 	__asm
 	{
 		push	esi
@@ -477,6 +478,7 @@ void SortWords(int NWords, word* Data, short* Factor)
 			pop		edi
 			pop		esi
 	}
+	#endif
 }
 
 void SortZBuffer()

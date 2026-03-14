@@ -16,10 +16,10 @@ void LOADSC(char* ID,char** str){
 	};
 };
 #undef LoadSC
-#define LoadSC(z) char* ##z##=NULL;
+#define LoadSC(z) char* z=NULL;
 #include "ConstStr.h"
 #undef LoadSC
-#define LoadSC(x) LOADSC(#x,&##x);
+#define LoadSC(x) LOADSC(#x,&x);
 void LoadConstStr(){
 #include "ConstStr.h"
 };

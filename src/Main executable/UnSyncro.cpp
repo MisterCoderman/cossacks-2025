@@ -67,7 +67,7 @@ extern DWORD RealTime;
 
 void Syncro::Copy( Syncro* Syn )
 {
-	memcpy( Syn->RSL, RSL, NSlots * sizeof RandSlot );
+	memcpy( Syn->RSL, RSL, NSlots * sizeof(RandSlot) );
 	Syn->NSlots = NSlots;
 	NSlots = 0;
 }

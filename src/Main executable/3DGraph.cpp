@@ -1196,17 +1196,17 @@ void CreateRandomHMap() {
 		CreateTriBlob(rand()&255,rand()&255,16+(rand()&31),1+(rand()&1));
 	};
 	*/
-	memset(TexMap, 0, sizeof TexMap);
+	memset(TexMap, 0, sizeof(TexMap));
 	/*for(i=0;i<7550;i++){
 		int p=rand();
-		if(p<sizeof TexMap)TexMap[p]=14;
+		if(p<sizeof(TexMap))TexMap[p]=14;
 	};
 	for(i=0;i<7550;i++){
 		int p=rand();
-		if(p<sizeof TexMap)TexMap[p]=5;
+		if(p<sizeof(TexMap))TexMap[p]=5;
 	};
 	*/
-	//for(i=0;i<sizeof SectMap;i++)SectMap[i]=div(rand(),11000).quot;
+	//for(i=0;i<sizeof(SectMap);i++)SectMap[i]=div(rand(),11000).quot;
 };
 //const int HardLight[32]={0,1,2,3,4,5,6,8,10,12,14,16,18,20,22,24,26,28,30,30,30,30,30,30,30,30,30,30,30,30,30,30};
 const int HardLight[32] = { 0,1,1,3,5,7,9,11,12,12,12,12,12,12,12,12,12,12,12,12,12,12,13,13,13,13,13,13,13,13,13,13 };
@@ -1266,7 +1266,7 @@ extern int TEXARR[8];
 
 void Loadtextures()
 {
-	memset(TileMap, 0, sizeof TileMap);
+	memset(TileMap, 0, sizeof(TileMap));
 	ResFile f1 = RReset("tiles3.bmp");//("dmbmp.bpx");//("textures.bpx");
 	RSeek(f1, 0x436);
 	tex1 = new byte[RFileSize(f1) - 0x436];

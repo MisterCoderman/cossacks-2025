@@ -4760,7 +4760,7 @@ GP_PageControl* DialogsSystem::addPageControl( SimpleDialog* Parent, int x, int 
 
 void GP_PageControl::AddPage( int x0, int y0, int px1, int py1, int Index )
 {
-	Pages = (OnePage*) realloc( Pages, ( NPages + 1 ) * sizeof OnePage );
+	Pages = (OnePage*) realloc( Pages, ( NPages + 1 ) * sizeof(OnePage) );
 	Pages[NPages].Index = Index;
 	Pages[NPages].x = x0;
 	Pages[NPages].y = y0;
@@ -4895,13 +4895,13 @@ SimpleDialog::SimpleDialog()
 	OnKeyDown = nullptr;
 	OnLeave = nullptr;
 	OnMouseOver = nullptr;
-	MouseOverActive = nullptr;
+	MouseOverActive = false;
 	Destroy = nullptr;
 	Refresh = nullptr;
 	Parent = nullptr;
 	Child = nullptr;
 	OnDrawActive = nullptr;
-	OnNewClick = false;
+	OnNewClick = nullptr;
 	MouseOver = false;
 	MouseOverActive = false;
 	Active = false;

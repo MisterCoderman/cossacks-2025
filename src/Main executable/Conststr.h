@@ -1,5 +1,5 @@
 #ifndef LOADSCX
-#define LoadSC(z) extern char* ##z##;
+#define LoadSC(z) extern char* z;
 #endif
 	LoadSC(DELSYNC)
 	LoadSC(STOPUPG)

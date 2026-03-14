@@ -166,6 +166,7 @@ void ClearScreen();
 }
 */
 
+#if defined(_MSC_VER) && defined(_M_IX86)
 //Showing RLC image with clipping
 void ShowRLC(int x, int y, void* PicPtr)
 {
@@ -2093,6 +2094,16 @@ void ShowRLCihtpal(int x, int y, void* PicPtr, byte* pal)
 	}
 }
 //End of inverted RLC with clipping & encoding(half-transparent fog)
+#else // non-MSVC/non-x86 stubs
+void ShowRLC(int x, int y, void* PicPtr) { (void)x; (void)y; (void)PicPtr; }
+void ShowRLCi(int x, int y, void* PicPtr) { (void)x; (void)y; (void)PicPtr; }
+void ShowRLCpal(int x, int y, void* PicPtr, byte* pal) { (void)x; (void)y; (void)PicPtr; (void)pal; }
+void ShowRLCipal(int x, int y, void* PicPtr, byte* pal) { (void)x; (void)y; (void)PicPtr; (void)pal; }
+void ShowRLCfonpal(int x, int y, void* PicPtr, byte* pal) { (void)x; (void)y; (void)PicPtr; (void)pal; }
+void ShowRLCifonpal(int x, int y, void* PicPtr, byte* pal) { (void)x; (void)y; (void)PicPtr; (void)pal; }
+void ShowRLChtpal(int x, int y, void* PicPtr, byte* pal) { (void)x; (void)y; (void)PicPtr; (void)pal; }
+void ShowRLCihtpal(int x, int y, void* PicPtr, byte* pal) { (void)x; (void)y; (void)PicPtr; (void)pal; }
+#endif // _MSC_VER && _M_IX86
 
 void ShowRLCp1(int x, int y, void* PicPtr)
 {

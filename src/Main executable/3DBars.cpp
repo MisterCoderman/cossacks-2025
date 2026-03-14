@@ -29,7 +29,7 @@ word*  NObj3;
 //Zero 3D Bars variables (?)
 void InitObjs3()
 {
-	memset( OBARS, 0, sizeof OBARS );
+	memset( OBARS, 0, sizeof(OBARS) );
 	memset( Obj3Map, 0, B3SZ * 4 );
 	memset( NObj3, 0, B3SZ * 2 );
 	NBars = 0;

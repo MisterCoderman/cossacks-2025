@@ -35,7 +35,7 @@
 #include "ActiveScenary.h"
 #include "DrawForm.h"
 #include "recorder.h"
-#include "Safety.h "
+#include "Safety.h"
 #include "EInfoClass.h"
 
 #include "PlayerInfo.h"
@@ -52,7 +52,7 @@ ScenaryInterface SCENINF;
 
 ScenaryInterface::ScenaryInterface()
 {
-	memset( this, 0, sizeof ScenaryInterface );
+	memset( this, 0, sizeof(ScenaryInterface) );
 }
 
 ScenaryInterface::~ScenaryInterface()
@@ -404,15 +404,18 @@ extern word COMPSTART[8];
 void ScenaryInterface::Load(char* Name, char* Text)
 {
 	for (int i = 0; i < 8; i++) AssignTBL[i] = i;
-	memset(COMPSTART, 0, sizeof COMPSTART);
+	memset(COMPSTART, 0, sizeof(COMPSTART));
 	char lang[3] = "en";
 
+	// Locale detection stub: default to "en" on non-Windows
+#ifdef _WIN32
 	LCID uiLCID = GetSystemDefaultUILanguage();
 	if (GetLocaleInfoA(uiLCID, LOCALE_SISO639LANGNAME, lang, sizeof(lang)) == 0 ||
 		lang[0] == 0)
 	{
 		strcpy(lang, "en");
 	}
+#endif
 
 	char FileToLoad[260];
 	ResFile RF = INVALID_HANDLE_VALUE;
@@ -593,7 +596,7 @@ extern "C" __declspec( dllexport ) bool RegisterUnits( GAMEOBJ* GOBJ, char* Name
 		if ( SCENINF.NUGRP >= SCENINF.MaxUGRP )
 		{
 			SCENINF.MaxUGRP += 32;
-			SCENINF.UGRP = (UnitsGroup*) realloc( SCENINF.UGRP, SCENINF.MaxUGRP * sizeof UnitsGroup );
+			SCENINF.UGRP = (UnitsGroup*) realloc( SCENINF.UGRP, SCENINF.MaxUGRP * sizeof(UnitsGroup) );
 		}
 		GOBJ->Index = SCENINF.NUGRP;
 		UnitsGroup* UG = SCENINF.UGRP + SCENINF.NUGRP;
@@ -695,7 +698,7 @@ extern "C" __declspec( dllexport ) void RegisterZone( GAMEOBJ* GOBJ, char* Name 
 		if ( SCENINF.NZGRP >= SCENINF.MaxZGRP )
 		{
 			SCENINF.MaxZGRP += 16;
-			SCENINF.ZGRP = (ZonesGroup*) realloc( SCENINF.ZGRP, SCENINF.MaxZGRP * sizeof ZonesGroup );
+			SCENINF.ZGRP = (ZonesGroup*) realloc( SCENINF.ZGRP, SCENINF.MaxZGRP * sizeof(ZonesGroup) );
 		}
 
 		SCENINF.ZGRP[SCENINF.NZGRP].N = NZON;
@@ -735,7 +738,7 @@ extern "C" __declspec( dllexport ) void RegisterVisibleZone( GAMEOBJ* GOBJ, char
 		if ( SCENINF.NZGRP >= SCENINF.MaxZGRP )
 		{
 			SCENINF.MaxZGRP += 16;
-			SCENINF.ZGRP = (ZonesGroup*) realloc( SCENINF.ZGRP, SCENINF.MaxZGRP * sizeof ZonesGroup );
+			SCENINF.ZGRP = (ZonesGroup*) realloc( SCENINF.ZGRP, SCENINF.MaxZGRP * sizeof(ZonesGroup) );
 		}
 
 		SCENINF.ZGRP[SCENINF.NZGRP].N = NZON;
@@ -1809,7 +1812,7 @@ extern "C" __declspec( dllexport ) bool CreateObject0( GAMEOBJ* DstObj, GAMEOBJ*
 	if ( SCENINF.NUGRP >= SCENINF.MaxUGRP )
 	{
 		SCENINF.MaxUGRP += 10;
-		SCENINF.UGRP = (UnitsGroup*) realloc( SCENINF.UGRP, SCENINF.MaxUGRP * sizeof UnitsGroup );
+		SCENINF.UGRP = (UnitsGroup*) realloc( SCENINF.UGRP, SCENINF.MaxUGRP * sizeof(UnitsGroup) );
 	}
 	UnitsGroup* UG = SCENINF.UGRP + SCENINF.NUGRP;
 	SCENINF.NUGRP++;
@@ -4678,7 +4681,7 @@ extern "C" __declspec( dllexport ) void RegisterDynGroup( GAMEOBJ* Units )
 	if ( SCENINF.NUGRP >= SCENINF.MaxUGRP )
 	{
 		SCENINF.MaxUGRP += 32;
-		SCENINF.UGRP = (UnitsGroup*) realloc( SCENINF.UGRP, SCENINF.MaxUGRP * sizeof UnitsGroup );
+		SCENINF.UGRP = (UnitsGroup*) realloc( SCENINF.UGRP, SCENINF.MaxUGRP * sizeof(UnitsGroup) );
 	}
 	Units->Index = SCENINF.NUGRP;
 	UnitsGroup *UG = SCENINF.UGRP + SCENINF.NUGRP;
@@ -4813,7 +4816,7 @@ const int AI_PROB[4] = { 32768 / 100, 32768 / 50, 32768 / 10, 32768 };
 byte CurAINation = 1;
 City* CCIT = NULL;
 Nation* CNAT;
-#define PRC(x) ((32768*##x##)/100)
+#define PRC(x) ((32768*(x))/100)
 
 int PERCONV[101] = { PRC( 0 ),PRC( 1 ),PRC( 2 ),PRC( 3 ),PRC( 4 ),PRC( 5 ),PRC( 6 ),PRC( 7 ),PRC( 8 ),PRC( 9 ),
 				  PRC( 10 ),PRC( 11 ),PRC( 12 ),PRC( 13 ),PRC( 14 ),PRC( 15 ),PRC( 16 ),PRC( 17 ),PRC( 18 ),PRC( 19 ),
@@ -5701,7 +5704,7 @@ void MissPack::LoadMissions()
 				if ( NMiss >= MaxMiss )
 				{
 					MaxMiss += 32;
-					MISS = (SingleMission*) realloc( MISS, MaxMiss * sizeof SingleMission );
+					MISS = (SingleMission*) realloc( MISS, MaxMiss * sizeof(SingleMission) );
 				}
 				SingleMission* SM = MISS + NMiss;
 				NMiss++;
@@ -5772,7 +5775,7 @@ void MissPack::LoadMissions()
 
 MissPack::MissPack()
 {
-	memset( this, 0, sizeof MissPack );
+	memset( this, 0, sizeof(MissPack) );
 	CurrentMission = -1;
 	LoadMissions();
 }

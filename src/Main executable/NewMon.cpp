@@ -271,9 +271,9 @@ void InitAllGame()
 {
 	ClearMaps();
 
-	memset( Group, 0, sizeof Group );
-	memset( Sprites, 0, sizeof Sprites );
-	memset( NSL, 0, sizeof NSL );
+	memset( Group, 0, sizeof(Group) );
+	memset( Sprites, 0, sizeof(Sprites) );
+	memset( NSL, 0, sizeof(NSL) );
 }
 
 void DosToWin( char* Str )
@@ -400,7 +400,7 @@ NewAnimation::NewAnimation()
 
 NewMonster::NewMonster()
 {
-	memset( &MotionL, 0, sizeof NewMonster );
+	memset( &MotionL, 0, sizeof(NewMonster) );
 }
 
 //--------------------Icons------------------
@@ -473,7 +473,7 @@ VK_F1,VK_F2,VK_F3,VK_F4,VK_F5,VK_F6,VK_F7,VK_F8,VK_F9,VK_F10,VK_NEXT,VK_PRIOR,VK
 bool ReadWinString( GFILE* F, char* STR, int Max );
 void ReadKeyCodes()
 {
-	memset( &KeyCodes[0][0], 0, sizeof KeyCodes );
+	memset( &KeyCodes[0][0], 0, sizeof(KeyCodes) );
 	GFILE* F = Gopen( "Data\\Keyboard.dat", "r" );
 	if ( F )
 	{
@@ -3237,7 +3237,7 @@ bool NewMonster::CreateFromFile( char* name )
 																																																																																																									if ( !CompxCraft )
 																																																																																																									{
 																																																																																																										CompxCraft = new ComplexBuilding;
-																																																																																																										memset( CompxCraft, 0, sizeof ComplexBuilding );
+																																																																																																										memset( CompxCraft, 0, sizeof(ComplexBuilding) );
 																																																																																																									};
 																																																																																																									if ( Idx >= MaxAStages )
 																																																																																																									{
@@ -3567,7 +3567,7 @@ bool CreateGOByName( GeneralObject* GO, char* name, char* newName )
 {
 	Visuals* VS = (Visuals*) GO;
 
-	memset( GO, 0, sizeof Visuals );
+	memset( GO, 0, sizeof(Visuals) );
 
 	for ( int i = 0; i < NNewMon; i++ )
 	{
@@ -3669,7 +3669,7 @@ void SprGroup::LoadSprites( char* fname )
 		Dy = new short[nl];
 		Radius = new short[nl];
 		ObjChar = new ObjCharacter[nl];
-		memset( ObjChar, 0, nl * sizeof ObjCharacter );
+		memset( ObjChar, 0, nl * sizeof(ObjCharacter) );
 		NLine( f1 );
 		Line++;
 		UpConv( gy );
@@ -3962,6 +3962,7 @@ byte* TmpMC; //amount of monsters in 4x4 cell,
 word* BLDList;
 void ZMem(byte* pntr, int siz)
 {
+	#if defined(_MSC_VER) && defined(_M_IX86)
 	__asm {
 		push	edi
 		cld
@@ -3976,6 +3977,7 @@ void ZMem(byte* pntr, int siz)
 		//sti
 		www : pop		edi
 	};
+	#endif
 };
 
 
@@ -4203,9 +4205,9 @@ word Hash64[1024];
 word Hash256[256];
 void InitHash()
 {
-	memset( Hash16, 0, sizeof Hash16 );
-	memset( Hash64, 0, sizeof Hash64 );
-	memset( Hash256, 0, sizeof Hash256 );
+	memset( Hash16, 0, sizeof(Hash16) );
+	memset( Hash64, 0, sizeof(Hash64) );
+	memset( Hash256, 0, sizeof(Hash256) );
 };
 
 //----------//-------\\----------
@@ -9130,7 +9132,7 @@ int Nation::CreateNewMonsterAt( int rx, int ry, int n, bool Anyway )
 	}
 
 	Group[i] = OBJECTS + i;
-	memset( Group[i], 0, sizeof OneObject );
+	memset( Group[i], 0, sizeof(OneObject) );
 	LastObject = i;
 	//Cell8x8* CELL=&TCInf[NNUM][y>>11][x>>11];
 	OneObject* G = Group[i];
@@ -11230,7 +11232,7 @@ void AttackObjLink( OneObject* OBJ )
 	OneObject* OB;
 	if ( AttGroundMod )
 	{
-		memset( &TMPOBJ, 0, sizeof OneObject );
+		memset( &TMPOBJ, 0, sizeof(OneObject) );
 		OB = &TMPOBJ;
 		TMPOBJ.RealX = OBJ->DstX;
 		TMPOBJ.RealY = OBJ->DstY;
@@ -13725,6 +13727,7 @@ void DeleteBlockLink( OneObject* OBJ )
 /*word MonInd[MAPSX*MAPSX];//512k
 #define MAXMI (MAPSX*MAPSY)
 inline word GetMI(int x,int y){
+	#if defined(_MSC_VER) && defined(_M_IX86)
 	__asm{
 		mov		ebx,y
 		shl		ebx,9
@@ -13739,9 +13742,11 @@ inline word GetMI(int x,int y){
 nona:	mov		ax,0xFFFF
 done:
 	};
+	#endif
 	return;
 };
 inline void SetMI(int x,int y,word MI){
+	#if defined(_MSC_VER) && defined(_M_IX86)
 	__asm{
 		mov		eax,y
 		shl		eax,9
@@ -13755,6 +13760,7 @@ inline void SetMI(int x,int y,word MI){
 		mov		[eax],bx
 nona:
 	};
+	#endif
 	return;
 };*/
 int ExplMedia;

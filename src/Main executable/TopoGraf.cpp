@@ -449,7 +449,7 @@ void CreateStrategyInfo()
 
 	for (int i = 0; i < NAreas; i++)
 	{
-		memset(&TopMap[i].SINF[0], 0, 8 * sizeof StrategyInfo);
+		memset(&TopMap[i].SINF[0], 0, 8 * sizeof(StrategyInfo));
 	}
 
 	for (int i = 0; i < MAXOBJECT; i++)

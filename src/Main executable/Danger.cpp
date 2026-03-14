@@ -42,10 +42,10 @@ word* DCHTIME;
 void InitDANGER() {
 	NDOBJ = 0;
 	DOBJLastTime = 0;
-	memset(DOBJ, 0, sizeof DOBJ);
-	memset(DOBJSN, 0, sizeof DOBJSN);
-	memset(DANGMAP, 0, sizeof DANGMAP);
-	memset(DCHTIME, 0, sizeof DCHTIME);
+	memset(DOBJ, 0, sizeof(DOBJ));
+	memset(DOBJSN, 0, sizeof(DOBJSN));
+	memset(DANGMAP, 0, sizeof(DANGMAP));
+	memset(DCHTIME, 0, sizeof(DCHTIME));
 };
 byte OBJDANG[48] = { 0,0,0,0,0,0,0,0, 0,1,1,0,0,0,6,0,
 				   0,0,0,0,0,0,0,0, 0,3,0,2,1,0,1,0,

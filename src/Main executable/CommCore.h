@@ -11,6 +11,9 @@
 // Для корректной работы за NAT-ом, последний должен удовлетворять рекомендациям
 // фирмы Microsoft на трансляцию UDP-пакетов через шлюз
 
+#ifndef _WIN32
+#include <winsock2.h>
+#endif
 #define _COOL_
 //#define CC_DEBUG
 

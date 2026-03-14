@@ -39,8 +39,13 @@ inline int WSAStartup(WORD version, LPWSADATA data) { (void)version; (void)data;
 inline int WSACleanup() { return 0; }
 inline int WSAGetLastError() { return errno; }
 
+#define InetPton inet_pton
+#define InetNtop inet_ntop
 #define NO_ERROR 0
 #define SD_BOTH SHUT_RDWR
+#define WSAEWOULDBLOCK EWOULDBLOCK
+#define WSAEINPROGRESS EINPROGRESS
+typedef struct hostent HOSTENT;
 
 #ifndef FIONBIO
 #include <sys/ioctl.h>

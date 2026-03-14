@@ -186,7 +186,7 @@ void LoadWeapon()
 	int zz1, zz2;
 	int p1, p2, p3, p4;
 
-	memset(&WPLIST, 0, sizeof WPLIST);
+	memset(&WPLIST, 0, sizeof(WPLIST));
 
 	GFILE* f = Gopen("weapon.nds", "rt");
 	if (!int(f))
@@ -766,7 +766,7 @@ typedef word* lpWORD;
 void InitNation(byte msk, byte NIndex)
 {
 	Nation* nat = &NATIONS[NIndex];
-	memset(nat, 0, sizeof Nation);
+	memset(nat, 0, sizeof(Nation));
 	nat->CreateNation(msk, NIndex);
 	nat->NNUM = NIndex;
 	nat->DangerSound = -1;
@@ -871,8 +871,8 @@ void LoadAllNations(byte NIndex)
 		CITY[NIndex].CloseCity();
 		CITY[NIndex].CreateCity(NIndex);
 		CITY[NIndex].CreateCity(NIndex);
-		memset(NT->NKilled, 0, sizeof NT->NKilled);
-		memset(NT->NProduced, 0, sizeof NT->NProduced);
+		memset(NT->NKilled, 0, sizeof(NT)->NKilled);
+		memset(NT->NProduced, 0, sizeof(NT)->NProduced);
 		memset(NT->ResTotal, 0, 32);
 		memset(NT->ResOnMines, 0, 32);
 		memset(NT->ResOnBuildings, 0, 32);
@@ -910,9 +910,9 @@ void LoadNation(char* fn, byte NIndex, byte NatID)
 	}
 
 	Nation* nat = &NATIONS[NIndex];
-	memset(nat->ResRem, 0, sizeof nat->ResRem);
-	memset(nat->ResSpeed, 0, sizeof nat->ResSpeed);
-	memset(nat->SoundMask, 0, sizeof nat->SoundMask);
+	memset(nat->ResRem, 0, sizeof(nat)->ResRem);
+	memset(nat->ResSpeed, 0, sizeof(nat)->ResSpeed);
+	memset(nat->SoundMask, 0, sizeof(nat)->SoundMask);
 	nat->GoldBunt = false;
 	int z = 0;
 	int cp;
@@ -1902,15 +1902,15 @@ void LoadAI(char* fn, Nation* NT) {
 	char* grp[32];
 	int ngrp = 0;
 	NT->NGrp = 0;
-	memset(NT->GRSize, 0, sizeof NT->GRSize);
-	memset(NT->GRRef, 0, sizeof NT->GRRef);
-	memset(NT->GAmount, 0, sizeof NT->GAmount);
+	memset(NT->GRSize, 0, sizeof(NT)->GRSize);
+	memset(NT->GRRef, 0, sizeof(NT)->GRRef);
+	memset(NT->GAmount, 0, sizeof(NT)->GAmount);
 	NT->N_AI_Levels = 0;
-	memset(NT->N_AI_Req, 0, sizeof NT->N_AI_Req);
-	memset(NT->N_AI_Devlp, 0, sizeof NT->N_AI_Devlp);
-	memset(NT->N_AI_Cmd, 0, sizeof NT->N_AI_Cmd);
-	memset(NT->AI_Req, 0, sizeof NT->AI_Req);
-	memset(NT->AI_Devlp, 0, sizeof NT->AI_Devlp);
+	memset(NT->N_AI_Req, 0, sizeof(NT)->N_AI_Req);
+	memset(NT->N_AI_Devlp, 0, sizeof(NT)->N_AI_Devlp);
+	memset(NT->N_AI_Cmd, 0, sizeof(NT)->N_AI_Cmd);
+	memset(NT->AI_Req, 0, sizeof(NT)->AI_Req);
+	memset(NT->AI_Devlp, 0, sizeof(NT)->AI_Devlp);
 	int line = 1;
 	int mode = 0;
 	do {
@@ -1982,7 +1982,7 @@ void LoadAI(char* fn, Nation* NT) {
 						int nar = NT->N_AI_Req[nai];
 						if (nar) {
 							//sAI_Req* sar=NT->AI_Req[nai];
-							NT->AI_Req[nai] = (sAI_Req*)realloc(NT->AI_Req[nai], (nar + 1) * sizeof sAI_Req);
+							NT->AI_Req[nai] = (sAI_Req*)realloc(NT->AI_Req[nai], (nar + 1) * sizeof(sAI_Req));
 							NT->N_AI_Req[nai]++;
 						}
 						else {
@@ -2022,7 +2022,7 @@ void LoadAI(char* fn, Nation* NT) {
 							int nai = NT->N_AI_Levels;
 							int ncm = NT->N_AI_Cmd[nai];
 							if (ncm) {
-								NT->AI_Cmd[nai] = (sAI_Cmd*)realloc(NT->AI_Cmd[nai], (ncm + 1) * sizeof sAI_Cmd);
+								NT->AI_Cmd[nai] = (sAI_Cmd*)realloc(NT->AI_Cmd[nai], (ncm + 1) * sizeof(sAI_Cmd));
 								NT->N_AI_Cmd[nai]++;
 							}
 							else {
@@ -2030,7 +2030,7 @@ void LoadAI(char* fn, Nation* NT) {
 								NT->N_AI_Cmd[nai]++;
 							};
 							sAI_Cmd* SCM = NT->AI_Cmd[nai] + ncm;
-							memset(SCM->Info, 0, sizeof SCM->Info);
+							memset(SCM->Info, 0, sizeof(SCM)->Info);
 							SCM->Kind = Kind;
 							if (Kind < 4) {
 								int z = Gscanf(f1, "%d", &parm1);
@@ -2077,7 +2077,7 @@ void LoadAI(char* fn, Nation* NT) {
 							int nai = NT->N_AI_Levels;
 							int ndr = NT->N_AI_Devlp[nai];
 							if (ndr) {
-								NT->AI_Devlp[nai] = (sAI_Devlp*)realloc(NT->AI_Devlp[nai], (ndr + 1) * sizeof sAI_Devlp);
+								NT->AI_Devlp[nai] = (sAI_Devlp*)realloc(NT->AI_Devlp[nai], (ndr + 1) * sizeof(sAI_Devlp));
 								NT->N_AI_Devlp[nai]++;
 							}
 							else {

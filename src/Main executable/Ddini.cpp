@@ -154,6 +154,7 @@ void CaptureMouseOnce(SDL_Window* gWindow) {
     if (isWine) return;
     if (mouseCaptured) return;
 
+#ifdef _WIN32
     SDL_SysWMinfo wminfo;
     SDL_VERSION(&wminfo.version);
     if (SDL_GetWindowWMInfo(gWindow, &wminfo)) {
@@ -173,6 +174,10 @@ void CaptureMouseOnce(SDL_Window* gWindow) {
 
         mouseCaptured = true;
     }
+#else
+    SDL_RaiseWindow(gWindow);
+    mouseCaptured = true;
+#endif
 }
 
 void ResetMouseCapture() {

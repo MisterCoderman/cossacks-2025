@@ -22,6 +22,7 @@ byte ResultMask[MaskLx * 256];
 extern byte trans4[65536];
 extern byte trans8[65536];
 void CopyMaskedBitmap64(byte* Bits, int x, int y, void* Mask) {
+	#if defined(_MSC_VER) && defined(_M_IX86)
 	__asm {
 		push	esi
 		push	edi
@@ -64,9 +65,11 @@ void CopyMaskedBitmap64(byte* Bits, int x, int y, void* Mask) {
 			pop		edi
 			pop		esi
 	};
+	#endif
 };
 void CopyMaskedTransparentBitmap_8(byte* Bits, int x, int y, void* Mask) {
 	byte nstr;
+	#if defined(_MSC_VER) && defined(_M_IX86)
 	__asm {
 		push	esi
 		push	edi
@@ -114,9 +117,11 @@ void CopyMaskedTransparentBitmap_8(byte* Bits, int x, int y, void* Mask) {
 			pop		edi
 			pop		esi
 	};
+	#endif
 };
 void CopyMaskedTransparentBitmap_4(byte* Bits, int x, int y, void* Mask) {
 	byte nstr;
+	#if defined(_MSC_VER) && defined(_M_IX86)
 	__asm {
 		push	esi
 		push	edi
@@ -164,9 +169,11 @@ void CopyMaskedTransparentBitmap_4(byte* Bits, int x, int y, void* Mask) {
 			pop		edi
 			pop		esi
 	};
+	#endif
 };
 void CopyMaskedTransparentBitmap_12(byte* Bits, int x, int y, void* Mask) {
 	byte nstr;
+	#if defined(_MSC_VER) && defined(_M_IX86)
 	__asm {
 		push	esi
 		push	edi
@@ -214,6 +221,7 @@ void CopyMaskedTransparentBitmap_12(byte* Bits, int x, int y, void* Mask) {
 			pop		edi
 			pop		esi
 	};
+	#endif
 };
 extern RLCTable SimpleMaskA;
 extern RLCTable SimpleMaskB;
@@ -235,6 +243,7 @@ void CopyMaskedBitmap(byte* Bits, int x, int y, int MaskID) {
 //Creates triangle (Type1) with bitmap
 void FastCreateMaskedBitmap64_1(byte* Bits, int x, int y) {
 	int tmedi;
+	#if defined(_MSC_VER) && defined(_M_IX86)
 	__asm {
 		push	esi
 		push	edi
@@ -340,6 +349,7 @@ void FastCreateMaskedBitmap64_1(byte* Bits, int x, int y) {
 			pop		edi
 			pop		esi
 	};
+	#endif
 };
 //      /|
 //    /  |
@@ -349,6 +359,7 @@ void FastCreateMaskedBitmap64_1(byte* Bits, int x, int y) {
 //      \|
 void FastCreateMaskedBitmap64_2(byte* Bits, int x, int y) {
 	int tmedi;
+	#if defined(_MSC_VER) && defined(_M_IX86)
 	__asm {
 		push	esi
 		push	edi
@@ -506,6 +517,7 @@ void FastCreateMaskedBitmap64_2(byte* Bits, int x, int y) {
 			pop		edi
 			pop		esi
 	};
+	#endif
 };
 int GetBmOfst(int i) {
 	return ((i & 3) << 6) + ((i >> 2) << (8 + 6));
@@ -830,11 +842,12 @@ void PrepareIntersection2(int bm1, int bm2, int bm3,
 	CopyMaskedBitmap(BitmapsArray + GetBmOfst(bm2), x0, y0, 54 + (2 - s1) * 3 + s2);
 };
 void ClearIntersectionBuffer() {
-	memset(ResultMask, 0, sizeof ResultMask);
+	memset(ResultMask, 0, sizeof(ResultMask));
 };
 void ShowIntersectionBuffer() {
 	if (!bActive)return;
 	int SCROF = int(ScreenPtr) + 256 * ScrWidth + 256;
+	#if defined(_MSC_VER) && defined(_M_IX86)
 	__asm {
 		push	esi
 		push	edi
@@ -853,5 +866,6 @@ void ShowIntersectionBuffer() {
 		pop		edi
 		pop		esi
 	};
-	//memset(ResultMask,0,sizeof ResultMask);
+	#endif
+	//memset(ResultMask,0,sizeof(ResultMask));
 };

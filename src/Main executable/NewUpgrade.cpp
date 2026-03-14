@@ -472,7 +472,7 @@ void GetUpgradeCost( GFILE* f, NewUpgrade* NU, Nation* NT, char* Name, int Line 
 		sprintf( gx, "%s, Line %d :%s: #COST expected but %s is found.", Name, Line, Sect, gy );
 		ErrM( gx );
 	};
-	memset( NU->Cost, 0, sizeof NU->Cost );
+	memset( NU->Cost, 0, sizeof(NU)->Cost );
 	z = Gscanf( f, "%d", &p1 );
 	if (z != 1)IncPar( Name, Line, Sect );
 	for (int i = 0; i < p1; i++)
@@ -575,7 +575,7 @@ bool UnderstandUpgrade( GFILE* f, char* UpgName, Nation* NT, char* name, int* lp
 	}
 
 	NewUpgrade* NewUpg = new NewUpgrade;
-	memset( NewUpg, 0, sizeof NewUpgrade );
+	memset( NewUpg, 0, sizeof(NewUpgrade) );
 	int NUPG = NT->NUpgrades;
 	NT->UPGRADE[NUPG] = NewUpg;
 	NT->NUpgrades++;
@@ -894,7 +894,7 @@ bool UnderstandUpgrade( GFILE* f, char* UpgName, Nation* NT, char* name, int* lp
 		int NUPG = NT[cp].NUpgrades;
 		NT[cp].UPGRADE[NUPG] = NewUpg1;
 		NT[cp].NUpgrades++;
-		memcpy( NewUpg1, NewUpg, sizeof NewUpgrade );
+		memcpy( NewUpg1, NewUpg, sizeof(NewUpgrade) );
 	};
 	return true;
 }

@@ -81,6 +81,7 @@ void CheckAsks() {
 static int dd = 0;
 int CheckSum;
 void AddCS(void* Src, int sz) {
+#if defined(_MSC_VER) && defined(_M_IX86)
 	int cc = int(Src);
 	__asm {
 		push    esi
@@ -96,6 +97,13 @@ void AddCS(void* Src, int sz) {
 		kpp : add     CheckSum, eax
 		pop     esi
 	};
+#else
+	const int* p = (const int*)Src;
+	int n = sz >> 2;
+	int sum = 0;
+	for (int i = 0; i < n; i++) sum += p[i];
+	CheckSum += sum;
+#endif
 };
 /*
 void CreateProtection(){

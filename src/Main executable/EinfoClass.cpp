@@ -590,9 +590,9 @@ bool EnemyInfo::CheckTowersPresence() {
 void EnemyInfo::InitInflMap() {
 	memset(InflMap, 0, TopLx*TopLx * 4);
 	NTows = MAXTOW;
-	memset(TowsID, 0xFF, sizeof TowsID);
-	memset(TowsSN, 0xFF, sizeof TowsSN);
-	memset(TowsMaxR, 0, sizeof TowsMaxR);
+	memset(TowsID, 0xFF, sizeof(TowsID));
+	memset(TowsSN, 0xFF, sizeof(TowsSN));
+	memset(TowsMaxR, 0, sizeof(TowsMaxR));
 	CurTow = 0;
 	CurR = 0;
 	CurXip = 0;
@@ -856,7 +856,7 @@ void EnemyInfo::ClearSafePoint(int x, int y, word Index) {
 	};
 };
 void EnemyInfo::InitSafeInfo() {
-	memset(SCINF, 0, sizeof SCINF);
+	memset(SCINF, 0, sizeof(SCINF));
 	CurRStage = 0;
 };
 void EnemyInfo::CloseSafeInfo() {

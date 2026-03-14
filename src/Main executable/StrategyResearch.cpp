@@ -55,7 +55,7 @@ void GlobalArmyInfo::ResearchArmyDistribution(byte NI){
 	int tt=GetTickCount();
 	int N=NtNUnits[NI];
 	word* Units=NatList[NI];
-	memset(ArmDistr,0xFFFF,sizeof ArmDistr);
+	memset(ArmDistr,0xFFFF,sizeof(ArmDistr));
 	NCIN=0;
 	NArmy=0;
 	if(N){
@@ -82,12 +82,12 @@ void GlobalArmyInfo::ResearchArmyDistribution(byte NI){
 							if(sdx==0xFFFF){
 								if(NCIN>=MaxCIN){
 									MaxCIN+=64;
-									CIN=(CellInfo*)realloc(CIN,MaxCIN*sizeof CellInfo);
+									CIN=(CellInfo*)realloc(CIN,MaxCIN*sizeof(CellInfo));
 								};
 								sdx=NCIN;
 								ArmDistr[SIDX]=sdx;
 								SINFO=CIN+sdx;
-								memset(SINFO,0,sizeof CellInfo);
+								memset(SINFO,0,sizeof(CellInfo));
 								SINFO->x=xx;
 								SINFO->y=yy;
 								NCIN++;
@@ -171,10 +171,10 @@ void GlobalArmyInfo::ResearchArmyDistribution(byte NI){
 				if(ARID>=8192){
 					if(NArmy>=MaxArmy){
 						MaxArmy+=32;
-						AINF=(ArmyInfo*)realloc(AINF,MaxArmy*sizeof ArmyInfo);
+						AINF=(ArmyInfo*)realloc(AINF,MaxArmy*sizeof(ArmyInfo));
 					};
 					ArmyInfo* Ari=AINF+CurArmy;
-					memset(Ari,0,sizeof ArmyInfo);
+					memset(Ari,0,sizeof(ArmyInfo));
 					Ari->MinX=250;
 					Ari->MinY=250;
 					for(int j=0;j<NCIN;j++){

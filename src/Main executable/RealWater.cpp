@@ -80,6 +80,7 @@ void ExtrapolateCell(int x, int y)
 	int W1 = int(Wave1);
 	int SW2 = int(ScWave2);
 	int W2 = int(Wave2);
+	#if defined(_MSC_VER) && defined(_M_IX86)
 	__asm {
 		push	esi
 		push	edi
@@ -146,6 +147,7 @@ void ExtrapolateCell(int x, int y)
 			pop		esi
 
 	};
+	#endif
 	//for(int i=0;i<8;i++){
 		/*
 		memcpy(Wave0+dst,Wave0+src,16);
@@ -290,9 +292,9 @@ void InitWater()
 			}
 		}
 	}
-	memset(Wave0, WaterLevel, sizeof Wave0);
-	memset(Wave1, WaterLevel, sizeof Wave1);
-	memset(Wave2, WaterLevel, sizeof Wave2);
+	memset(Wave0, WaterLevel, sizeof(Wave0));
+	memset(Wave1, WaterLevel, sizeof(Wave1));
+	memset(Wave2, WaterLevel, sizeof(Wave2));
 	InitWatt();
 	OldMapx = 0;
 	OldMapy = 0;
@@ -305,6 +307,7 @@ void ProcessWaves1(short* wave0, short* wave1, short* wave2, int xx, int yy, int
 	int DWave = (WaveLx - Lx) << 1;
 	int cyc = Ly;
 	int cyc1;
+	#if defined(_MSC_VER) && defined(_M_IX86)
 	__asm {
 		push	esi
 		push	edi
@@ -340,6 +343,7 @@ void ProcessWaves1(short* wave0, short* wave1, short* wave2, int xx, int yy, int
 		pop		edi
 		pop		esi
 	};
+	#endif
 };
 void ProcessWaves(short* wave0, short* wave1, short* wave2, int xx, int yy, int Lx, int Ly) {
 	ProcessWaves1(wave0, wave1, wave2, xx, yy, Lx, Ly);
@@ -348,6 +352,7 @@ void ProcessWaves(short* wave0, short* wave1, short* wave2, int xx, int yy, int 
 	int DWave = (WaveLx - Lx) << 1;
 	int cyc = Ly;
 	int cyc1;
+	#if defined(_MSC_VER) && defined(_M_IX86)
 	__asm {
 		push	esi
 		push	edi
@@ -379,6 +384,7 @@ void ProcessWaves(short* wave0, short* wave1, short* wave2, int xx, int yy, int 
 		pop		edi
 		pop		esi
 	};
+	#endif
 };
 
 void ProcessWaveFrame(short* Wave, int x, int y, int x1, int y1) {
@@ -674,6 +680,7 @@ void DrawCost(int x, int y, short* Wave, int z1, int z2, int z3, int z4, int Msh
 	if (z1 > 143 && z2 > 143 && z3 > 143 && z4 > 143) {
 		//simple copy
 		int ofst = int(ScreenPtr) + x + y * ScrWidth;
+		#if defined(_MSC_VER) && defined(_M_IX86)
 		__asm {
 			push	esi
 			push	edi
@@ -710,6 +717,7 @@ void DrawCost(int x, int y, short* Wave, int z1, int z2, int z3, int z4, int Msh
 			pop		edi
 			pop		esi
 		};
+		#endif
 	}
 	else {
 		;
@@ -725,6 +733,7 @@ void DrawCost(int x, int y, short* Wave, int z1, int z2, int z3, int z4, int Msh
 		int d = (z1 + z4 - z2 - z3) >> 8;
 		int cyc2 = 8;
 		int cyc1;
+		#if defined(_MSC_VER) && defined(_M_IX86)
 		__asm {
 			//curved clipping
 			push	esi
@@ -852,6 +861,7 @@ void DrawCost(int x, int y, short* Wave, int z1, int z2, int z3, int z4, int Msh
 			pop		edi
 			pop		esi
 		}
+		#endif
 	}
 }
 
@@ -870,6 +880,7 @@ void DrawCost2(int x, int y, short* Wave, int z1, int z2, int z3, int z4, int Ms
 	{
 		//simple copy
 		int ofst = int(ScreenPtr) + x + y * ScrWidth;
+		#if defined(_MSC_VER) && defined(_M_IX86)
 		__asm {
 			push	esi
 			push	edi
@@ -947,6 +958,7 @@ void DrawCost2(int x, int y, short* Wave, int z1, int z2, int z3, int z4, int Ms
 			pop		edi
 			pop		esi
 		}
+		#endif
 	}
 	else
 	{
@@ -962,6 +974,7 @@ void DrawCost2(int x, int y, short* Wave, int z1, int z2, int z3, int z4, int Ms
 		int d = (z1 + z4 - z2 - z3) >> 8;
 		int cyc2 = 8;
 		int cyc1;
+		#if defined(_MSC_VER) && defined(_M_IX86)
 		__asm
 		{
 			//curved clipping
@@ -1090,6 +1103,7 @@ void DrawCost2(int x, int y, short* Wave, int z1, int z2, int z3, int z4, int Ms
 			pop		edi
 			pop		esi
 		}
+		#endif
 	}
 }
 
@@ -1106,6 +1120,7 @@ void DrawCost1(int x, int y, short* Wave, int z1, int z2, int z3, int z4, int Ms
 	{
 		//simple copy
 		int ofst = int(ScreenPtr) + x + y * ScrWidth;
+		#if defined(_MSC_VER) && defined(_M_IX86)
 		__asm
 		{
 			push	esi
@@ -1178,6 +1193,7 @@ void DrawCost1(int x, int y, short* Wave, int z1, int z2, int z3, int z4, int Ms
 			pop		edi
 			pop		esi
 		}
+		#endif
 	}
 	else
 	{
@@ -1193,6 +1209,7 @@ void DrawCost1(int x, int y, short* Wave, int z1, int z2, int z3, int z4, int Ms
 		int d = (z1 + z4 - z2 - z3) >> 8;
 		int cyc2 = 8;
 		int cyc1;
+		#if defined(_MSC_VER) && defined(_M_IX86)
 		__asm
 		{
 			//curved clipping
@@ -1321,6 +1338,7 @@ void DrawCost1(int x, int y, short* Wave, int z1, int z2, int z3, int z4, int Ms
 			pop		edi
 			pop		esi
 		}
+		#endif
 	}
 }
 
@@ -1431,6 +1449,7 @@ void CopyWaves(short* wave, int SrcOfs, int DstOfs, int Lx, int Ly)
 		//direct copy
 		int addo = (WaveLx - Lx) << 1;
 		int Lx1 = Lx >> 1;
+		#if defined(_MSC_VER) && defined(_M_IX86)
 		__asm
 		{
 			push	esi
@@ -1452,6 +1471,7 @@ void CopyWaves(short* wave, int SrcOfs, int DstOfs, int Lx, int Ly)
 			pop		edi
 			pop		esi
 		}
+		#endif
 	}
 	else
 	{
@@ -1459,6 +1479,7 @@ void CopyWaves(short* wave, int SrcOfs, int DstOfs, int Lx, int Ly)
 		int addo = (WaveLx - Lx) << 1;
 		int add1 = (Lx + Ly * WaveLx - 1) << 1;
 		int Lx1 = Lx >> 1;
+		#if defined(_MSC_VER) && defined(_M_IX86)
 		__asm
 		{
 			push	esi
@@ -1482,6 +1503,7 @@ void CopyWaves(short* wave, int SrcOfs, int DstOfs, int Lx, int Ly)
 			pop		edi
 			pop		esi
 		}
+		#endif
 	}
 }
 
@@ -1695,6 +1717,7 @@ void FastProcess1(short* Wave0, short* Wave1, short* Wave2)
 {
 	int cyc = WaveLy - 2;
 	int	cyc1;
+	#if defined(_MSC_VER) && defined(_M_IX86)
 	__asm
 	{
 		push	esi
@@ -1727,12 +1750,14 @@ void FastProcess1(short* Wave0, short* Wave1, short* Wave2)
 		pop		edi
 		pop		esi
 	}
+	#endif
 }
 
 void FastProcess1_0(short* Wave0, short* Wave1, short* Wave2)
 {
 	int cyc = (WaveLy - 2) >> 1;
 	int	cyc1;
+	#if defined(_MSC_VER) && defined(_M_IX86)
 	__asm
 	{
 		push	esi
@@ -1763,12 +1788,14 @@ void FastProcess1_0(short* Wave0, short* Wave1, short* Wave2)
 		pop		edi
 		pop		esi
 	}
+	#endif
 }
 
 void FastProcess1_1(short* Wave0, short* Wave1, short* Wave2)
 {
 	int cyc = (WaveLy - 2) >> 1;
 	int	cyc1;
+	#if defined(_MSC_VER) && defined(_M_IX86)
 	__asm
 	{
 		push	esi
@@ -1799,6 +1826,7 @@ void FastProcess1_1(short* Wave0, short* Wave1, short* Wave2)
 		pop		edi
 		pop		esi
 	}
+	#endif
 }
 
 static int tttx;
@@ -1834,6 +1862,7 @@ void ProcessWaves(short* Wave0, short* Wave1, short* Wave2)
 void DisturbWater(short* Wave)
 {
 	int ofst = int(Wave + ((1 + WaveLx) << 1));
+	#if defined(_MSC_VER) && defined(_M_IX86)
 	__asm {
 		push	esi
 		push	edi
@@ -1841,6 +1870,7 @@ void DisturbWater(short* Wave)
 		pop		esi
 		pop		edi
 	};
+	#endif
 }
 
 void CorrectLeftWaves();

@@ -1,6 +1,9 @@
 // HttpComm.h: interface for the CHttpComm class.
 //
 //////////////////////////////////////////////////////////////////////
+#ifndef _WIN32
+#include <winsock2.h>
+#endif
 
 enum ConnectionStage{csConnecting,csSending,csReceiving,csWaiting,csError};
 

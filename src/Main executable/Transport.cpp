@@ -463,7 +463,7 @@ bool TRP_KillOrder(OneObject* OB, GOrder* GOR, int LParam, int RParam) {
 };
 TransProcess::TransProcess() {
 	Used = false;
-	GLOB = false;
+	GLOB = nullptr;
 };
 void TRP_LHandle(int Param) {
 	TransProcess* TRP = (TransProcess*)Param;

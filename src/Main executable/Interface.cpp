@@ -816,7 +816,7 @@ bool NatChoose(SimpleDialog* SD)
 	BpxTextButton* TB = (BpxTextButton*)SD;
 	char* qq = TB->Message;
 
-	if (qq[0] == 'О')
+	if (qq[0] == (char)0xCE) // Cyrillic 'О' in CP1251
 	{
 		strcpy(TB->Message, "ЛЮДИ");
 	}
@@ -2735,7 +2735,7 @@ bool MPL_WaitingGame(bool Host, bool SINGLE)
 	char** ChatMess = nullptr;
 	char** ChatSender = nullptr;
 	PlayerInfo MYPINF;
-	memset(&MYPINF, 0, sizeof MYPINF);
+	memset(&MYPINF, 0, sizeof(MYPINF));
 
 	byte* Preview = new byte[(292 * 190) + 4];
 	char Currand[200];
@@ -2815,7 +2815,7 @@ bool MPL_WaitingGame(bool Host, bool SINGLE)
 	ComboBox* ADD_OPT;
 	ComboBox* ADD_OPT_VAL;
 	bool COMPPREV[8];
-	memset(COMPPREV, 0, sizeof COMPPREV);
+	memset(COMPPREV, 0, sizeof(COMPPREV));
 
 	TextButton* AliasID[8];
 	InputBox* MNAME[8];
@@ -2829,9 +2829,9 @@ bool MPL_WaitingGame(bool Host, bool SINGLE)
 	byte COMNATION[8];
 	byte COMALLY[8];
 	int NComp = 0;
-	memset(COMCOLOR, 0, sizeof COMCOLOR);
-	memset(COMNATION, 0, sizeof COMNATION);
-	memset(COMALLY, 0, sizeof COMALLY);
+	memset(COMCOLOR, 0, sizeof(COMCOLOR));
+	memset(COMNATION, 0, sizeof(COMNATION));
+	memset(COMALLY, 0, sizeof(COMALLY));
 	int HostID = -1;
 	char* ADDCOM = "Add a Computer";
 
@@ -3222,7 +3222,7 @@ ffe2:
 
 	ItemChoose = -1;
 
-	memset(PINFO, 0, sizeof PINFO);
+	memset(PINFO, 0, sizeof(PINFO));
 
 
 
@@ -3234,7 +3234,7 @@ ffe2:
 	if (SINGLE)
 	{
 		NPlayers = 1;
-		memset(&PINFO[0], 0, sizeof PINFO[0]);
+		memset(&PINFO[0], 0, sizeof(PINFO)[0]);
 		PINFO[0].PlayerID = 0x12345678;
 		MyDPID = 0x12345678;
 		PINFO[0].ColorID = 0;
@@ -3300,7 +3300,7 @@ ffe2:
 		}
 		else
 		{
-			memset(PINFO + i, 0, sizeof PlayerInfo);
+			memset(PINFO + i, 0, sizeof(PlayerInfo));
 		}
 	}
 
@@ -4224,7 +4224,7 @@ ffe2:
 						PINFO[i].Page = GPP->CurPage;
 					}
 
-					bool ch = memcmp(&MYPINF, PINFO + i, sizeof MYPINF) != 0;
+					bool ch = memcmp(&MYPINF, PINFO + i, sizeof(MYPINF)) != 0;
 
 					if (ch || GetTickCount() - PREVSD > 5000)
 					{
@@ -4232,7 +4232,7 @@ ffe2:
 						{
 							SETPLAYERDATA(MyDPID, (void*)&PINFO[i].NationID, sizeof(PlayerInfo) - 36, ch);
 						}
-						memcpy(&MYPINF, PINFO + i, sizeof MYPINF);
+						memcpy(&MYPINF, PINFO + i, sizeof(MYPINF));
 						PREVSD = GetTickCount();
 					}
 
@@ -4530,7 +4530,7 @@ ffe2:
 		}
 
 		//If true, ready flag will be zeroed
-		bool settings_were_changed = false;
+		bool settings_were_changed; settings_were_changed = false;
 
 		//Get settings from host
 		if (!Host)
@@ -4963,7 +4963,7 @@ ffe2:
 			int ntm = 0;
 			byte ams = 0;
 			int cur_tm[8];
-			memset(cur_tm, 0xFF, sizeof cur_tm);
+			memset(cur_tm, 0xFF, sizeof(cur_tm));
 			for (int i = 0; i < 8; i++)
 			{
 				if (AliasID[i]->Visible)
@@ -5331,7 +5331,7 @@ bool MPL_WaitingBattleGame(bool Host, int BattleID)
 	LocalGP INCHAT("Interface\\IButtons");
 	PSUMM.ClearPingInfo();
 	PlayerInfo MYPINF;
-	memset(&MYPINF, 0, sizeof MYPINF);
+	memset(&MYPINF, 0, sizeof(MYPINF));
 
 	SQPicture Back("Interface\\Background_Historical_Create.bmp");
 	SQPicture Prev(WARS.Battles[BattleID].MiniMap);
@@ -5468,7 +5468,7 @@ bool MPL_WaitingBattleGame(bool Host, int BattleID)
 
 	ItemChoose = -1;
 
-	memset(PINFO, 0, sizeof PINFO);
+	memset(PINFO, 0, sizeof(PINFO));
 
 	GameInProgress = 0;
 
@@ -5516,7 +5516,7 @@ bool MPL_WaitingBattleGame(bool Host, int BattleID)
 		}
 		else
 		{
-			memset(PINFO + i, 0, sizeof PlayerInfo);
+			memset(PINFO + i, 0, sizeof(PlayerInfo));
 		}
 	}
 
@@ -5735,11 +5735,11 @@ bool MPL_WaitingBattleGame(bool Host, int BattleID)
 				{
 					PINFO[i].NationID = MNATION[i]->CurLine;
 					PINFO[i].ColorID = ColorBack[i]->Nation;
-					bool change = (memcmp(&MYPINF, PINFO + i, sizeof MYPINF) != 0);
+					bool change = (memcmp(&MYPINF, PINFO + i, sizeof(MYPINF)) != 0);
 					if (change || GetTickCount() - PREVSD > 3000)
 					{
 						SETPLAYERDATA(MyDPID, (void*)&PINFO[i].NationID, sizeof(PlayerInfo) - 36, change);
-						memcpy(&MYPINF, PINFO + i, sizeof MYPINF);
+						memcpy(&MYPINF, PINFO + i, sizeof(MYPINF));
 						PREVSD = GetTickCount();
 					}
 					if (change && Host)
@@ -6818,7 +6818,7 @@ int processMainMenu()
 			{
 				strcpy(PlName, "Player");
 			}
-			memset(PINFO, 0, sizeof PINFO);
+			memset(PINFO, 0, sizeof(PINFO));
 			strcpy(PINFO[0].name, PlName);
 			EditMapMode = 0;
 			ItemChoose = mcmSingle;
@@ -11717,10 +11717,10 @@ void PrepareGameMedia(byte myid, bool SaveNR)
 	RunData[1] = dwVersion;//version of the game
 	RunData[2] = MyNation;
 	RunDataSize = 3;
-	memcpy(RunData + RunDataSize, PINFO, sizeof PINFO);
-	RunDataSize += sizeof PINFO;
-	memcpy(RunData + RunDataSize, COMPSTART, sizeof COMPSTART);
-	RunDataSize += sizeof COMPSTART;
+	memcpy(RunData + RunDataSize, PINFO, sizeof(PINFO));
+	RunDataSize += sizeof(PINFO);
+	memcpy(RunData + RunDataSize, COMPSTART, sizeof(COMPSTART));
+	RunDataSize += sizeof(COMPSTART);
 	memcpy(RunData + RunDataSize, &RM_LandType, 4);
 	RunDataSize += 4;
 	memcpy(RunData + RunDataSize, &RM_Resstart, 4);
@@ -12152,9 +12152,9 @@ bool ProcessSingleMission(int n, int Diff)
 			RBlockRead(f, buf, sz);
 			RClose(f);
 			f = RRewrite("tmp.txt");
-			RBlockWrite(f, crlf, sizeof crlf);
+			RBlockWrite(f, crlf, sizeof(crlf));
 			RBlockWrite(f, buf, sz);
-			RBlockWrite(f, crlf, sizeof crlf);
+			RBlockWrite(f, crlf, sizeof(crlf));
 			RClose(f);
 			free(buf);
 		}
@@ -12365,7 +12365,7 @@ bool ProcessSingleCampagin(int n)
 		if (SCM->OpenIndex[i] & 255)MaxMiss = i + 1;
 	};
 	bool VISMASK[64];
-	memset(VISMASK, 0, sizeof VISMASK);
+	memset(VISMASK, 0, sizeof(VISMASK));
 	for (int i = 0; i < MaxMiss; i++)
 	{
 		//if(SCM->OpenIndex[i]&255){
@@ -12583,7 +12583,7 @@ AddMissionsPack::AddMissionsPack()
 		if (!F) continue;
 
 		Pack = (OneAddMission*)realloc(Pack, sizeof(OneAddMission) * (NMiss + 1));
-		memset(Pack + NMiss, 0, sizeof OneAddMission);
+		memset(Pack + NMiss, 0, sizeof(OneAddMission));
 
 		ReadWinString(F, Pack[NMiss].Title, 127);
 		ReadWinString(F, Pack[NMiss].Map, 127);
@@ -12650,7 +12650,7 @@ AddMissionsPack::AddMissionsPack()
 AddMissionsPack::~AddMissionsPack()
 {
 	if (Pack)free(Pack);
-	memset(this, 0, sizeof AddMissionsPack);
+	memset(this, 0, sizeof(AddMissionsPack));
 };
 bool SelectSingleMission()
 {
@@ -16196,7 +16196,7 @@ void PixUndo::OpenNewChunk()
 {
 	if ((!NChunks) || Chunks[NChunks - 1].Size)
 	{
-		Chunks = (UndoChunk*)realloc(Chunks, (NChunks + 1) * sizeof UndoChunk);
+		Chunks = (UndoChunk*)realloc(Chunks, (NChunks + 1) * sizeof(UndoChunk));
 		Chunks[NChunks].Size = 0;
 		Chunks[NChunks].MaxSize = 0;
 		Chunks[NChunks].UndoData = nullptr;
@@ -16963,8 +16963,8 @@ void ReadClanData()
 							P1.LoadPicture(ccc);
 							if (P1.GetLx() < 256 && P1.GetLy() == 20)
 							{
-								CLINFO = (ClanInfo*)realloc(CLINFO, (NClans + 1) * sizeof ClanInfo);
-								memset(CLINFO + NClans, 0, sizeof ClanInfo);
+								CLINFO = (ClanInfo*)realloc(CLINFO, (NClans + 1) * sizeof(ClanInfo));
+								memset(CLINFO + NClans, 0, sizeof(ClanInfo));
 								sprintf(ccc, "Clans\\%s", cc1);
 								CLINFO[NClans].Over.LoadPicture(ccc);
 								sprintf(ccc, "Clans\\%s", cc2);
@@ -17009,7 +17009,7 @@ void ReadClanData()
 		}
 	} while (change);
 
-	memset(&CIN, 0, sizeof CIN);
+	memset(&CIN, 0, sizeof(CIN));
 }
 
 __declspec(dllexport) void ShowClanString(int x, int y, char* s, byte State, RLCFont* Fn, RLCFont* Fn1, int DY)
