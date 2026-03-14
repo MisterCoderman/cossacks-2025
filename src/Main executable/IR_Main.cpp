@@ -1458,7 +1458,7 @@ void SetBrokenState()
 	}
 }
 
-#include "http\HttpComm.h"
+#include "HTTP/HttpComm.h"
 
 int T0 = 0;
 char CLANR[32] = "";

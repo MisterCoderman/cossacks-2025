@@ -1,6 +1,6 @@
 #include "../Main executable/common.h"
 #pragma pack(4)
-#include "Chat\chat.h"
+#include "Chat/chat.h"
 #pragma pack(1)
 #include "cs_chat.h"
 

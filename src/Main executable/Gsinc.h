@@ -1,2 +1,2 @@
-#include "Arc\GSCSet.h"
+#include "Arc/GSCSet.h"
 extern CGSCset GSFILES;

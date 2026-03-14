@@ -60,7 +60,7 @@ DWORD window_style = WS_OVERLAPPED | WS_BORDER | WS_CAPTION | WS_SYSMENU | WS_MI
 #include "3DmapEd.h"
 #include "ActiveScenary.h"
 #include "fonts.h"
-#include "Dialogs\InitFonts.h"
+#include "Dialogs/InitFonts.h"
 
 #include "PlayerInfo.h"
 extern PlayerInfo PINFO[8];

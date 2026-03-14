@@ -1,5 +1,5 @@
 #include "../Main executable/common.h"
-#include "Chat\chat.h"
+#include "Chat/chat.h"
 #include "cs_chat.h"
 #include "../IntExplorer library/ParseRQ.h"
 #include <stdarg.h>

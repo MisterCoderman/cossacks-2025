@@ -1,9 +1,9 @@
 # Cross-Platform Porting TODO
 
-## 1. Fix backslash includes
-Replace Windows-style `#include "arc\gscarch.h"` paths with forward slashes.
-Forward slashes work on Windows too, so this is a safe no-op change.
-Unblocks CLion from parsing most of the Main executable.
+## ~~1. Fix backslash includes~~ DONE
+~~Replace Windows-style `#include "arc\gscarch.h"` paths with forward slashes.~~
+~~Forward slashes work on Windows too, so this is a safe no-op change.~~
+~~Unblocks CLion from parsing most of the Main executable.~~
 
 ## 2. Add missing compat stubs as needed
 Extend `src/compat/windows.h` and other compat headers incrementally

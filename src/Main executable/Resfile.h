@@ -5,7 +5,7 @@
  * the resource file, you even will not recognise where
  * the given file is.
  */
-//#include "Arc\GSCSet.h"
+//#include "Arc/GSCSet.h"
 //typedef LPGSCfile ResFile;
 typedef HANDLE ResFile;
 //Opening the resource file

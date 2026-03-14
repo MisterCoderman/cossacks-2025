@@ -39,7 +39,7 @@
 #include "Recorder.h"
 #include "GSINC.H"
 #include "TopoGraf.h"
-#include "CEngine\goaceng.h"
+#include "CEngine/goaceng.h"
 #include "StrategyResearch.h"
 #include "Safety.h"
 #include "EinfoClass.h"

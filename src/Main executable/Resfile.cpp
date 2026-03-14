@@ -12,7 +12,7 @@
 #include <stdio.h>
 //#include "tntFileIO.h"
 #include "unrar.h"
-#include "Arc\GSCSet.h"
+#include "Arc/GSCSet.h"
 #include "assert.h"
 void AText( char* str );
 //typedef LPGSCfile ResFile;
