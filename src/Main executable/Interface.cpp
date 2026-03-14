@@ -10385,8 +10385,8 @@ int winX;
 int winY;
 int winX1;
 int winY1;
-byte* HiMap;
-byte* HiMap1;
+static byte* HiMap;
+static byte* HiMap1;
 
 void SetupHiMap()
 {

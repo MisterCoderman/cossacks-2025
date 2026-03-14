@@ -15,7 +15,7 @@ void PlayStart()
 	PlayEffect( GetSound( "START" ), 0, 0 );
 }
 
-bool ReadWinString( GFILE* F, char* STR, int Max )
+static bool ReadWinString( GFILE* F, char* STR, int Max )
 {
 	STR[0] = 0;
 	int cc = 0;
@@ -124,8 +124,8 @@ __declspec( dllimport ) void ExplorerForw( int Index );
 __declspec( dllimport ) void ExplorerRefresh( int Index );
 __declspec( dllimport ) void ExplorerSetVar( int Index, char* Name, char* value );
 __declspec( dllimport ) char* ExplorerGetVar( int Index, char* Name );
-__declspec( dllimport ) char LobbyVersion[32];
-__declspec( dllimport ) word dwVersion;
+extern __declspec( dllimport ) char LobbyVersion[32];
+extern __declspec( dllimport ) word dwVersion;
 __declspec( dllimport ) void RunExplorer( int Index, char* ref, int x, int y, int x1, int y1 );
 __declspec( dllimport ) void ProcessExplorer( int Index );
 __declspec( dllimport ) void ProcessExplorerDSS( int Index, DialogsSystem* DSS );
@@ -138,13 +138,13 @@ __declspec( dllimport ) byte GetPaletteColor( int r, int g, int b );
 
 __declspec( dllimport ) void xLine( int x, int y, int x1, int y1, byte c );
 
-int NCHATS[3] = { 0,0,0 };
-int MAXCHATS[3] = { 0,0,0 };
+static int NCHATS[3] = { 0,0,0 };
+static int MAXCHATS[3] = { 0,0,0 };
 
-char** ChatMess[3] = { nullptr,nullptr,nullptr };
-char** ChatSender[3] = { nullptr,nullptr,nullptr };
+static char** ChatMess[3] = { nullptr,nullptr,nullptr };
+static char** ChatSender[3] = { nullptr,nullptr,nullptr };
 
-void AddPrimitiveChat( char* Nick, char* str,
+static void AddPrimitiveChat( char* Nick, char* str,
 	char** &ChatMess, char** &ChatSender,
 	int &NCHATS, int &MAXCHATS )
 {
@@ -169,7 +169,7 @@ void AddPrimitiveChat( char* Nick, char* str,
 	NCHATS++;
 }
 
-void AddChatString( char* Nick, char* str, int MaxLx, lpRLCFont FONT,
+static void AddChatString( char* Nick, char* str, int MaxLx, lpRLCFont FONT,
 	char** &ChatMess, char** &ChatSender,
 	int &NCHATS, int &MAXCHATS )
 {
@@ -218,6 +218,7 @@ void AddChatString( char* Nick, char* str, int MaxLx, lpRLCFont FONT,
 	}
 }
 
+#ifdef _WIN32
 struct TempWindow
 {
 	int WindX;
@@ -282,6 +283,9 @@ void IntersectWindows( int x0, int y0, int x1, int y1 )
 	WindLx = WindX1 - WindX + 1;
 	WindLy = WindY1 - WindY + 1;
 }
+#else
+#include "../Main executable/Drawform.h"
+#endif
 
 __declspec( dllimport ) void ShowClanString( int x, int y, char* s, byte State, RLCFont* Fn, RLCFont* Fn1, int DY );
 
@@ -291,8 +295,8 @@ bool CM_Vis = 0;
 bool CC_Vis = 0;
 byte RCOLOR = 0;
 
-__declspec( dllimport ) int menu_x_off;
-__declspec( dllimport ) int menu_y_off;
+extern __declspec( dllimport ) int menu_x_off;
+extern __declspec( dllimport ) int menu_y_off;
 
 void Draw_PLIST( int x, int y, int Lx, int Ly, int Index, byte Active, int param )
 {
@@ -356,13 +360,13 @@ void Draw_PLIST( int x, int y, int Lx, int Ly, int Index, byte Active, int param
 
 __declspec( dllimport ) void DrawStdBar2( int x0, int y0, int x1, int y1, int GP );
 
-void DRAWBOX( int x, int y, int Lx, int Ly, int Idx, byte Active, int param )
+static void DRAWBOX( int x, int y, int Lx, int Ly, int Idx, byte Active, int param )
 {
 	DrawStdBar2( x, y, x + Lx - 1, y + Ly - 1, param );
 }
-__declspec( dllimport ) char LASTCLICKCHATNAME[128];
+extern __declspec( dllimport ) char LASTCLICKCHATNAME[128];
 
-bool CheckForPersonalChat( char* STR )
+static bool CheckForPersonalChat( char* STR )
 {
 	if (STR[0] == '-'&&STR[1] == '-'&&STR[2] == '>')
 	{
@@ -389,7 +393,7 @@ bool CheckForPersonalChat( char* STR )
 	return false;
 }
 
-bool CheckPersonality( char* MESSAGE )
+static bool CheckPersonality( char* MESSAGE )
 {
 	if (LASTCLICKCHATNAME[0])
 	{
@@ -599,7 +603,7 @@ __declspec( dllexport ) void SetChatWState( int ID, int State )
 	}
 }
 
-void RunHTTPC()
+static void RunHTTPC()
 {
 	PROCESS_INFORMATION ProcessInformation;
 	STARTUPINFO StartUpInfo = {};

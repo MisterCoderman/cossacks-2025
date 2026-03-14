@@ -80,7 +80,7 @@ int Trx;
 int Try;
 int Trx1;
 int Try1;
-byte TerrMap[64][64];
+static byte TerrMap[64][64];
 int wer(byte x)
 {
 	if (x)return 1;

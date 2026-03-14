@@ -118,12 +118,6 @@ target_link_libraries(Cossacks PRIVATE CommCore)
 # shared symbol definitions via dllexport/dllimport on Windows).
 if(NOT WIN32)
     target_link_libraries(Cossacks PRIVATE IChat IntExplorer)
-    if(APPLE)
-        target_compile_options(Cossacks PRIVATE -fcommon)
-        # MSVC merges duplicate symbol definitions across translation units.
-        # The macOS linker doesn't allow this. Use ld_classic which is more permissive.
-        target_link_options(Cossacks PRIVATE "LINKER:-ld_classic,-multiply_defined,suppress")
-    endif()
 endif()
 
 if(NOT WIN32)

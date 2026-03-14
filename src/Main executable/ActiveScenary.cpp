@@ -3546,7 +3546,12 @@ extern "C" __declspec( dllexport ) void RefreshScreen()
 	GSYSDRAW();
 }
 
-extern "C" __declspec( dllexport ) bool SelCenter( GAMEOBJ* DstZone, byte Nat, int R )
+#ifdef _WIN32
+extern "C" __declspec( dllexport )
+#else
+static
+#endif
+bool SelCenter( GAMEOBJ* DstZone, byte Nat, int R )
 {
 	Nat = AssignTBL[Nat];
 	if ( Nat > 7 )

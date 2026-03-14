@@ -60,11 +60,9 @@ This includes keyboard/mouse input handling in `Interface.cpp` and `Mouse_X.cpp`
 
 ## Notes
 
-## NEXT: Fix duplicate symbol definitions
-24 symbols are defined in multiple .cpp files (MSVC merges these, macOS
-linker doesn't). Need to make one definition the primary and others `extern`.
-Examples: `HiMap`, `TerrMap`, `SelCenter`, `CurPalette`, `ChatMess`, etc.
-This is the **only remaining blocker** for linking.
+## ~~NEXT: Fix duplicate symbol definitions~~ DONE
+~~24 duplicate symbols between Main exe and IChat library.~~
+Fixed by adding `extern`/`static` qualifiers. Binary links successfully.
 
 ### Assembly rewrite status by file
 
@@ -95,8 +93,7 @@ This is the **only remaining blocker** for linking.
 - **CommCore** — compiles and links (static lib)
 - **IChat** — compiles and links (static lib)
 - **IntExplorer** — compiles and links (static lib)
-- **Main executable** — ALL 97 source files compile, linking blocked by
-  24 duplicate symbol definitions across translation units
+- **Main executable** — ALL source files compile AND link. Native ARM64 binary builds (3.5MB)
 
 ### Graphics pipeline (already mostly portable)
 The rendering is software-based: all drawing goes to an 8-bit `ScreenPtr`

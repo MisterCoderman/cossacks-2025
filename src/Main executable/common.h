@@ -68,4 +68,4 @@ __declspec(dllimport) void SlowLoadPalette(LPCSTR lpFileName);
 __declspec(dllimport) void SlowUnLoadPalette(LPCSTR lpFileName);
 __declspec(dllimport) void SavePlayerData();
 __declspec(dllimport) void LoadPlayerData();
-__declspec(dllimport) int CurPalette;
+extern __declspec(dllimport) int CurPalette;
