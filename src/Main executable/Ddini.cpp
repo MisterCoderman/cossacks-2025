@@ -63,6 +63,7 @@ std::mutex renderMutex;
 extern bool PalDone;
 extern word PlayerMenuMode;
 bool IsRunningUnderWine_ByNtDll() {
+#ifdef _WIN32
     std::ifstream force_wine_mode1("wine");
     std::ifstream force_wine_mode2("wine.txt");
     if (force_wine_mode1.good() || force_wine_mode2.good()) {
@@ -73,6 +74,9 @@ bool IsRunningUnderWine_ByNtDll() {
     if (!ntdll) return false;
     FARPROC wineVer = GetProcAddress(ntdll, "wine_get_version");
     return wineVer != nullptr;
+#else
+    return false; // Not running under Wine on macOS/Linux
+#endif
 }
 bool isWine = IsRunningUnderWine_ByNtDll();
 
@@ -184,9 +188,12 @@ void ResetMouseCapture() {
     mouseCaptured = false;
 }
 static bool disableVSyncByFile = []() {
-    std::ifstream novsync_file1("novsync");
-    std::ifstream novsync_file2("novsync.txt");
-    return novsync_file1.good() || novsync_file2.good();
+    FILE* f1 = fopen("novsync", "r");
+    FILE* f2 = fopen("novsync.txt", "r");
+    bool result = (f1 != NULL) || (f2 != NULL);
+    if (f1) fclose(f1);
+    if (f2) fclose(f2);
+    return result;
 }();
 __declspec(dllexport) void FlipPages(void) {
     std::lock_guard<std::mutex> lock(renderMutex);

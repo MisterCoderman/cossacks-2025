@@ -43,10 +43,18 @@ The project uses DLL exports between the main exe and the libraries. Options:
 - `CRITICAL_SECTION` → `std::mutex`
 - `WaitForSingleObject` → `std::condition_variable` / SDL equivalents
 
-## 8. Replace Win32 file I/O with standard C/C++
-- `CreateFile`/`ReadFile`/`WriteFile` → `fopen`/`fread`/`fwrite`
-- `FindFirstFile`/`FindNextFile` → `std::filesystem` or `dirent.h`
-- Registry access → config file or `SDL_GetPrefPath`
+## ~~8. Replace Win32 file I/O with standard C/C++~~ DONE
+Implemented in `src/compat/compat_file_io.h`:
+- `CreateFile` → `open()` with fd wrapped in handle struct
+- `ReadFile`/`WriteFile` → `read()`/`write()`
+- `SetFilePointer` → `lseek()`
+- `GetFileSize` → `fstat()`
+- `CloseHandle` → `close()` (with handle type tracking)
+- `CreateFileMapping`/`MapViewOfFile` → `mmap()`
+- `UnmapViewOfFile` → `munmap()`
+- `FindFirstFile`/`FindNextFile` → `opendir()`/`readdir()` + `fnmatch()`
+- `GetCurrentDirectory`/`SetCurrentDirectory` → `getcwd()`/`chdir()`
+Game successfully opens and reads `.gsc` archive files on macOS.
 
 ## ~~9. Replace WinMain with SDL_main~~ DONE
 Added `platform_main.cpp` with `main()` that calls `WinMain()`.
@@ -60,7 +68,18 @@ This includes keyboard/mouse input handling in `Interface.cpp` and `Mouse_X.cpp`
 
 ## Notes
 
-## ~~NEXT: Fix duplicate symbol definitions~~ DONE
+## NEXT: Fix custom memory allocator crash
+`Ddini.h` globally overrides `malloc`/`free` with `_ExMalloc`/`_ExFree` and
+replaces global `operator new`/`delete`. This causes heap corruption on macOS
+because `_ExMalloc` isn't initialized before static constructors run (e.g.,
+`std::ifstream` in static lambdas). Options:
+- Defer custom allocator init until `WinMain` starts
+- Guard the override with a "is initialized" check, falling back to real malloc
+- Remove the global override entirely on non-Windows
+Also fixed: `IsRunningUnderWine_ByNtDll()` and `disableVSyncByFile` lambda —
+replaced `std::ifstream` with `fopen()` to avoid crashes during static init.
+
+## ~~PREV: Fix duplicate symbol definitions~~ DONE
 ~~24 duplicate symbols between Main exe and IChat library.~~
 Fixed by adding `extern`/`static` qualifiers. Binary links successfully.
 
@@ -93,7 +112,9 @@ Fixed by adding `extern`/`static` qualifiers. Binary links successfully.
 - **CommCore** — compiles and links (static lib)
 - **IChat** — compiles and links (static lib)
 - **IntExplorer** — compiles and links (static lib)
-- **Main executable** — ALL source files compile AND link. Native ARM64 binary builds (3.5MB)
+- **Main executable** — ALL source files compile AND link. Native ARM64 binary (3.5MB)
+- **Runtime** — binary runs, file I/O works, .gsc archives load, crashes in
+  custom memory allocator during static initialization
 
 ### Graphics pipeline (already mostly portable)
 The rendering is software-based: all drawing goes to an 8-bit `ScreenPtr`

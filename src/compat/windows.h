@@ -447,12 +447,12 @@ inline DWORD GetModuleFileNameA(HMODULE hm, LPSTR buf, DWORD size) {
 #define GetModuleFileName GetModuleFileNameA
 
 inline void GetSystemDirectory(LPSTR buf, UINT size) { (void)buf; (void)size; }
-inline DWORD GetCurrentDirectoryA(DWORD size, LPSTR buf) { (void)size; (void)buf; return 0; }
-#define GetCurrentDirectory GetCurrentDirectoryA
 inline DWORD GetLogicalDriveStringsA(DWORD size, LPSTR buf) { (void)size; (void)buf; return 0; }
 #define GetLogicalDriveStrings GetLogicalDriveStringsA
-inline BOOL SetCurrentDirectoryA(LPCSTR path) { (void)path; return TRUE; }
-#define SetCurrentDirectory SetCurrentDirectoryA
+// GetCurrentDirectory, SetCurrentDirectory, CreateFile, ReadFile, WriteFile,
+// SetFilePointer, GetFileSize, CloseHandle, CreateFileMapping, MapViewOfFile,
+// UnmapViewOfFile, FindFirstFile, FindNextFile, FindClose, GetFileAttributes
+// are implemented in compat_file_io.h (included at end of this file)
 
 // ---- Critical section stubs ----
 typedef struct _CRITICAL_SECTION {
@@ -470,16 +470,12 @@ inline HANDLE CreateThread(void* attr, size_t stack, void* func, void* param, DW
     return NULL;
 }
 inline DWORD WaitForSingleObject(HANDLE h, DWORD ms) { (void)h; (void)ms; return 0; }
-inline BOOL CloseHandle(HANDLE h) { (void)h; return TRUE; }
+// CloseHandle — implemented in compat_file_io.h
 #define INFINITE 0xFFFFFFFF
 #define WAIT_OBJECT_0 0
 
-// ---- File I/O stubs ----
-inline HANDLE CreateFileA(LPCSTR name, DWORD access, DWORD share, void* sa, DWORD disp, DWORD flags, HANDLE templ) {
-    (void)name; (void)access; (void)share; (void)sa; (void)disp; (void)flags; (void)templ;
-    return INVALID_HANDLE_VALUE;
-}
-#define CreateFile CreateFileA
+// ---- File I/O ----
+// CreateFileA is implemented in compat_file_io.h
 #define GENERIC_READ    0x80000000L
 #define GENERIC_WRITE   0x40000000L
 #define OPEN_EXISTING   3
@@ -493,16 +489,7 @@ inline HANDLE CreateFileA(LPCSTR name, DWORD access, DWORD share, void* sa, DWOR
 #define OPEN_ALWAYS      4
 #define TRUNCATE_EXISTING 5
 
-inline BOOL ReadFile(HANDLE h, LPVOID buf, DWORD bytes, LPDWORD read, void* overlapped) {
-    (void)h; (void)buf; (void)bytes; (void)read; (void)overlapped; return FALSE;
-}
-inline BOOL WriteFile(HANDLE h, LPCVOID buf, DWORD bytes, LPDWORD written, void* overlapped) {
-    (void)h; (void)buf; (void)bytes; (void)written; (void)overlapped; return FALSE;
-}
-inline DWORD SetFilePointer(HANDLE h, LONG dist, LPLONG high, DWORD method) {
-    (void)h; (void)dist; (void)high; (void)method; return 0;
-}
-inline DWORD GetFileSize(HANDLE h, LPDWORD high) { (void)h; (void)high; return 0; }
+// ReadFile, WriteFile, SetFilePointer, GetFileSize — implemented in compat_file_io.h
 
 // ---- FILETIME ----
 typedef struct _FILETIME {
@@ -523,13 +510,7 @@ typedef struct _WIN32_FIND_DATAA {
 } WIN32_FIND_DATAA, *LPWIN32_FIND_DATAA;
 #define WIN32_FIND_DATA WIN32_FIND_DATAA
 
-inline HANDLE FindFirstFileA(LPCSTR path, LPWIN32_FIND_DATAA data) {
-    (void)path; (void)data; return INVALID_HANDLE_VALUE;
-}
-#define FindFirstFile FindFirstFileA
-inline BOOL FindNextFileA(HANDLE h, LPWIN32_FIND_DATAA data) { (void)h; (void)data; return FALSE; }
-#define FindNextFile FindNextFileA
-inline BOOL FindClose(HANDLE h) { (void)h; return TRUE; }
+// FindFirstFile, FindNextFile, FindClose — implemented in compat_file_io.h
 #define FILE_ATTRIBUTE_DIRECTORY 0x00000010
 
 // ---- Registry stubs ----
@@ -769,26 +750,12 @@ inline BOOL QueryPerformanceFrequency(LARGE_INTEGER* freq) { (void)freq; return 
 inline LONG InterlockedIncrement(volatile LONG* val) { return ++(*val); }
 inline LONG InterlockedDecrement(volatile LONG* val) { return --(*val); }
 
-// ---- Memory-mapped file stubs ----
+// ---- Memory-mapped file constants ----
 #define PAGE_READONLY       0x02
 #define PAGE_READWRITE      0x04
 #define FILE_MAP_READ       0x0004
 #define FILE_MAP_WRITE      0x0002
-
-inline HANDLE CreateFileMappingA(HANDLE hFile, void* lpAttr, DWORD flProtect,
-                                  DWORD dwMaxHigh, DWORD dwMaxLow, LPCSTR lpName) {
-    (void)hFile; (void)lpAttr; (void)flProtect;
-    (void)dwMaxHigh; (void)dwMaxLow; (void)lpName;
-    return NULL;
-}
-#define CreateFileMapping CreateFileMappingA
-
-inline LPVOID MapViewOfFile(HANDLE hMap, DWORD dwAccess, DWORD dwOffHigh,
-                             DWORD dwOffLow, size_t dwBytes) {
-    (void)hMap; (void)dwAccess; (void)dwOffHigh; (void)dwOffLow; (void)dwBytes;
-    return NULL;
-}
-inline BOOL UnmapViewOfFile(LPCVOID lpBase) { (void)lpBase; return TRUE; }
+// CreateFileMapping, MapViewOfFile, UnmapViewOfFile — implemented in compat_file_io.h
 
 // ---- Locale stubs ----
 typedef DWORD LCID;
@@ -889,8 +856,7 @@ inline int GetDeviceCaps(HDC hdc, int index) { (void)hdc; (void)index; return 0;
 #define BITSPIXEL 12
 
 // ---- File attributes ----
-inline DWORD GetFileAttributesA(LPCSTR lpFile) { (void)lpFile; return 0xFFFFFFFF; }
-#define GetFileAttributes GetFileAttributesA
+// GetFileAttributes — implemented in compat_file_io.h
 #define INVALID_FILE_ATTRIBUTES ((DWORD)-1)
 #define FILE_ATTRIBUTE_NORMAL 0x00000080
 
@@ -1196,6 +1162,11 @@ inline LONG InterlockedExchange(volatile LONG* target, LONG value) {
 
 #ifdef __cplusplus
 }
+#endif
+
+// ---- Real file I/O implementations (must come after all type definitions) ----
+#ifdef __cplusplus
+#include "compat_file_io.h"
 #endif
 
 #endif // _COMPAT_WINDOWS_H_
