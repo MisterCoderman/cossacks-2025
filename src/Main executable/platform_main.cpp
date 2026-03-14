@@ -1,6 +1,7 @@
 // Cross-platform entry point and stubs for non-Windows platforms
 #if !defined(_WIN32)
 
+#include <SDL.h>
 #include "ddini.h"
 #include "Dplay.h"
 #include "Dplobby.h"
@@ -10,13 +11,20 @@ extern int PASCAL WinMain(HINSTANCE, HINSTANCE, LPSTR, int);
 
 int main(int argc, char* argv[])
 {
+    (void)argc; (void)argv;
+    const char msg[] = "[DEBUG] main() entered\n";
+    ssize_t r = write(STDERR_FILENO, msg, sizeof(msg) - 1);
+    (void)r;
     // Combine argv into a single command line string for WinMain
     static char cmdLine[4096] = "";
     for (int i = 1; i < argc; i++) {
         if (i > 1) strcat(cmdLine, " ");
         strcat(cmdLine, argv[i]);
     }
-    return WinMain(NULL, NULL, cmdLine, 0);
+    fprintf(stderr, "[DEBUG] Calling WinMain\n"); fflush(stderr);
+    int result = WinMain(NULL, NULL, cmdLine, 0);
+    fprintf(stderr, "[DEBUG] WinMain returned %d\n", result);
+    return result;
 }
 
 // Stub for DirectPlay lobby creation (DirectPlay is not available on non-Windows)

@@ -1937,8 +1937,8 @@ void LoadMessagesFromFile( char* Name )
 			if (NMess >= MaxMess)
 			{
 				MaxMess += 256;
-				GMessIDS = (lpCHAR*) realloc( GMessIDS, MaxMess * 4 );
-				GMessage = (lpCHAR*) realloc( GMessage, MaxMess * 4 );
+				GMessIDS = (lpCHAR*) realloc( GMessIDS, MaxMess * sizeof(lpCHAR) );
+				GMessage = (lpCHAR*) realloc( GMessage, MaxMess * sizeof(lpCHAR) );
 			}
 
 			Ggetch( f );

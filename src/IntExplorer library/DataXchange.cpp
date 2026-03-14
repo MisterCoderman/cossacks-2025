@@ -1213,7 +1213,7 @@ void exec_LW_tbl( int Np, char** par, int* size )
 			int Nne = 0;
 			Nne = atoi( par[1] );
 			if (Np < 2 + nc*Nne)return;
-			SXT->Lines = (char**) realloc( SXT->Lines, ( SXT->NLines + Nne ) * 4 * SXT->NCol );
+			SXT->Lines = (char**) realloc( SXT->Lines, ( SXT->NLines + Nne ) * sizeof(char*) * SXT->NCol );
 			SXT->Refs = (int*) realloc( SXT->Refs, ( SXT->NLines + Nne ) << 2 );
 			int p0 = SXT->NLines*nc;
 			for (int i = 0; i < Nne; i++)

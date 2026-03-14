@@ -64,8 +64,8 @@ void AddFHandle( ResFile F, char* Name )
 	if (NHNames >= MaxNames)
 	{
 		MaxNames += 16;
-		FHNames = (char**) realloc( FHNames, 4 * MaxNames );
-		FHANDLES = (ResFile*) realloc( FHANDLES, 4 * MaxNames );
+		FHNames = (char**) realloc( FHNames, sizeof(char*) * MaxNames );
+		FHANDLES = (ResFile*) realloc( FHANDLES, sizeof(ResFile) * MaxNames );
 	}
 
 	FHNames[NHNames] = new char[strlen( Name ) + 1];
@@ -84,8 +84,8 @@ void EraseFName( ResFile F )
 		free( FHNames[i] );
 		if (i < NHNames - 1)
 		{
-			memcpy( FHNames + i, FHNames + i + 1, 4 * ( NHNames - i - 1 ) );
-			memcpy( FHANDLES + i, FHANDLES + i + 1, 4 * ( NHNames - i - 1 ) );
+			memcpy( FHNames + i, FHNames + i + 1, sizeof(char*) * ( NHNames - i - 1 ) );
+			memcpy( FHANDLES + i, FHANDLES + i + 1, sizeof(ResFile) * ( NHNames - i - 1 ) );
 		};
 		NHNames--;
 	};

@@ -1597,7 +1597,7 @@ void sicExplorer::NewWindow( char* request, char* WinID )
 	if (NWindows >= MaxWindow)
 	{
 		MaxWindow += 8;
-		Windows = (OneSicWindow**) realloc( Windows, MaxWindow * 4 );
+		Windows = (OneSicWindow**) realloc( Windows, MaxWindow * sizeof(OneSicWindow*) );
 	}
 
 	Windows[NWindows] = new OneSicWindow;

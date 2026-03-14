@@ -163,57 +163,52 @@ int TotalSize = 0;
 
 __declspec(dllexport) void _ExFree(void* ptr) {
 	try {
-		// Проверка на нулевой указатель
 		if (!ptr) {
-			fprintf(stderr, "Предупреждение: передан нулевой указатель в _ExFree\n");
 			return;
 		}
 
 		DWORD* Ptr = (DWORD*)ptr;
 
-		// Проверка на минимально допустимый адрес
 		if ((uintptr_t)Ptr < 0x1000) {
-			fprintf(stderr, "Предупреждение: недействительный адрес %p в _ExFree\n", ptr);
 			return;
 		}
 
-		// Проверка на двойное освобождение
+#ifdef _WIN32
+		// Debug markers вЂ” only on Windows
 		if (Ptr[0] == 0xDEADBEEF) {
-			fprintf(stderr, "Ошибка: обнаружено двойное освобождение памяти по адресу %p\n", ptr);
-			return; // Пропускаем освобождение, но не завершаем программу
+			return; // double free
 		}
-
-		// Маркируем память как освобожденную
 		Ptr[0] = 0xDEADBEEF;
+#endif
 
-		// Освобождаем память
 		free(ptr);
 
-		// Уменьшаем счетчик
+		// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 		if (TotalSize > 0) {
 			TotalSize--;
 		}
 		else {
-			fprintf(stderr, "Предупреждение: TotalSize уже равен нулю\n");
+			fprintf(stderr, "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ: TotalSize пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ\n");
 		}
 	}
 	catch (const std::exception& e) {
-		// Обработка любых стандартных исключений
-		fprintf(stderr, "Исключение в _ExFree: %s\n", e.what());
+		// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+		fprintf(stderr, "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ _ExFree: %s\n", e.what());
 	}
 	catch (...) {
-		// Обработка неизвестных исключений
-		fprintf(stderr, "Неизвестная ошибка в _ExFree для адреса %p\n", ptr);
+		// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+		fprintf(stderr, "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅ _ExFree пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ %p\n", ptr);
 	}
 }
 //FIX MEMORY
 __declspec(dllexport) void* _ExMalloc(int Size) {
-	if (Size <= 0) return nullptr; // Обработка некорректных размеров
+	if (Size <= 0) return nullptr;
 	void* ptr = calloc(Size, 1);
 	if (ptr) {
 		TotalSize++;
-		// Опционально инициализируем метаданные
-		((DWORD*)ptr)[0] = 0xCAFEBABE; // Магическое число для выделенной памяти
+#ifdef _WIN32
+		((DWORD*)ptr)[0] = 0xCAFEBABE; // debug marker вЂ” only on Windows
+#endif
 	}
 	return ptr;
 }

@@ -54,8 +54,8 @@ GP_System::GP_System()
 	memset(UNITBL, 0, NGPReady << 2);
 	ImLx = new lpShort[NGPReady];
 	ImLy = new lpShort[NGPReady];
-	ItDX = (char**)malloc(4 * NGPReady);
-	ItLX = (char**)malloc(4 * NGPReady);
+	ItDX = (char**)malloc(sizeof(char*) * NGPReady);
+	ItLX = (char**)malloc(sizeof(char*) * NGPReady);
 	memset(ImLx, 0, 4 * NGPReady);
 	memset(ImLy, 0, 4 * NGPReady);
 	memset(ItDX, 0, 4 * NGPReady);

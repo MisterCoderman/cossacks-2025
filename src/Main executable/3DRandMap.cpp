@@ -4850,7 +4850,7 @@ void RandomMapDesc::Load(char* name)
 			ERRMP(name, "RELIEF");
 		}
 
-		Relief = (char**)malloc(NRelief * 4);
+		Relief = (char**)malloc(NRelief * sizeof(char*));
 
 		for (int p = 0; p < NRelief; p++)
 		{

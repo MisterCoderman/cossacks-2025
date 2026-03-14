@@ -1008,7 +1008,7 @@ bool LoadNations( SaveBuf* SB )
 		if (CT->NGroups)
 		{
 			CT->NGroupsInSet = new word[CT->NGroups];
-			CT->GroupsSet = (word**) malloc( CT->NGroups * 4 );
+			CT->GroupsSet = (word**) malloc( CT->NGroups * sizeof(word*) );
 			xBlockRead( SB, CT->NGroupsInSet, CT->NGroups * 2 );
 			for (int i = 0; i < CT->NGroups; i++)
 			{
@@ -1052,7 +1052,7 @@ bool LoadNations( SaveBuf* SB )
 		xBlockRead( SB, NT->ResOnUnits, 32 );
 		xBlockRead( SB, NT->ResOnLife, 32 );
 		xBlockRead( SB, &NT->NHistory, 4 );
-		NT->History = (char**) malloc( NT->NHistory * 4 );
+		NT->History = (char**) malloc( NT->NHistory * sizeof(char*) );
 		for (int i = 0; i < NT->NHistory; i++)
 		{
 			int L;
@@ -1164,8 +1164,8 @@ ReportFn* ORDLIST[OrdCount] = {
 ReportFn** PTR_LAND = NULL;
 void __declspec( dllexport ) SFINIT2_InitLAND()
 {
-	PTR_LAND = (ReportFn**) GlobalAlloc( GMEM_FIXED, 4 * OrdCount );
-	memcpy( PTR_LAND, ORDLIST, 4 * OrdCount );
+	PTR_LAND = (ReportFn**) GlobalAlloc( GMEM_FIXED, sizeof(ReportFn*) * OrdCount );
+	memcpy( PTR_LAND, ORDLIST, sizeof(ReportFn*) * OrdCount );
 };
 void FREELAND()
 {
@@ -1443,7 +1443,7 @@ void LoadWalls( SaveBuf* SB )
 	if (i != 'LLAW')LOutErr( "Save file is corrupted." );
 	LOADMES( SB );
 	xBlockRead( SB, &WSys.NClusters, 4 );
-	WSys.WCL = (WallCluster**) malloc( 4 * WSys.NClusters );
+	WSys.WCL = (WallCluster**) malloc( sizeof(WallCluster*) * WSys.NClusters );
 	for (int i = 0; i < WSys.NClusters; i++)
 	{
 		WallCluster* WCL = new WallCluster;

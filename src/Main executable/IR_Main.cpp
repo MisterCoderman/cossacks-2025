@@ -787,7 +787,7 @@ void PersAuthCallback( int localid, int profileid, int authenticated,
 void InternetStatsChunks::WriteChunk( byte* Src, int L, byte Type )
 {
 	if (!L)return;
-	Chunks = (OneIChunk**) realloc( Chunks, 4 * N + 4 );
+	Chunks = (OneIChunk**) realloc( Chunks, sizeof(OneIChunk*) * (N + 1) );
 	Chunks[N] = (OneIChunk*) malloc( 5 + L );
 	Chunks[N]->Index = Type;
 	Chunks[N]->size = L;

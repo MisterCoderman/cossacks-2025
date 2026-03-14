@@ -5138,7 +5138,7 @@ char* UnitInfo::AddHint(char* Hint)
 	if (NHints >= MaxHints)
 	{
 		MaxHints += 64;
-		Hints = (char**)realloc(Hints, MaxHints * 4);
+		Hints = (char**)realloc(Hints, MaxHints * sizeof(char*));
 	};
 	Hints[NHints] = new char[strlen(Hint) + 1];
 	strcpy(Hints[NHints], Hint);

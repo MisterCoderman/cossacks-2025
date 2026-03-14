@@ -12,11 +12,18 @@
 #include "resource.h"
 #include "lines.h"
 
+#ifdef _WIN32
 #define free _ExFree
 #define malloc _ExMalloc
+#endif
 void* _ExMalloc(int Size);
 void _ExFree(void* Ptr);
 
+#ifdef _WIN32
+// On Windows, override global new/delete to use the game's custom allocator.
+// On macOS/Linux, this causes heap corruption because _ExMalloc writes marker
+// bytes (0xCAFEBABE) to allocations, breaking C++ standard library internals
+// (std::string, std::mutex, etc.) during static initialization.
 inline void* _cdecl operator new(size_t size) {
     return malloc(size);
 }
@@ -24,6 +31,7 @@ inline void* _cdecl operator new(size_t size) {
 inline void __cdecl operator delete(void* ptr) {
     free(ptr);
 }
+#endif
 
 #define MAKE_PTC
 

@@ -2288,8 +2288,8 @@ void AddPrimitiveChat(char* Nick, char* str,
 	if (NCHATS >= MAXCHATS)
 	{
 		MAXCHATS += 32;
-		ChatMess = (char**)realloc(ChatMess, 4 * MAXCHATS);
-		ChatSender = (char**)realloc(ChatSender, 4 * MAXCHATS);
+		ChatMess = (char**)realloc(ChatMess, sizeof(char*) * MAXCHATS);
+		ChatSender = (char**)realloc(ChatSender, sizeof(char*) * MAXCHATS);
 	};
 	if (NCHATS > 512)
 	{

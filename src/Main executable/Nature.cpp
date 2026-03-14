@@ -1272,8 +1272,8 @@ AI_Description::AI_Description()
 
 			z = Gscanf( f, "%d%d%d", &Ai[i].NPeas, &Ai[i].NLandAI, &Ai[i].NWaterAI );
 			if (z != 3)InvAI();
-			Ai[i].LandAI = (char**) malloc( 4 * Ai[i].NLandAI );
-			Ai[i].WaterAI = (char**) malloc( 4 * Ai[i].NWaterAI );
+			Ai[i].LandAI = (char**) malloc( sizeof(char*) * Ai[i].NLandAI );
+			Ai[i].WaterAI = (char**) malloc( sizeof(char*) * Ai[i].NWaterAI );
 			for (int j = 0; j < Ai[i].NLandAI; j++)
 			{
 				Gscanf( f, "%s", cc );

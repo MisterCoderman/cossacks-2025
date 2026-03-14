@@ -5,132 +5,66 @@ All changes must remain compatible with the existing MSVC/Windows build.
 Primary dev environment: macOS ARM64 (Apple Silicon M1), CLion.
 
 ## ~~1. Fix backslash includes~~ DONE
-~~Replace Windows-style `#include "arc\gscarch.h"` paths with forward slashes.~~
+## ~~2. Add missing compat stubs~~ DONE
+## ~~3. Fix pointer-to-int casts (64-bit)~~ DONE
+## ~~4. Rewrite x86 inline assembly~~ DONE (21 files, ~155 blocks)
+## ~~8. Replace Win32 file I/O~~ DONE (compat_file_io.h)
+## ~~9. Replace WinMain~~ DONE (platform_main.cpp)
+## ~~Fix duplicate symbols~~ DONE
+## ~~Fix custom memory allocator~~ DONE
+## ~~Fix 32-bit pointer size assumptions~~ DONE (32 locations, `malloc(4*N)` → `malloc(sizeof(T*)*N)`)
 
-## ~~2. Add missing compat stubs as needed~~ DONE (initial pass)
-~~Extend `src/compat/windows.h` and other compat headers incrementally.~~
-CommCore, IChat, and IntExplorer (except FnDefine.cpp) compile on macOS.
-Remaining: pointer-to-int casts in FnDefine.cpp (64-bit porting issue),
-and Main executable not yet attempted. Compat stubs may need further
-extension as the Main executable is tackled.
-
-## ~~3. Fix pointer-to-int casts (64-bit porting)~~ DONE
-~~FnDefine.cpp (IntExplorer) — 17 casts blocking compilation.~~
-Fixed by changing `UserParam`, `ComplexBox::param`, `CustomBox::param`
-from `int` to `intptr_t` in dialogs.h, and updating cast sites.
-Also replaced inline assembly in MapDiscr.h (`DistTo`) and NewMon.h
-(`Norma`) with portable C equivalents. Fixed `WallSystem::Show` extra
-qualification in walls.h. More pointer-to-int casts likely in Main executable.
-
-## ~~4. Rewrite x86 inline assembly~~ DONE
-All 21 files with x86 assembly now have portable C implementations.
-Original assembly preserved in `#if defined(_MSC_VER) && defined(_M_IX86)`
-guards for Windows builds.
+## NEXT: Wire up SDL window and event loop
+Game initializes fully — loads .gsc archives, reads game data, exits cleanly.
+But nothing displays because Win32 window/event stubs are no-ops.
+Need to connect the existing SDL2 code in Ddini.cpp to the game loop:
+- `CreateWindow`/`RegisterClass` → SDL2 already creates `gWindow` in `CreateDDObjects()`
+- `PeekMessage`/`GetMessage`/`DispatchMessage` → `SDL_PollEvent()`
+- Keyboard input (VK_* codes) → SDL_SCANCODE/SDL_KEYCODE mapping
+- Mouse input → SDL mouse events
+- The rendering pipeline (FlipPages) already uses SDL2
 
 ## 5. Port CommCore to POSIX sockets
-CommCore already compiles and links on macOS. Remaining work:
-- Replace `SO_MAX_MSG_SIZE` usage with a reasonable default
-- Replace registry-based CCUID storage with a config file
-- Goal: working cross-platform networking library
+CommCore compiles and links. Remaining:
+- Replace `SO_MAX_MSG_SIZE` with reasonable default
+- Replace registry-based CCUID storage with config file
 
 ## 6. Tackle `__declspec(dllexport/dllimport)` pattern
-The project uses DLL exports between the main exe and the libraries. Options:
-- Link everything statically (simplest — already done for macOS CMake build)
-- Replace `__declspec` with `__attribute__((visibility("default")))` via a macro
+Already linking statically on macOS. Future cleanup.
 
 ## 7. Replace Win32 threading with std::thread or SDL threads
 - `CreateThread` → `std::thread` / `SDL_CreateThread`
 - `CRITICAL_SECTION` → `std::mutex`
 - `WaitForSingleObject` → `std::condition_variable` / SDL equivalents
 
-## ~~8. Replace Win32 file I/O with standard C/C++~~ DONE
-Implemented in `src/compat/compat_file_io.h`:
-- `CreateFile` → `open()` with fd wrapped in handle struct
-- `ReadFile`/`WriteFile` → `read()`/`write()`
-- `SetFilePointer` → `lseek()`
-- `GetFileSize` → `fstat()`
-- `CloseHandle` → `close()` (with handle type tracking)
-- `CreateFileMapping`/`MapViewOfFile` → `mmap()`
-- `UnmapViewOfFile` → `munmap()`
-- `FindFirstFile`/`FindNextFile` → `opendir()`/`readdir()` + `fnmatch()`
-- `GetCurrentDirectory`/`SetCurrentDirectory` → `getcwd()`/`chdir()`
-Game successfully opens and reads `.gsc` archive files on macOS.
-
-## ~~9. Replace WinMain with SDL_main~~ DONE
-Added `platform_main.cpp` with `main()` that calls `WinMain()`.
-Also contains stubs for DirectPlayLobby and CPinger.
-
-## 10. Replace Win32 window/message loop with SDL events
-The game currently uses `CreateWindow`, `PeekMessage`, `DispatchMessage` etc.
-SDL2 already creates the window (`gWindow` in Ddini.cpp). The Win32 message
-loop in `Ddex1.cpp` needs to be replaced with `SDL_PollEvent()`.
-This includes keyboard/mouse input handling in `Interface.cpp` and `Mouse_X.cpp`.
-
-## Notes
-
-## NEXT: Fix custom memory allocator crash
-`Ddini.h` globally overrides `malloc`/`free` with `_ExMalloc`/`_ExFree` and
-replaces global `operator new`/`delete`. This causes heap corruption on macOS
-because `_ExMalloc` isn't initialized before static constructors run (e.g.,
-`std::ifstream` in static lambdas). Options:
-- Defer custom allocator init until `WinMain` starts
-- Guard the override with a "is initialized" check, falling back to real malloc
-- Remove the global override entirely on non-Windows
-Also fixed: `IsRunningUnderWine_ByNtDll()` and `disableVSyncByFile` lambda —
-replaced `std::ifstream` with `fopen()` to avoid crashes during static init.
-
-## ~~PREV: Fix duplicate symbol definitions~~ DONE
-~~24 duplicate symbols between Main exe and IChat library.~~
-Fixed by adding `extern`/`static` qualifiers. Binary links successfully.
-
-### Assembly rewrite status by file
-
-**All done (real C implementations):**
-- `3DGraph.cpp` — full C rewrite (13 functions: triangle rendering, fog, texture mapping)
-- `Fastdraw.cpp` — 8 RLC sprite functions (full clipped renderer with palette variants)
-- `Masks.cpp` — 7 blocks (RLE mask decode, transparency blending, diamond shapes)
-- `Lines.cpp` — 6 blocks (Hline, Vline, Bresenham line drawing)
-- `ShipTrace.cpp` — 4 blocks (blob rendering, update loop, slot search)
-- `mapa.cpp` — 4 blocks (minimap square rendering)
-- `3DRandMap.cpp` — 3 blocks (grass rendering, dead code removal)
-- `NewMon.cpp` — 3 blocks (memory zeroing)
-- `Groups.cpp` — 1 block (bubble sort)
-- `ZBuffer.cpp` — 1 block (bubble sort)
-- `Multi.cpp` — 1 block (memset)
-- `Stringshash.cpp` — 1 block (byte hash sum)
-- `Megapolis.cpp` — 1 block (5-pixel cross)
-- `Nation.cpp` — 1 block (struct fill)
-- `fog.cpp` — 13 blocks (fog blur, darkfog bilinear interpolation, minimap fog)
-- `path.cpp` — 15 blocks (bitmap bit ops, Bresenham line rasterization)
-- `RealWater.cpp` — 15 blocks (wave simulation, water rendering, gradient lookup)
-- `GP_Draw.cpp` — 79 blocks (sprite rendering, pixel ops, clipping, decompression)
-- `AntiBug.cpp` — 1 block (checksum)
-- `MapDiscr.h` (`DistTo`) — Chebyshev distance
-- `NewMon.h` (`Norma`) — approximate distance
-
-### Build status on macOS ARM64
+## Build status on macOS ARM64
 - **CommCore** — compiles and links (static lib)
 - **IChat** — compiles and links (static lib)
 - **IntExplorer** — compiles and links (static lib)
-- **Main executable** — ALL source files compile AND link. Native ARM64 binary (3.5MB)
-- **Runtime** — binary runs, file I/O works, .gsc archives load, crashes in
-  custom memory allocator during static initialization
+- **Main executable** — compiles, links, and runs. Native ARM64 binary (3.5MB)
+- **Runtime** — initializes fully: loads .gsc archives, reads game data,
+  exits cleanly (code 0). No window/display yet (Win32 window stubs are no-ops).
+
+## Assembly rewrite status (ALL DONE)
+21 files, ~155 blocks rewritten from x86 to portable C:
+3DGraph.cpp, Fastdraw.cpp, GP_Draw.cpp (79 blocks), fog.cpp (13),
+RealWater.cpp (15), path.cpp (15), Masks.cpp (7), Lines.cpp (6),
+ShipTrace.cpp (4), mapa.cpp (4), 3DRandMap.cpp (3), NewMon.cpp (3),
+Groups.cpp, ZBuffer.cpp, Multi.cpp, Stringshash.cpp, Megapolis.cpp,
+Nation.cpp, AntiBug.cpp, MapDiscr.h, NewMon.h
+
+## Notes
 
 ### Graphics pipeline (already mostly portable)
-The rendering is software-based: all drawing goes to an 8-bit `ScreenPtr`
-buffer, then `FlipPages()` in `Ddini.cpp` converts it to an SDL texture
-for display. This part already works cross-platform via SDL2.
-
-### 3D rendering (portable except assembly)
-The 3D terrain renderer (`3DGraph.cpp`) uses software triangle rasterization.
-Contains x86 assembly for textured triangle rendering — must be rewritten
-in C/C++ for ARM64.
+Software-based 8-bit rendering to `ScreenPtr`, then `FlipPages()` in
+`Ddini.cpp` converts to SDL texture for display. Already uses SDL2.
 
 ### Audio (already portable)
-`Cdirsnd.cpp` already uses SDL2_mixer. No porting work needed.
+`Cdirsnd.cpp` uses SDL2_mixer. No porting work needed.
 
-### sizeof without parentheses
-MSVC accepts `sizeof TypeName` without parentheses but Clang doesn't.
-Already fixed in: cs_chat.cpp, GSC_ChatWindow.cpp, ParseRQ.cpp,
-Bmptool.cpp, DataXchange.cpp, Explore.cpp, FnDefine.cpp.
-May appear in more Main executable files.
+### Key fixes applied
+- Custom allocator (`_ExMalloc`/`_ExFree`) debug markers disabled on non-Win32
+- `operator new`/`delete` override disabled on non-Win32
+- 32-bit pointer assumptions (`malloc(4*N)`) fixed across 32 locations
+- `std::ifstream` in static init replaced with `fopen()` to avoid crashes
+- Wine detection bypassed on non-Win32

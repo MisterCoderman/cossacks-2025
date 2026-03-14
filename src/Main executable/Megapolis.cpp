@@ -7278,7 +7278,7 @@ void GroupSelectedFormations(byte NI)
 
 	if (NForms)
 	{
-		CT->GroupsSet = (word**)realloc(CT->GroupsSet, CT->NGroups * 4 + 4);
+		CT->GroupsSet = (word**)realloc(CT->GroupsSet, (CT->NGroups + 1) * sizeof(word*));
 		CT->NGroupsInSet = (word*)realloc(CT->NGroupsInSet, CT->NGroups * 2 + 2);
 		CT->GroupsSet[CT->NGroups] = new word[NForms];
 		memcpy(CT->GroupsSet[CT->NGroups], FormsIDS, NForms * 2);
