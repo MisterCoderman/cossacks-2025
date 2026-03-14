@@ -431,6 +431,17 @@ void RedSquare(int x, int y)
 
 		pop		edi
 	}
+	#else
+	{
+		byte* ptr = (byte*)sco;
+		for (int row = 0; row < 16; row++) {
+			for (int col = 0; col < 16; col++) {
+				*ptr = clrRed;
+				ptr += 2;
+			}
+			ptr += ddx;
+		}
+	}
 	#endif
 }
 
@@ -460,6 +471,17 @@ void RedMiniSquare(int x, int y)
 		jnz		uyu
 
 		pop		edi
+	}
+	#else
+	{
+		byte* ptr = (byte*)sco;
+		for (int row = 0; row < 8; row++) {
+			for (int col = 0; col < 8; col++) {
+				*ptr = clrRed;
+				ptr += 2;
+			}
+			ptr += ddx;
+		}
 	}
 	#endif
 }
@@ -499,6 +521,17 @@ void WhiteSquare(int x, int y)
 
 		pop		edi
 	}
+	#else
+	{
+		byte* ptr = (byte*)sco;
+		for (int row = 0; row < 16; row++) {
+			for (int col = 0; col < 16; col++) {
+				*ptr = 255;
+				ptr += 2;
+			}
+			ptr += ddx;
+		}
+	}
 	#endif
 }
 
@@ -523,6 +556,17 @@ void WhiteMiniSquare(int x, int y)
 
 		pop		edi
 	};
+	#else
+	{
+		byte* ptr = (byte*)sco;
+		for (int row = 0; row < 8; row++) {
+			for (int col = 0; col < 8; col++) {
+				*ptr = 255;
+				ptr += 2;
+			}
+			ptr += ddx;
+		}
+	}
 	#endif
 };
 void WhiteBar(int x, int y, int lx, int ly)

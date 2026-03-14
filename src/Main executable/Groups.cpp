@@ -76,6 +76,21 @@ void SortClass::Sort() {
 			pop     esi
 			pop     edi
 	};
+	#else
+	do {
+		fault = 0;
+		for (int i = 0; i < nuids; i++) {
+			if (Parms[i] > Parms[i + 1]) {
+				int tmpP = Parms[i];
+				Parms[i] = Parms[i + 1];
+				Parms[i + 1] = tmpP;
+				word tmpU = Uids[i];
+				Uids[i] = Uids[i + 1];
+				Uids[i + 1] = tmpU;
+				fault = 1;
+			}
+		}
+	} while (fault);
 	#endif
 };
 void SortClass::CheckSize(int Size) {

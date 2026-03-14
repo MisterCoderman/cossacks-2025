@@ -147,6 +147,28 @@ void ExtrapolateCell(int x, int y)
 			pop		esi
 
 	};
+	#else
+	// Copy 8 rows of 16 bytes (8 shorts) from ScWave+src+dst to Wave+dst
+	// src/dst are byte offsets; ScWave stride = WaveLx shorts, Wave dest stride = 256 shorts
+	{
+		short* s0 = (short*)((char*)ScWave0 + src + dst);
+		short* d0 = (short*)((char*)Wave0 + dst);
+		short* s1 = (short*)((char*)ScWave1 + src + dst);
+		short* d1 = (short*)((char*)Wave1 + dst);
+		short* s2 = (short*)((char*)ScWave2 + src + dst);
+		short* d2 = (short*)((char*)Wave2 + dst);
+		for (int row = 0; row < 8; row++) {
+			memcpy(d0, s0, 16);
+			memcpy(d1, s1, 16);
+			memcpy(d2, s2, 16);
+			s0 += WaveLx;
+			s1 += WaveLx;
+			s2 += WaveLx;
+			d0 += 256;
+			d1 += 256;
+			d2 += 256;
+		}
+	}
 	#endif
 	//for(int i=0;i<8;i++){
 		/*
@@ -302,6 +324,63 @@ void InitWater()
 	CurStage = 0;
 }
 
+// Helper: wave processing kernel used by ProcessWaves1 and ProcessWaves (dead-code variant)
+// Computes: for each element in a grid region:
+//   avg = (wave1[left] + wave1[right] + wave1[up] + wave1[down])
+//   center = wave1[current]
+//   diff = avg - 4*center
+//   result = center + (diff >> shift_amount) - wave0[current]
+//   apply sign-extension correction (sar cx,16 then sub)
+//   store to wave2[current]
+static inline void ProcessWavesKernel(short* wave0, short* wave1, short* wave2,
+                                       int StWave, int DWave, int Lx, int Ly, int shiftAmount)
+{
+	// StWave and DWave are byte offsets
+	int bytePos = StWave;
+	for (int row = 0; row < Ly; row++) {
+		for (int col = 0; col < Lx; col++) {
+			int idx = bytePos / 2; // convert byte offset to short index
+			// Neighbors: +1 short right, -1 short left, +/-WaveLx shorts vertically
+			short right  = wave1[idx + 1];
+			short left   = wave1[idx - 1];
+			short up     = wave1[idx - WaveLx];
+			short down   = wave1[idx + WaveLx];
+			short center = wave1[idx];
+
+			int avg = (int)right + (int)left + (int)up + (int)down;
+			int cx2 = (int)center * 2;
+			// diff = avg - 4*center (sub cx twice where cx = center*2)
+			int diff = avg - cx2 - cx2;
+			// Arithmetic shift right by shiftAmount
+			int shifted = diff >> shiftAmount;
+			// result = center + shifted - wave0
+			int result = (int)center + shifted - (int)wave0[idx];
+
+			// The original asm does: mov cx,ax; sar cx,16; sub ax,cx
+			// For a 16-bit value, sar by 16 gives 0 or -1 (sign bit).
+			// This is effectively: if result is negative (as int16), result += 1
+			// But since we compute in int, we just need to clamp to int16 range
+			short res16 = (short)result;
+			// sar cx,16 on a 16-bit register always gives 0, so sub ax,cx is a no-op
+			// (shifting a 16-bit value right by 16 bits = 0)
+			// Actually in x86 shifts are masked to 0-15 for 16-bit, so sar cx,16
+			// with 16-bit operand: shift count is masked to 0-15, so 16 & 15 = 0,
+			// meaning no shift at all. So: sub ax, cx means sub ax, ax = 0.
+			// Wait, that can't be right. Let me re-read...
+			// Actually on x86, for 16-bit shifts, the count is masked to 0-31 (not 0-15).
+			// sar cx, 16 on a 16-bit register shifts right by 16: all bits become the sign bit.
+			// So cx = 0 if positive, -1 (0xFFFF) if negative.
+			// sub ax, cx: if negative, ax = ax - (-1) = ax + 1; if positive, ax = ax - 0.
+			// This is a rounding correction for negative values.
+			if (res16 < 0) res16++;
+
+			wave2[idx] = res16;
+			bytePos += 2;
+		}
+		bytePos += DWave;
+	}
+}
+
 void ProcessWaves1(short* wave0, short* wave1, short* wave2, int xx, int yy, int Lx, int Ly) {
 	int StWave = (xx + yy * WaveLx) << 1;
 	int DWave = (WaveLx - Lx) << 1;
@@ -343,6 +422,8 @@ void ProcessWaves1(short* wave0, short* wave1, short* wave2, int xx, int yy, int
 		pop		edi
 		pop		esi
 	};
+	#else
+	ProcessWavesKernel(wave0, wave1, wave2, StWave, DWave, Lx, Ly, 3);
 	#endif
 };
 void ProcessWaves(short* wave0, short* wave1, short* wave2, int xx, int yy, int Lx, int Ly) {
@@ -384,6 +465,9 @@ void ProcessWaves(short* wave0, short* wave1, short* wave2, int xx, int yy, int 
 		pop		edi
 		pop		esi
 	};
+	#else
+	// Dead code (unreachable due to return above), but provide C fallback anyway
+	ProcessWavesKernel(wave0, wave1, wave2, StWave, DWave, Lx, Ly, 4);
 	#endif
 };
 
@@ -673,7 +757,16 @@ void ClearGoodDeepSpot(int x, int y, int r, int dr, int dh) {
 	int r1 = r + div(dr1 << 7, (dh - 128)).quot;
 	ClearDeepSpot(x, y, r0, r1 - r0 + 1, dh);
 };
+
 #define ashift 7
+
+// Helper: compute wave-based color index from wave gradient
+// sign-extends a 16-bit difference, shifts right by ashift, adds ASHI offset
+static inline int WaveColorIndex(short* wavePtr, int ASHI) {
+	int diff = (int)wavePtr[WaveLx] - (int)wavePtr[-WaveLx];
+	int idx = (diff >> ashift) + ASHI;
+	return idx;
+}
 void DrawCost(int x, int y, short* Wave, int z1, int z2, int z3, int z4, int Msh) {
 	int ASHI = 1024 + Msh;
 	if (z1 < 128 && z2 < 128 && z3 < 128 && z4 < 128)return;
@@ -717,6 +810,33 @@ void DrawCost(int x, int y, short* Wave, int z1, int z2, int z3, int z4, int Msh
 			pop		edi
 			pop		esi
 		};
+		#else
+		// Simple copy: 8x8 grid of wave samples -> 32x16 pixel block
+		// Each wave sample produces a 4-byte color written to current row and next row
+		{
+			byte* dst = (byte*)(intptr_t)ofst;
+			short* src = Wave;
+			for (int row = 0; row < 8; row++) {
+				for (int col = 0; col < 8; col++) {
+					int idx = WaveColorIndex(src + col, ASHI);
+					int color = Colors4[idx];
+					// stosd writes 4 bytes at dst, also write to row below
+					memcpy(dst + col * 4, &color, 4);
+					// edi+edx-2 means: dst + ScrWidth - 2 relative to after stosd
+					// stosd advances edi by 4, so edi+edx-2 = original_pos + 4 + ScrWidth - 2
+					// = original_pos + ScrWidth + 2
+					// But actually the pattern writes duplicate row: offset = col*4 + ScrWidth + 2
+					// Wait, let me re-read: after stosd, edi points to dst+4*(col+1).
+					// mov [edi+edx-2], eax means [dst + 4*(col+1) + ScrWidth - 2]
+					// = dst + 4*col + 4 + ScrWidth - 2 = dst + 4*col + ScrWidth + 2
+					memcpy(dst + col * 4 + ScrWidth + 2, &color, 4);
+				}
+				// Next pair of rows: edi was at dst+32, then +edx twice, -32
+				// = dst + 2*ScrWidth
+				dst += 2 * ScrWidth;
+				src += WaveLx; // (WaveLx*2 - 16) bytes = WaveLx - 8 shorts, but src stepped +8 in loop
+			}
+		}
 		#endif
 	}
 	else {
@@ -861,6 +981,57 @@ void DrawCost(int x, int y, short* Wave, int z1, int z2, int z3, int z4, int Msh
 			pop		edi
 			pop		esi
 		}
+		#else
+		// Curved clipping: bilinear interpolation of water depth with transparency blending
+		{
+			byte* dst = (byte*)(intptr_t)ofst;
+			short* src = Wave;
+			for (int row = 0; row < 8; row++) {
+				int localA = a;
+				for (int col = 0; col < 8; col++) {
+					int idx = WaveColorIndex(src + col, ASHI);
+					int color = Colors4[idx];
+					byte colorLow = (byte)(color & 0xFF);
+					byte cl_val = (colorLow - 0xB0) & 0xF;
+					byte ch_val = (byte)((color >> 8) & 0xFF);
+
+					// Process 4 sub-pixels per wave sample
+					for (int sub = 0; sub < 4; sub++) {
+						int zVal = localA;
+						if (zVal < 0x00800000) {
+							// Below water threshold: skip (no write)
+							dst++;
+						} else if (zVal >= 0x00900000) {
+							// Fully opaque water
+							*dst = ch_val;
+							dst[ScrWidth + 2] = ch_val;
+							dst++;
+						} else {
+							// Transparent blend
+							int tIdx = (zVal - 0x00800000) >> 12;
+							tIdx &= 0xF0;
+							tIdx |= cl_val;
+							byte bg = *dst;
+							int lookupIdx = tIdx | (bg << 8);
+							byte result = WaterCost[lookupIdx & 0xFFFF];
+							*dst = result;
+							dst[ScrWidth + 1] = result;
+							dst++;
+						}
+						// Advance interpolation: alternate +/- 0x10000 dither
+						localA += b;
+						if (sub & 1) localA -= 0x10000;
+						else localA += 0x10000;
+					}
+				}
+				a = a0 + c;
+				a0 = a;
+				b += d;
+				// Move dst to next pair of rows: was at dst+32, need dst + 2*ScrWidth
+				dst += 2 * ScrWidth - 32;
+				src += WaveLx;
+			}
+		}
 		#endif
 	}
 }
@@ -958,6 +1129,42 @@ void DrawCost2(int x, int y, short* Wave, int z1, int z2, int z3, int z4, int Ms
 			pop		edi
 			pop		esi
 		}
+		#else
+		// Dual-shade simple copy: 8 wave samples per row, first 4 use ASHI, last 4 use ASHI1
+		// Row pair structure: first row has 4+4 samples, second row is duplicate offset
+		// ch=4 outer loops, each with 8+4+4 pattern (actually 8 first, then 4+4)
+		{
+			byte* dst = (byte*)(intptr_t)ofst;
+			short* src = Wave;
+			for (int outerRow = 0; outerRow < 4; outerRow++) {
+				// First 8 samples with ASHI (first half-row of wave data)
+				for (int col = 0; col < 8; col++) {
+					int idx = WaveColorIndex(src + col, ASHI);
+					int color = Colors4[idx];
+					memcpy(dst + col * 4, &color, 4);
+					memcpy(dst + col * 4 + ScrWidth + 2, &color, 4);
+				}
+				dst += 2 * ScrWidth;
+				src += WaveLx;
+
+				// Next 4 samples with ASHI (continues same wave row)
+				for (int col = 0; col < 4; col++) {
+					int idx = WaveColorIndex(src + col, ASHI);
+					int color = Colors4[idx];
+					memcpy(dst + col * 4, &color, 4);
+					memcpy(dst + col * 4 + ScrWidth + 2, &color, 4);
+				}
+				// Next 4 samples with ASHI1 (second shade)
+				for (int col = 0; col < 4; col++) {
+					int idx = WaveColorIndex(src + 4 + col, ASHI1);
+					int color = Colors4[idx];
+					memcpy(dst + (4 + col) * 4, &color, 4);
+					memcpy(dst + (4 + col) * 4 + ScrWidth + 2, &color, 4);
+				}
+				dst += 2 * ScrWidth;
+				src += WaveLx;
+			}
+		}
 		#endif
 	}
 	else
@@ -1102,6 +1309,50 @@ void DrawCost2(int x, int y, short* Wave, int z1, int z2, int z3, int z4, int Ms
 			popf
 			pop		edi
 			pop		esi
+		}
+		#else
+		// Curved clipping with CostCL background instead of screen read
+		{
+			byte* dst = (byte*)(intptr_t)ofst;
+			short* src = Wave;
+			for (int row = 0; row < 8; row++) {
+				int localA = a;
+				for (int col = 0; col < 8; col++) {
+					int idx = WaveColorIndex(src + col, ASHI);
+					int color = Colors4[idx];
+					byte colorLow = (byte)(color & 0xFF);
+					byte cl_val = (colorLow - 0xB0) & 0xF;
+					byte ch_val = (byte)((color >> 8) & 0xFF);
+
+					for (int sub = 0; sub < 4; sub++) {
+						int zVal = localA;
+						if (zVal < 0x00800000) {
+							dst++;
+						} else if (zVal >= 0x00900000) {
+							*dst = ch_val;
+							dst[ScrWidth + 2] = ch_val;
+							dst++;
+						} else {
+							int tIdx = (zVal - 0x00800000) >> 12;
+							tIdx &= 0xF0;
+							tIdx |= cl_val;
+							int lookupIdx = tIdx | (CostCL << 8);
+							byte result = WaterCost[lookupIdx & 0xFFFF];
+							*dst = result;
+							dst[ScrWidth + 1] = result;
+							dst++;
+						}
+						localA += b;
+						if (sub & 1) localA -= 0x10000;
+						else localA += 0x10000;
+					}
+				}
+				a = a0 + c;
+				a0 = a;
+				b += d;
+				dst += 2 * ScrWidth - 32;
+				src += WaveLx;
+			}
 		}
 		#endif
 	}
@@ -1193,6 +1444,40 @@ void DrawCost1(int x, int y, short* Wave, int z1, int z2, int z3, int z4, int Ms
 			pop		edi
 			pop		esi
 		}
+		#else
+		// Dual-shade simple copy: same structure as DrawCost2 simple
+		{
+			byte* dst = (byte*)(intptr_t)ofst;
+			short* src = Wave;
+			for (int outerRow = 0; outerRow < 4; outerRow++) {
+				// First 8 samples with ASHI
+				for (int col = 0; col < 8; col++) {
+					int idx = WaveColorIndex(src + col, ASHI);
+					int color = Colors4[idx];
+					memcpy(dst + col * 4, &color, 4);
+					memcpy(dst + col * 4 + ScrWidth + 2, &color, 4);
+				}
+				dst += 2 * ScrWidth;
+				src += WaveLx;
+
+				// Next 4 samples with ASHI
+				for (int col = 0; col < 4; col++) {
+					int idx = WaveColorIndex(src + col, ASHI);
+					int color = Colors4[idx];
+					memcpy(dst + col * 4, &color, 4);
+					memcpy(dst + col * 4 + ScrWidth + 2, &color, 4);
+				}
+				// Next 4 samples with ASHI1
+				for (int col = 0; col < 4; col++) {
+					int idx = WaveColorIndex(src + 4 + col, ASHI1);
+					int color = Colors4[idx];
+					memcpy(dst + (4 + col) * 4, &color, 4);
+					memcpy(dst + (4 + col) * 4 + ScrWidth + 2, &color, 4);
+				}
+				dst += 2 * ScrWidth;
+				src += WaveLx;
+			}
+		}
 		#endif
 	}
 	else
@@ -1337,6 +1622,51 @@ void DrawCost1(int x, int y, short* Wave, int z1, int z2, int z3, int z4, int Ms
 			popf
 			pop		edi
 			pop		esi
+		}
+		#else
+		// Curved clipping with screen-read background
+		{
+			byte* dst = (byte*)(intptr_t)ofst;
+			short* src = Wave;
+			for (int row = 0; row < 8; row++) {
+				int localA = a;
+				for (int col = 0; col < 8; col++) {
+					int idx = WaveColorIndex(src + col, ASHI);
+					int color = Colors4[idx];
+					byte colorLow = (byte)(color & 0xFF);
+					byte cl_val = (colorLow - 0xB0) & 0xF;
+					byte ch_val = (byte)((color >> 8) & 0xFF);
+
+					for (int sub = 0; sub < 4; sub++) {
+						int zVal = localA;
+						if (zVal < 0x00800000) {
+							dst++;
+						} else if (zVal >= 0x00900000) {
+							*dst = ch_val;
+							dst[ScrWidth + 2] = ch_val;
+							dst++;
+						} else {
+							int tIdx = (zVal - 0x00800000) >> 12;
+							tIdx &= 0xF0;
+							tIdx |= cl_val;
+							byte bg = *dst;
+							int lookupIdx = tIdx | (bg << 8);
+							byte result = WaterCost[lookupIdx & 0xFFFF];
+							*dst = result;
+							dst[ScrWidth + 1] = result;
+							dst++;
+						}
+						localA += b;
+						if (sub & 1) localA -= 0x10000;
+						else localA += 0x10000;
+					}
+				}
+				a = a0 + c;
+				a0 = a;
+				b += d;
+				dst += 2 * ScrWidth - 32;
+				src += WaveLx;
+			}
 		}
 		#endif
 	}
@@ -1471,6 +1801,20 @@ void CopyWaves(short* wave, int SrcOfs, int DstOfs, int Lx, int Ly)
 			pop		edi
 			pop		esi
 		}
+		#else
+		// Forward copy: copy Lx shorts per row (as Lx1 dwords), Ly rows
+		// SrcOfs and DstOfs are byte offsets into wave array
+		{
+			byte* src = (byte*)wave + SrcOfs;
+			byte* dst = (byte*)wave + DstOfs;
+			int rowBytes = Lx * 2; // Lx shorts = Lx*2 bytes (Lx1 dwords = Lx/2*4 = Lx*2)
+			int strideBytes = rowBytes + addo; // total stride per row in bytes
+			for (int row = 0; row < Ly; row++) {
+				memcpy(dst, src, rowBytes);
+				src += strideBytes;
+				dst += strideBytes;
+			}
+		}
 		#endif
 	}
 	else
@@ -1502,6 +1846,20 @@ void CopyWaves(short* wave, int SrcOfs, int DstOfs, int Lx, int Ly)
 			popf
 			pop		edi
 			pop		esi
+		}
+		#else
+		// Reverse copy: copy from bottom-right to top-left to handle overlapping regions
+		// std + rep movsd copies dwords in reverse (from high to low addresses)
+		{
+			int rowBytes = Lx * 2;
+			// Start from the last row and copy backwards
+			// add1 points to end of last row (byte offset)
+			byte* srcBase = (byte*)wave + SrcOfs;
+			byte* dstBase = (byte*)wave + DstOfs;
+			int strideBytes = WaveLx * 2; // full row stride in bytes
+			for (int row = Ly - 1; row >= 0; row--) {
+				memmove(dstBase + row * strideBytes, srcBase + row * strideBytes, rowBytes);
+			}
 		}
 		#endif
 	}
@@ -1750,6 +2108,30 @@ void FastProcess1(short* Wave0, short* Wave1, short* Wave2)
 		pop		edi
 		pop		esi
 	}
+	#else
+	// Full grid wave processing with shift=6, starting at position (1,1)
+	{
+		int pos = WaveLx + 1; // start at (1,1) in short indices
+		for (int row = 0; row < cyc; row++) {
+			for (int col = 0; col < WaveLx - 2; col++) {
+				short right  = Wave1[pos + 1];
+				short left   = Wave1[pos - 1];
+				short up     = Wave1[pos - WaveLx];
+				short down   = Wave1[pos + WaveLx];
+				short center = Wave1[pos];
+				int cx2 = (int)center * 2;
+				int avg = (int)right + (int)left + (int)up + (int)down;
+				int diff = avg - cx2 - cx2;
+				int shifted = diff >> 6;
+				short result = (short)((int)center + shifted - (int)Wave0[pos]);
+				// sar cx, 16 on 16-bit: sign extension correction
+				// (result is not actually used after sar cx,16 in original - no sub)
+				Wave2[pos] = result;
+				pos++;
+			}
+			pos += 2; // skip border columns
+		}
+	}
 	#endif
 }
 
@@ -1788,6 +2170,28 @@ void FastProcess1_0(short* Wave0, short* Wave1, short* Wave2)
 		pop		edi
 		pop		esi
 	}
+	#else
+	// First half of grid wave processing with shift=4, starting at (1,1)
+	{
+		int pos = WaveLx + 1;
+		for (int row = 0; row < cyc; row++) {
+			for (int col = 0; col < WaveLx - 2; col++) {
+				short right  = Wave1[pos + 1];
+				short left   = Wave1[pos - 1];
+				short up     = Wave1[pos - WaveLx];
+				short down   = Wave1[pos + WaveLx];
+				short center = Wave1[pos];
+				int cx2 = (int)center * 2;
+				int avg = (int)right + (int)left + (int)up + (int)down;
+				int diff = avg - cx2 - cx2;
+				int shifted = diff >> 4;
+				short result = (short)((int)center + shifted - (int)Wave0[pos]);
+				Wave2[pos] = result;
+				pos++;
+			}
+			pos += 2;
+		}
+	}
 	#endif
 }
 
@@ -1825,6 +2229,31 @@ void FastProcess1_1(short* Wave0, short* Wave1, short* Wave2)
 		jnz		lpp1
 		pop		edi
 		pop		esi
+	}
+	#else
+	// Second half of grid wave processing with shift=4
+	// Starting byte offset = WaveLx*WaveLy+2, which as short index = (WaveLx*WaveLy+2)/2
+	// Original: edx = WaveLx*WaveLy + 2 (byte offset into short arrays)
+	// As short index: (WaveLx*WaveLy + 2) / 2 = WaveLx*WaveLy/2 + 1
+	{
+		int pos = (WaveLx * WaveLy + 2) / 2; // starting short index
+		for (int row = 0; row < cyc; row++) {
+			for (int col = 0; col < WaveLx - 2; col++) {
+				short right  = Wave1[pos + 1];
+				short left   = Wave1[pos - 1];
+				short up     = Wave1[pos - WaveLx];
+				short down   = Wave1[pos + WaveLx];
+				short center = Wave1[pos];
+				int cx2 = (int)center * 2;
+				int avg = (int)right + (int)left + (int)up + (int)down;
+				int diff = avg - cx2 - cx2;
+				int shifted = diff >> 4;
+				short result = (short)((int)center + shifted - (int)Wave0[pos]);
+				Wave2[pos] = result;
+				pos++;
+			}
+			pos += 2;
+		}
 	}
 	#endif
 }
@@ -1870,6 +2299,9 @@ void DisturbWater(short* Wave)
 		pop		esi
 		pop		edi
 	};
+	#else
+	// No-op: original assembly just pushes and pops registers
+	(void)ofst;
 	#endif
 }
 

@@ -1,5 +1,5 @@
-#include <cstring>  // для std::memset
-#include <climits>  // для INT_MAX
+#include <cstring>  // пїЅпїЅпїЅ std::memset
+#include <climits>  // пїЅпїЅпїЅ INT_MAX
 //MULTIPLAYER ORGANIZATION
 #include "ddini.h"
 #include "ResFile.h"
@@ -978,20 +978,20 @@ void DoCmdMoney( byte NI )
 bool GodMode = false;
 void DoCmdGodmode(byte NI)
 {
-	// 1) даём ресурсы
-	const int cap = INT_MAX / 2;      // безопасный максимум
+	// 1) пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+	const int cap = INT_MAX / 2;      // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 	for (int i = 0; i < 6; ++i)
 	{
-		int cur = XRESRC(NI, i);      // текущее количество ресурса :contentReference[oaicite:0]{index=0}:contentReference[oaicite:1]{index=1}
+		int cur = XRESRC(NI, i);      // пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ :contentReference[oaicite:0]{index=0}:contentReference[oaicite:1]{index=1}
 		int toAdd = cap - cur;
 		if (toAdd > 0)
 			AddXRESRC(NI, i, toAdd);
 	}
 
-	// 2) включаем «бог-режим» и форсируем вместимость
+	// 2) пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ-пїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 	GodMode = true;
 //	NATIONS[NI].NFarms = INT_MAX;
-	NATIONS[NI].NFarms = 1000000; // Устанавливаем фиксированное значение 1 миллион
+	NATIONS[NI].NFarms = 1000000; // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ 1 пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 	//NATIONS[NI].NGidot = INT_MAX;
 }
 bool House0 = false;
@@ -1010,19 +1010,19 @@ void GetHouse0()
 extern bool PeaceMode;
 extern int  PeaceTimeLeft;
 
-// Переключение режима перемирия «на лету» без таймера
+// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 void Getpeace()
 {
 	PeaceMode = !PeaceMode;
 
 	if (PeaceMode)
 	{
-		// Включаем мир — ставим бесконечно большой счётчик
+		// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 		PeaceTimeLeft = 0x7FFFFFFF;
 	}
 	else
 	{
-		// Выключаем мир — обнуляем счётчик
+		// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 		PeaceTimeLeft = 0;
 	}
 }
@@ -1184,22 +1184,22 @@ void CmdAddMoney( byte NI, DWORD Value )
 //GOD MODE
 void CmdGodmode(byte NI)
 {
-	ExBuf[EBPos] = 205; // Уникальный код команды
+	ExBuf[EBPos] = 205; // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 	ExBuf[EBPos + 1] = NI;
 	EBPos += 2;
 }
 //House0 
 void DoGetHouse0 ()
 {
-	ExBuf[EBPos] = 206; // Уникальный код команды
+	ExBuf[EBPos] = 206; // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 }
 void DoGetnocost()
 {
-	ExBuf[EBPos] = 207; // Уникальный код команды
+	ExBuf[EBPos] = 207; // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 }
 void DoGetpeace()
 {
-	ExBuf[EBPos] = 208; // Уникальный код команды
+	ExBuf[EBPos] = 208; // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 }
 extern int MaxPeaceTime;
 extern int PeaceTimeStage;
@@ -1748,6 +1748,8 @@ void InitSelection()
 		rep		stosd
 		pop		edi
 	};
+	#else
+	memset(CmdDone, 0, sz * 4);
 	#endif
 };
 

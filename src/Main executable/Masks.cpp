@@ -1,4 +1,4 @@
-﻿//Masking 2 or 3 textures in triangle
+//Masking 2 or 3 textures in triangle
 #include "ddini.h"
 #include "ResFile.h"
 #include "FastDraw.h"
@@ -18,6 +18,7 @@
 #include <assert.h>
 #include <math.h>
 #include "Masks.h"
+#include <string.h>
 byte ResultMask[MaskLx * 256];
 extern byte trans4[65536];
 extern byte trans8[65536];
@@ -65,6 +66,34 @@ void CopyMaskedBitmap64(byte* Bits, int x, int y, void* Mask) {
 			pop		edi
 			pop		esi
 	};
+	#else
+	// Portable C equivalent of the RLE mask copy
+	byte* src = (byte*)Mask;
+	byte bx_lo = (byte)x;
+	byte bx_hi = (byte)y;
+	byte nstr = src[2]; // Number of strings (rows)
+	src += 4;
+	byte dh = 0; // destination row in ResultMask
+	for (int row = 0; row < nstr; row++) {
+		byte nsegs = *src++; // number of RLE segments
+		byte dl = 0; // destination column
+		byte bl = bx_lo;
+		for (int s = 0; s < nsegs; s++) {
+			byte skip = src[0];
+			byte count = src[1];
+			bl += skip;
+			dl += skip;
+			for (int p = 0; p < count; p++) {
+				int bx_idx = ((bx_hi & 0x3F) << 8) | (bl & 0x3F);
+				ResultMask[dh * 256 + dl] = Bits[bx_idx];
+				bl++;
+				dl++;
+			}
+			src += 2;
+		}
+		bx_hi++;
+		dh++;
+	}
 	#endif
 };
 void CopyMaskedTransparentBitmap_8(byte* Bits, int x, int y, void* Mask) {
@@ -117,6 +146,37 @@ void CopyMaskedTransparentBitmap_8(byte* Bits, int x, int y, void* Mask) {
 			pop		edi
 			pop		esi
 	};
+	#else
+	// Portable C: blend bitmap pixel (high byte) with existing ResultMask pixel (low byte) via trans8
+	byte* src = (byte*)Mask;
+	byte bx_lo = (byte)x;
+	byte bx_hi = (byte)y;
+	nstr = src[2];
+	src += 4;
+	byte dh_val = 0;
+	for (int row = 0; row < nstr; row++) {
+		byte nsegs = *src++;
+		byte dl = 0;
+		byte bl = bx_lo;
+		for (int s = 0; s < nsegs; s++) {
+			byte skip = src[0];
+			byte count = src[1];
+			bl += skip;
+			dl += skip;
+			for (int p = 0; p < count; p++) {
+				int bx_idx = ((bx_hi & 0x3F) << 8) | (bl & 0x3F);
+				byte bitmap_pixel = Bits[bx_idx]; // goes into ah
+				byte result_pixel = ResultMask[dh_val * 256 + dl]; // goes into al
+				// eax = (ah << 8) | al = (bitmap_pixel << 8) | result_pixel
+				ResultMask[dh_val * 256 + dl] = trans8[(bitmap_pixel << 8) | result_pixel];
+				bl++;
+				dl++;
+			}
+			src += 2;
+		}
+		bx_hi++;
+		dh_val++;
+	}
 	#endif
 };
 void CopyMaskedTransparentBitmap_4(byte* Bits, int x, int y, void* Mask) {
@@ -169,6 +229,37 @@ void CopyMaskedTransparentBitmap_4(byte* Bits, int x, int y, void* Mask) {
 			pop		edi
 			pop		esi
 	};
+	#else
+	// Portable C: blend bitmap pixel (high byte) with existing ResultMask pixel (low byte) via trans4
+	byte* src = (byte*)Mask;
+	byte bx_lo = (byte)x;
+	byte bx_hi = (byte)y;
+	nstr = src[2];
+	src += 4;
+	byte dh_val = 0;
+	for (int row = 0; row < nstr; row++) {
+		byte nsegs = *src++;
+		byte dl = 0;
+		byte bl = bx_lo;
+		for (int s = 0; s < nsegs; s++) {
+			byte skip = src[0];
+			byte count = src[1];
+			bl += skip;
+			dl += skip;
+			for (int p = 0; p < count; p++) {
+				int bx_idx = ((bx_hi & 0x3F) << 8) | (bl & 0x3F);
+				byte bitmap_pixel = Bits[bx_idx]; // ah
+				byte result_pixel = ResultMask[dh_val * 256 + dl]; // al
+				// eax = (bitmap_pixel << 8) | result_pixel
+				ResultMask[dh_val * 256 + dl] = trans4[(bitmap_pixel << 8) | result_pixel];
+				bl++;
+				dl++;
+			}
+			src += 2;
+		}
+		bx_hi++;
+		dh_val++;
+	}
 	#endif
 };
 void CopyMaskedTransparentBitmap_12(byte* Bits, int x, int y, void* Mask) {
@@ -221,6 +312,39 @@ void CopyMaskedTransparentBitmap_12(byte* Bits, int x, int y, void* Mask) {
 			pop		edi
 			pop		esi
 	};
+	#else
+	// Portable C: blend with swapped operand order compared to _4 and _8
+	// Here: al = Bits[bx_idx] (bitmap pixel), ah = ResultMask[edx] (existing pixel)
+	// eax = (result_pixel << 8) | bitmap_pixel -- note swapped vs _4/_8
+	byte* src = (byte*)Mask;
+	byte bx_lo = (byte)x;
+	byte bx_hi = (byte)y;
+	nstr = src[2];
+	src += 4;
+	byte dh_val = 0;
+	for (int row = 0; row < nstr; row++) {
+		byte nsegs = *src++;
+		byte dl = 0;
+		byte bl = bx_lo;
+		for (int s = 0; s < nsegs; s++) {
+			byte skip = src[0];
+			byte count = src[1];
+			bl += skip;
+			dl += skip;
+			for (int p = 0; p < count; p++) {
+				int bx_idx = ((bx_hi & 0x3F) << 8) | (bl & 0x3F);
+				byte bitmap_pixel = Bits[bx_idx]; // al
+				byte result_pixel = ResultMask[dh_val * 256 + dl]; // ah
+				// eax = (result_pixel << 8) | bitmap_pixel
+				ResultMask[dh_val * 256 + dl] = trans4[(result_pixel << 8) | bitmap_pixel];
+				bl++;
+				dl++;
+			}
+			src += 2;
+		}
+		bx_hi++;
+		dh_val++;
+	}
 	#endif
 };
 extern RLCTable SimpleMaskA;
@@ -239,7 +363,7 @@ void CopyMaskedBitmap(byte* Bits, int x, int y, int MaskID) {
 //	|    \
 //	|    /
 //	|  /
-//	|/ 
+//	|/
 //Creates triangle (Type1) with bitmap
 void FastCreateMaskedBitmap64_1(byte* Bits, int x, int y) {
 	int tmedi;
@@ -349,6 +473,53 @@ void FastCreateMaskedBitmap64_1(byte* Bits, int x, int y) {
 			pop		edi
 			pop		esi
 	};
+	#else
+	// Portable C: creates a left-pointing diamond shape in ResultMask
+	// Two trapezoids: first expands width by 2 each row (16 rows),
+	// then contracts width by 2 each row (16 rows).
+	// When width exceeds remaining space to edge (64-bl), wraps source around.
+	byte bl = (byte)x & 0x3F;
+	byte bh_val = (byte)y & 0x3F;
+	byte maxX = 64 - bl; // al = max pixels before source wraps
+	byte width = 2; // dl starts at 2
+	int dstRow = 0;
+
+	// First trapezoid: expanding, 16 rows
+	for (int i = 0; i < 16; i++) {
+		byte srcY = bh_val & 0x3F;
+		byte srcX = bl & 0x3F;
+		int srcBase = (srcY << 8) | srcX;
+		byte* dst = &ResultMask[dstRow * 256];
+		if (width <= maxX) {
+			// Simple copy: width bytes from Bits[srcBase]
+			memcpy(dst, &Bits[srcBase], width);
+		} else {
+			// Copy maxX bytes, then wrap source back by 64 and copy remainder
+			memcpy(dst, &Bits[srcBase], maxX);
+			memcpy(dst + maxX, &Bits[srcBase + maxX - 64], width - maxX);
+		}
+		dstRow++;
+		width += 2;
+		bh_val++;
+	}
+
+	// Second trapezoid: contracting, 16 rows
+	width -= 2;
+	for (int i = 0; i < 16; i++) {
+		byte srcY = bh_val & 0x3F;
+		byte srcX = bl & 0x3F;
+		int srcBase = (srcY << 8) | srcX;
+		byte* dst = &ResultMask[dstRow * 256];
+		if (width <= maxX) {
+			memcpy(dst, &Bits[srcBase], width);
+		} else {
+			memcpy(dst, &Bits[srcBase], maxX);
+			memcpy(dst + maxX, &Bits[srcBase + maxX - 64], width - maxX);
+		}
+		dstRow++;
+		width -= 2;
+		bh_val++;
+	}
 	#endif
 };
 //      /|
@@ -517,6 +688,77 @@ void FastCreateMaskedBitmap64_2(byte* Bits, int x, int y) {
 			pop		edi
 			pop		esi
 	};
+	#else
+	// Portable C: creates a right-pointing diamond shape in ResultMask
+	// The assembly copies bytes in reverse (STD) from source position leftward into
+	// ResultMask starting at column 32. It's a mirror of FastCreateMaskedBitmap64_1.
+	// bl = x+32, bh = y-16 (both masked to 6 bits)
+	// Destination starts at ResultMask + 32 and copies leftward (descending addresses).
+	byte bl = ((byte)x + 32) & 0x3F;
+	byte bh_val = ((byte)y - 16) & 0x3F;
+	byte maxX = bl; // al = bl after masking; max pixels before source wraps left
+	byte width = 2;
+	int dstRow = 0;
+	int dstBase = 32; // edi starts at ResultMask + 32
+
+	// First trapezoid: expanding, 16 rows
+	for (int i = 0; i < 16; i++) {
+		byte srcY = bh_val & 0x3F;
+		byte srcX = bl & 0x3F;
+		// The STD copy goes from Bits[srcBase] downward, writing to ResultMask[dstBase] downward
+		// Effectively copies 'width' bytes ending at source position (srcY*256+srcX) and
+		// ending at dest position (dstRow*256+dstBase), going leftward.
+		// This means it copies bytes at positions (srcX-width+1..srcX) to (dstBase-width+1..dstBase)
+		// But with wrapping when width > maxX (bl)
+		int srcBaseAddr = (srcY << 8) | srcX;
+		byte* dst = &ResultMask[dstRow * 256];
+		if (width <= maxX) {
+			// Simple reverse copy: width bytes ending at srcX, ending at dstBase
+			for (int j = 0; j < width; j++) {
+				dst[dstBase - 1 - j] = Bits[srcBaseAddr - 1 - j];
+			}
+		} else {
+			// First copy maxX bytes from the current position leftward
+			for (int j = 0; j < maxX; j++) {
+				dst[dstBase - 1 - j] = Bits[srcBaseAddr - 1 - j];
+			}
+			// Then wrap: source advances by 64 (add esi,64 in asm means wrap to end of row)
+			// After copying maxX bytes leftward, remaining = width - maxX
+			// Source wraps: esi had gone to srcBaseAddr - maxX, then +64
+			int wrappedSrc = srcBaseAddr - maxX + 64;
+			for (int j = 0; j < (width - maxX); j++) {
+				dst[dstBase - 1 - maxX - j] = Bits[wrappedSrc - 1 - j];
+			}
+		}
+		dstRow++;
+		width += 2;
+		bh_val++;
+	}
+
+	// Second trapezoid: contracting, 16 rows
+	width -= 2;
+	for (int i = 0; i < 16; i++) {
+		byte srcY = bh_val & 0x3F;
+		byte srcX = bl & 0x3F;
+		int srcBaseAddr = (srcY << 8) | srcX;
+		byte* dst = &ResultMask[dstRow * 256];
+		if (width <= maxX) {
+			for (int j = 0; j < width; j++) {
+				dst[dstBase - 1 - j] = Bits[srcBaseAddr - 1 - j];
+			}
+		} else {
+			for (int j = 0; j < maxX; j++) {
+				dst[dstBase - 1 - j] = Bits[srcBaseAddr - 1 - j];
+			}
+			int wrappedSrc = srcBaseAddr - maxX + 64;
+			for (int j = 0; j < (width - maxX); j++) {
+				dst[dstBase - 1 - maxX - j] = Bits[wrappedSrc - 1 - j];
+			}
+		}
+		dstRow++;
+		width -= 2;
+		bh_val++;
+	}
 	#endif
 };
 int GetBmOfst(int i) {
@@ -533,9 +775,9 @@ int GetBmOfst(int i) {
 //
 // bm1,bm2,bm3-numbers of bitmaps in BitmapArray
 // if bm1<bm2 then bm2 is over bm1
-// s1 (0..2) - section of 1-2 
-// s2 (0..2) - section of 2-3 
-// s3 (0..2) - section of 3-1 
+// s1 (0..2) - section of 1-2
+// s2 (0..2) - section of 2-3
+// s3 (0..2) - section of 3-1
 /*void PrepareIntersection1(int bm1,int bm2,int bm3,
 						  int x0,int y0,
 						  int s1,int s2,int s3,
@@ -701,9 +943,9 @@ void PrepareIntersection2(int bm1,int bm2,int bm3,
 //
 // bm1,bm2,bm3-numbers of bitmaps in BitmapArray
 // if bm1<bm2 then bm2 is over bm1
-// s1 (0..2) - section of 1-2 
-// s2 (0..2) - section of 2-3 
-// s3 (0..2) - section of 3-1 
+// s1 (0..2) - section of 1-2
+// s2 (0..2) - section of 2-3
+// s3 (0..2) - section of 3-1
 void PrepareIntersection1(int bm1, int bm2, int bm3,
 	int x0, int y0,
 	int s1, int s2, int s3,
@@ -866,6 +1108,15 @@ void ShowIntersectionBuffer() {
 		pop		edi
 		pop		esi
 	};
+	#else
+	// Portable C: copy 64 rows of 256 bytes (64 dwords) from ResultMask to screen
+	byte* src = ResultMask;
+	byte* dst = (byte*)(intptr_t)SCROF;
+	for (int row = 0; row < 64; row++) {
+		memcpy(dst, src, 256); // 64 dwords = 256 bytes
+		src += 256;
+		dst += ScrWidth; // advance by screen width, net effect: +ScrWidth-256+256 = +ScrWidth
+	}
 	#endif
 	//memset(ResultMask,0,sizeof(ResultMask));
 };

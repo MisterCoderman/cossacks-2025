@@ -205,6 +205,15 @@ void AddAsk(word ReqID, byte x, byte y, char zdx, char zdy)
 		mov		word ptr[eax + 6], bx
 		inc		NAsk
 	};
+	#else
+	AskMove* am = &Ask[NAsk];
+	am->ReqID = ReqID;
+	am->PreID = 0xFFFF;
+	am->x = x;
+	am->y = y;
+	am->dx = zdx;
+	am->dy = zdy;
+	NAsk++;
 	#endif
 };
 

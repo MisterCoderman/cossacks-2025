@@ -97,100 +97,14 @@ void MotionField::BSetPt(int x, int y)
 	if (x >= 0 && x < MAPSX && y >= 0 && y < MAPSY) {
 		switch (ADDSH) {
 		case 1:
-			#if defined(_MSC_VER) && defined(_M_IX86)
-			__asm {
-				//Horisontal
-				/*
-				mov		eax,x
-				mov		ecx,eax
-				and		ecx,7
-				shr		eax,3
-				mov		ebx,y
-				shl		ebx,7//MAPSHF
-				add		ebx,eax
-				mov		al,1
-				shl		al,cl
-				add		ebx,MAPH
-				or		[ebx],al
-				*/
-				//Vertical
-				mov		eax, y
-				mov		ecx, eax
-				and ecx, 7
-				shr		eax, 3
-				mov		ebx, x
-				shl		ebx, 7//MAPSHF
-				add		ebx, eax
-				mov		al, 1
-				shl		al, cl
-				add		ebx, MAPV
-				or [ebx], al
-			};
-			#endif
-			break;
 		case 2:
-			#if defined(_MSC_VER) && defined(_M_IX86)
-			__asm {
-				//Horisontal
-				/*
-				mov		eax,x
-				mov		ecx,eax
-				and		ecx,7
-				shr		eax,3
-				mov		ebx,y
-				shl		ebx,8//MAPSHF
-				add		ebx,eax
-				mov		al,1
-				shl		al,cl
-				add		ebx,MAPH
-				or		[ebx],al
-				*/
-				//Vertical
-				mov		eax, y
-				mov		ecx, eax
-				and ecx, 7
-				shr		eax, 3
-				mov		ebx, x
-				shl		ebx, 8//MAPSHF
-				add		ebx, eax
-				mov		al, 1
-				shl		al, cl
-				add		ebx, MAPV
-				or [ebx], al
-			};
-			#endif
-			break;
 		case 3:
-			#if defined(_MSC_VER) && defined(_M_IX86)
-			__asm {
-				//Horisontal
-				/*
-				mov		eax,x
-				mov		ecx,eax
-				and		ecx,7
-				shr		eax,3
-				mov		ebx,y
-				shl		ebx,9//MAPSHF
-				add		ebx,eax
-				mov		al,1
-				shl		al,cl
-				add		ebx,MAPH
-				or		[ebx],al
-				*/
-				//Vertical
-				mov		eax, y
-				mov		ecx, eax
-				and ecx, 7
-				shr		eax, 3
-				mov		ebx, x
-				shl		ebx, 9//MAPSHF
-				add		ebx, eax
-				mov		al, 1
-				shl		al, cl
-				add		ebx, MAPV
-				or [ebx], al
-			};
-			#endif
+			{
+				int byte_offset = y >> 3;
+				int bit = y & 7;
+				int addr = x << (6 + ADDSH);
+				((unsigned char*)MAPV)[addr + byte_offset] |= (1 << bit);
+			}
 			break;
 		};
 	};
@@ -202,100 +116,15 @@ void MotionField::BClrPt(int x, int y)
 	if (x >= 0 && x < MAPSX && y >= 0 && y < MAPSY) {
 		switch (ADDSH) {
 		case 1:
-			#if defined(_MSC_VER) && defined(_M_IX86)
-			__asm {
-				//Horisontal
-				/*
-				mov		eax,x
-				mov		ecx,eax
-				and		ecx,7
-				shr		eax,3
-				mov		ebx,y
-				shl		ebx,7//MAPSHF
-				add		ebx,eax
-				mov		al,254
-				rol		al,cl
-				add		ebx,MAPH
-				and		[ebx],al
-				*/
-				//Vertical
-				mov		eax, y
-				mov		ecx, eax
-				and ecx, 7
-				shr		eax, 3
-				mov		ebx, x
-				shl		ebx, 7//MAPSHF
-				add		ebx, eax
-				mov		al, 254
-				rol		al, cl
-				add		ebx, MAPV
-				and [ebx], al
-			};
-			#endif
-			break;
 		case 2:
-			#if defined(_MSC_VER) && defined(_M_IX86)
-			__asm {
-				//Horisontal
-				/*
-				mov		eax,x
-				mov		ecx,eax
-				and		ecx,7
-				shr		eax,3
-				mov		ebx,y
-				shl		ebx,8//MAPSHF
-				add		ebx,eax
-				mov		al,254
-				rol		al,cl
-				add		ebx,MAPH
-				and		[ebx],al
-				*/
-				//Vertical
-				mov		eax, y
-				mov		ecx, eax
-				and ecx, 7
-				shr		eax, 3
-				mov		ebx, x
-				shl		ebx, 8//MAPSHF
-				add		ebx, eax
-				mov		al, 254
-				rol		al, cl
-				add		ebx, MAPV
-				and [ebx], al
-			};
-			#endif
-			break;
 		case 3:
-			#if defined(_MSC_VER) && defined(_M_IX86)
-			__asm {
-				//Horisontal
-				/*
-				mov		eax,x
-				mov		ecx,eax
-				and		ecx,7
-				shr		eax,3
-				mov		ebx,y
-				shl		ebx,9//MAPSHF
-				add		ebx,eax
-				mov		al,254
-				rol		al,cl
-				add		ebx,MAPH
-				and		[ebx],al
-				*/
-				//Vertical
-				mov		eax, y
-				mov		ecx, eax
-				and ecx, 7
-				shr		eax, 3
-				mov		ebx, x
-				shl		ebx, 9//MAPSHF
-				add		ebx, eax
-				mov		al, 254
-				rol		al, cl
-				add		ebx, MAPV
-				and [ebx], al
-			};
-			#endif
+			{
+				int byte_offset = y >> 3;
+				int bit = y & 7;
+				int addr = x << (6 + ADDSH);
+				unsigned char mask = ~(1 << bit);
+				((unsigned char*)MAPV)[addr + byte_offset] &= mask;
+			}
 			break;
 		};
 
@@ -353,66 +182,14 @@ int MotionField::CheckPt(int x, int y)
 		switch (ADDSH)
 		{
 		case 1:
-			#if defined(_MSC_VER) && defined(_M_IX86)
-			__asm
-			{
-				mov		eax, y
-				mov		ecx, eax
-				and ecx, 7
-				shr		eax, 3
-				mov		ebx, x
-				shl		ebx, 7//MAPSHF
-				add		ebx, eax
-				mov		al, 1
-				shl		al, cl
-				add		ebx, MAPV
-				and al, [ebx]
-				and eax, 0xFF
-				mov		retval, eax
-			}
-			#endif
-			break;
-
 		case 2:
-			#if defined(_MSC_VER) && defined(_M_IX86)
-			__asm
-			{
-				mov		eax, y
-				mov		ecx, eax
-				and ecx, 7
-				shr		eax, 3
-				mov		ebx, x
-				shl		ebx, 8//MAPSHF
-				add		ebx, eax
-				mov		al, 1
-				shl		al, cl
-				add		ebx, MAPV
-				and al, [ebx]
-				and eax, 0xFF
-				mov		retval, eax
-			}
-			#endif
-			break;
-
 		case 3:
-			#if defined(_MSC_VER) && defined(_M_IX86)
-			__asm
 			{
-				mov		eax, y
-				mov		ecx, eax
-				and ecx, 7
-				shr		eax, 3
-				mov		ebx, x
-				shl		ebx, 9//MAPSHF
-				add		ebx, eax
-				mov		al, 1
-				shl		al, cl
-				add		ebx, MAPV
-				and al, [ebx]
-				and eax, 0xFF
-				mov		retval, eax
+				int byte_offset = y >> 3;
+				int bit = y & 7;
+				int addr = x << (6 + ADDSH);
+				retval = ((unsigned char*)MAPV)[addr + byte_offset] & (1 << bit);
 			}
-			#endif
 			break;
 		}
 		return retval;
@@ -444,76 +221,19 @@ int MotionField::CheckVLine(int x, int y, int Lx)
 		switch (ADDSH)
 		{
 		case 1:
-			#if defined(_MSC_VER) && defined(_M_IX86)
-			__asm
-			{
-				mov		eax, y
-				mov		edx, eax
-				and edx, 7
-				shr		eax, 3
-				mov		ebx, x
-				shl		ebx, 7//MAPSHF
-				add		ebx, eax
-				mov		ecx, Lx
-				mov		eax, 1
-				shl		eax, cl
-				dec		eax
-				mov		cl, dl
-				rol		eax, cl
-				add		ebx, MAPV
-				and eax, dword ptr[ebx]
-				mov		retval, eax
-			}
-			#endif
-			break;
-
 		case 2:
-			#if defined(_MSC_VER) && defined(_M_IX86)
-			__asm
+		case 3:
 			{
-				mov		eax, y
-				mov		edx, eax
-				and edx, 7
-				shr		eax, 3
-				mov		ebx, x
-				shl		ebx, 8//MAPSHF
-				add		ebx, eax
-				mov		ecx, Lx
-				mov		eax, 1
-				shl		eax, cl
-				dec		eax
-				mov		cl, dl
-				rol		eax, cl
-				add		ebx, MAPV
-				and eax, dword ptr[ebx]
-				mov		retval, eax
+				int byte_offset = y >> 3;
+				int bit_offset = y & 7;
+				int addr = x << (6 + ADDSH);
+				// Create a mask of Lx consecutive bits, rotated left by bit_offset
+				unsigned int mask = ((1u << Lx) - 1) << bit_offset;
+				unsigned int val = *(unsigned int*)((unsigned char*)MAPV + addr + byte_offset);
+				retval = val & mask;
 			}
-			#endif
 			break;
 
-		case 3:
-			#if defined(_MSC_VER) && defined(_M_IX86)
-			__asm
-			{
-				mov		eax, y
-				mov		edx, eax
-				and edx, 7
-				shr		eax, 3
-				mov		ebx, x
-				shl		ebx, 9//MAPSHF
-				add		ebx, eax
-				mov		ecx, Lx
-				mov		eax, 1
-				shl		eax, cl
-				dec		eax
-				mov		cl, dl
-				rol		eax, cl
-				add		ebx, MAPV
-				and eax, dword ptr[ebx]
-				mov		retval, eax
-			}
-			#endif
-			break;
 		}
 		return retval;
 	}
@@ -788,162 +508,48 @@ bool OneObject::CreatePrePath(int x1, int y1)
 	CurIPoint = 0;
 	NeedPath = false;
 
-	//соединяем линией начальную и конечную точки. 
-	//Оптимизация только по скорости
-	#if defined(_MSC_VER) && defined(_M_IX86)
-	__asm
+	//Bresenham line rasterization: connect start and end points
 	{
-		mov		ax, word ptr Mdx
-		mov		bx, word ptr Mdy
-		xor edx, edx  //Pps
-		xor ecx, ecx  //Cum
-		mov		si, word ptr Mx
-		mov		di, word ptr My
-		cmp		bx, ax
-		jae		Lp5xx
-		//dx>dy
-		mov		word ptr[pxx + edx], si
-		mov		word ptr[pyy + edx], di
-		add		edx, 2
-		or ax, ax
-		jz		LoopsEnd
-		cmp		sy, 0
-		jl		Lp3xx
-		cmp		sx, 0
-		jl		Lp2begin
-		//dx>dy,sx>0,sy>0
-		Lp1begin :
-		inc		si	//x++
-			add		cx, bx
-			cmp		cx, word ptr Mdx
-			jb		Lp1_1
-			sub		cx, word ptr Mdx
-			inc		di  //y++
-			Lp1_1 :
-		mov		word ptr[pxx + edx], si
-			mov		word ptr[pyy + edx], di
-			add		edx, 2
-			dec		ax
-			jnz		Lp1begin
-			jmp		LoopsEnd
-			Lp2begin : //dx>dy,sx<0,sy>0
-		dec		si	//x--
-			add		cx, bx
-			cmp		cx, word ptr Mdx
-			jb		Lp2_1
-			sub		cx, word ptr Mdx
-			inc		di //y++
-			Lp2_1 :
-		mov		word ptr[pxx + edx], si
-			mov		word ptr[pyy + edx], di
-			add		edx, 2
-			dec		ax
-			jnz		Lp2begin
-			jmp		LoopsEnd
-			Lp3xx :	//dy<0
-		cmp		sx, 0
-			jl		Lp4begin
-			Lp3begin : //dx>dy,sx>0,sy<0
-		inc		si	//x++
-			add		cx, bx
-			cmp		cx, word ptr Mdx
-			jb		Lp3_1
-			sub		cx, word ptr Mdx
-			dec		di //y--
-			Lp3_1 :
-		mov		word ptr[pxx + edx], si
-			mov		word ptr[pyy + edx], di
-			add		edx, 2
-			dec		ax
-			jnz		Lp3begin
-			jmp		LoopsEnd
-			Lp4begin : //dx>dy,sx<0,sy<0
-		dec		si	//x--
-			add		cx, bx
-			cmp		cx, word ptr Mdx
-			jb		Lp4_1
-			sub		cx, word ptr Mdx
-			dec		di //y--
-			Lp4_1 :
-		mov		word ptr[pxx + edx], si
-			mov		word ptr[pyy + edx], di
-			add		edx, 2
-			dec		ax
-			jnz		Lp4begin
-			jmp		LoopsEnd
-			Lp5xx :	//dx<dy
-		mov		word ptr[pxx + edx], si
-			mov		word ptr[pyy + edx], di
-			add		edx, 2
-			or bx, bx
-			jz		LoopsEnd
-			cmp		sx, 0
-			jl		Lp7xx
-			cmp		sy, 0
-			jl		Lp6begin
-			Lp5Begin :
-		inc		di	//y++
-			add		cx, ax
-			cmp		cx, word ptr dy
-			jb		Lp5_1
-			sub		cx, word ptr dy
-			inc		si	//x++
-			Lp5_1 :
-		mov		word ptr[pxx + edx], si
-			mov		word ptr[pyy + edx], di
-			add		edx, 2
-			dec		bx
-			jnz		Lp5begin
-			jmp		LoopsEnd
-			Lp6Begin ://sx>0,sy<0
-		dec		di	//y++
-			add		cx, ax
-			cmp		cx, word ptr dy
-			jb		Lp6_1
-			sub		cx, word ptr dy
-			inc		si	//x++
-			Lp6_1 :
-		mov		word ptr[pxx + edx], si
-			mov		word ptr[pyy + edx], di
-			add		edx, 2
-			dec		bx
-			jnz		Lp6begin
-			jmp		LoopsEnd
-			Lp7xx :	//dx<0
-		cmp		sy, 0
-			jl		Lp8begin
-			Lp7Begin ://dx<0,dy>0
-		inc		di	//y++
-			add		cx, ax
-			cmp		cx, word ptr dy
-			jb		Lp7_1
-			sub		cx, word ptr dy
-			dec		si	//x--
-			Lp7_1 :
-		mov		word ptr[pxx + edx], si
-			mov		word ptr[pyy + edx], di
-			add		edx, 2
-			dec		bx
-			jnz		Lp7begin
-			jmp		LoopsEnd
-			Lp8Begin ://dx<0,dy<0
-		dec		di	//y--
-			add		cx, ax
-			cmp		cx, word ptr dy
-			jb		Lp8_1
-			sub		cx, word ptr dy
-			dec		si	//x--
-			Lp8_1 :
-		mov		word ptr[pxx + edx], si
-			mov		word ptr[pyy + edx], di
-			add		edx, 2
-			dec		bx
-			jnz		Lp8begin
-			loopsEnd :
-		shr		edx, 1
-			mov		Pps, edx
+		unsigned short cMdx = (unsigned short)Mdx;
+		unsigned short cMdy = (unsigned short)Mdy;
+		unsigned short csi = (unsigned short)Mx;
+		unsigned short cdi = (unsigned short)My;
+		unsigned short cum = 0;
+		Pps = 0;
+		if (cMdy < cMdx) {
+			// dx > dy: iterate along x-axis
+			pxx[Pps] = csi;
+			pyy[Pps] = cdi;
+			Pps++;
+			for (unsigned short i = cMdx; i > 0; i--) {
+				csi += sx;
+				cum += cMdy;
+				if (cum >= cMdx) {
+					cum -= cMdx;
+					cdi += sy;
+				}
+				pxx[Pps] = csi;
+				pyy[Pps] = cdi;
+				Pps++;
+			}
+		} else {
+			// dy >= dx: iterate along y-axis
+			pxx[Pps] = csi;
+			pyy[Pps] = cdi;
+			Pps++;
+			for (unsigned short i = cMdy; i > 0; i--) {
+				cdi += sy;
+				cum += cMdx;
+				if (cum >= (unsigned short)dy) {
+					cum -= (unsigned short)dy;
+					csi += sx;
+				}
+				pxx[Pps] = csi;
+				pyy[Pps] = cdi;
+				Pps++;
+			}
+		}
 	}
-	#endif
 
 	Pps--;
 
@@ -1304,161 +910,46 @@ bool OneObject::CreatePrePath2(int x1, int y1) {
 	int LvpDist = 100000;
 	CurIPoint = 0;
 	NeedPath = false;
-	//соединяем линией начальную и конечную точки. 
-	//Оптимизация только по скорости
-	#if defined(_MSC_VER) && defined(_M_IX86)
-	__asm {
-		mov		ax, word ptr Mdx
-		mov		bx, word ptr Mdy
-		xor edx, edx  //Pps
-		xor ecx, ecx  //Cum
-		mov		si, word ptr Mx
-		mov		di, word ptr My
-		cmp		bx, ax
-		jae		Lp5xx
-		//dx>dy
-		mov		word ptr[pxx + edx], si
-		mov		word ptr[pyy + edx], di
-		add		edx, 2
-		or ax, ax
-		jz		LoopsEnd
-		cmp		sy, 0
-		jl		Lp3xx
-		cmp		sx, 0
-		jl		Lp2begin
-		//dx>dy,sx>0,sy>0
-		Lp1begin :
-		inc		si	//x++
-			add		cx, bx
-			cmp		cx, word ptr Mdx
-			jb		Lp1_1
-			sub		cx, word ptr Mdx
-			inc		di  //y++
-			Lp1_1 :
-		mov		word ptr[pxx + edx], si
-			mov		word ptr[pyy + edx], di
-			add		edx, 2
-			dec		ax
-			jnz		Lp1begin
-			jmp		LoopsEnd
-			Lp2begin : //dx>dy,sx<0,sy>0
-		dec		si	//x--
-			add		cx, bx
-			cmp		cx, word ptr Mdx
-			jb		Lp2_1
-			sub		cx, word ptr Mdx
-			inc		di //y++
-			Lp2_1 :
-		mov		word ptr[pxx + edx], si
-			mov		word ptr[pyy + edx], di
-			add		edx, 2
-			dec		ax
-			jnz		Lp2begin
-			jmp		LoopsEnd
-			Lp3xx :	//dy<0
-		cmp		sx, 0
-			jl		Lp4begin
-			Lp3begin : //dx>dy,sx>0,sy<0
-		inc		si	//x++
-			add		cx, bx
-			cmp		cx, word ptr Mdx
-			jb		Lp3_1
-			sub		cx, word ptr Mdx
-			dec		di //y--
-			Lp3_1 :
-		mov		word ptr[pxx + edx], si
-			mov		word ptr[pyy + edx], di
-			add		edx, 2
-			dec		ax
-			jnz		Lp3begin
-			jmp		LoopsEnd
-			Lp4begin : //dx>dy,sx<0,sy<0
-		dec		si	//x--
-			add		cx, bx
-			cmp		cx, word ptr Mdx
-			jb		Lp4_1
-			sub		cx, word ptr Mdx
-			dec		di //y--
-			Lp4_1 :
-		mov		word ptr[pxx + edx], si
-			mov		word ptr[pyy + edx], di
-			add		edx, 2
-			dec		ax
-			jnz		Lp4begin
-			jmp		LoopsEnd
-			Lp5xx :	//dx<dy
-		mov		word ptr[pxx + edx], si
-			mov		word ptr[pyy + edx], di
-			add		edx, 2
-			or bx, bx
-			jz		LoopsEnd
-			cmp		sx, 0
-			jl		Lp7xx
-			cmp		sy, 0
-			jl		Lp6begin
-			Lp5Begin :
-		inc		di	//y++
-			add		cx, ax
-			cmp		cx, word ptr dy
-			jb		Lp5_1
-			sub		cx, word ptr dy
-			inc		si	//x++
-			Lp5_1 :
-		mov		word ptr[pxx + edx], si
-			mov		word ptr[pyy + edx], di
-			add		edx, 2
-			dec		bx
-			jnz		Lp5begin
-			jmp		LoopsEnd
-			Lp6Begin ://sx>0,sy<0
-		dec		di	//y++
-			add		cx, ax
-			cmp		cx, word ptr dy
-			jb		Lp6_1
-			sub		cx, word ptr dy
-			inc		si	//x++
-			Lp6_1 :
-		mov		word ptr[pxx + edx], si
-			mov		word ptr[pyy + edx], di
-			add		edx, 2
-			dec		bx
-			jnz		Lp6begin
-			jmp		LoopsEnd
-			Lp7xx :	//dx<0
-		cmp		sy, 0
-			jl		Lp8begin
-			Lp7Begin ://dx<0,dy>0
-		inc		di	//y++
-			add		cx, ax
-			cmp		cx, word ptr dy
-			jb		Lp7_1
-			sub		cx, word ptr dy
-			dec		si	//x--
-			Lp7_1 :
-		mov		word ptr[pxx + edx], si
-			mov		word ptr[pyy + edx], di
-			add		edx, 2
-			dec		bx
-			jnz		Lp7begin
-			jmp		LoopsEnd
-			Lp8Begin ://dx<0,dy<0
-		dec		di	//y--
-			add		cx, ax
-			cmp		cx, word ptr dy
-			jb		Lp8_1
-			sub		cx, word ptr dy
-			dec		si	//x--
-			Lp8_1 :
-		mov		word ptr[pxx + edx], si
-			mov		word ptr[pyy + edx], di
-			add		edx, 2
-			dec		bx
-			jnz		Lp8begin
-			LoopsEnd :
-		shr		edx, 1
-			mov		Pps, edx
-	};
-	#endif
+	//Bresenham line rasterization: connect start and end points
+	{
+		unsigned short cMdx = (unsigned short)Mdx;
+		unsigned short cMdy = (unsigned short)Mdy;
+		unsigned short csi = (unsigned short)Mx;
+		unsigned short cdi = (unsigned short)My;
+		unsigned short cum = 0;
+		Pps = 0;
+		if (cMdy < cMdx) {
+			pxx[Pps] = csi;
+			pyy[Pps] = cdi;
+			Pps++;
+			for (unsigned short i = cMdx; i > 0; i--) {
+				csi += sx;
+				cum += cMdy;
+				if (cum >= cMdx) {
+					cum -= cMdx;
+					cdi += sy;
+				}
+				pxx[Pps] = csi;
+				pyy[Pps] = cdi;
+				Pps++;
+			}
+		} else {
+			pxx[Pps] = csi;
+			pyy[Pps] = cdi;
+			Pps++;
+			for (unsigned short i = cMdy; i > 0; i--) {
+				cdi += sy;
+				cum += cMdx;
+				if (cum >= (unsigned short)dy) {
+					cum -= (unsigned short)dy;
+					csi += sx;
+				}
+				pxx[Pps] = csi;
+				pyy[Pps] = cdi;
+				Pps++;
+			}
+		}
+	}
 	Pps--;
 	if (InLocked)
 	{
@@ -1788,161 +1279,46 @@ bool OneObject::CreatePrePath4(int x1, int y1) {
 	int LvpDist = 100000;
 	CurIPoint = 0;
 	NeedPath = false;
-	//соединяем линией начальную и конечную точки. 
-	//Оптимизация только по скорости
-	#if defined(_MSC_VER) && defined(_M_IX86)
-	__asm {
-		mov		ax, word ptr Mdx
-		mov		bx, word ptr Mdy
-		xor edx, edx  //Pps
-		xor ecx, ecx  //Cum
-		mov		si, word ptr Mx
-		mov		di, word ptr My
-		cmp		bx, ax
-		jae		Lp5xx
-		//dx>dy
-		mov		word ptr[pxx + edx], si
-		mov		word ptr[pyy + edx], di
-		add		edx, 2
-		or ax, ax
-		jz		LoopsEnd
-		cmp		sy, 0
-		jl		Lp3xx
-		cmp		sx, 0
-		jl		Lp2begin
-		//dx>dy,sx>0,sy>0
-		Lp1begin :
-		inc		si	//x++
-			add		cx, bx
-			cmp		cx, word ptr Mdx
-			jb		Lp1_1
-			sub		cx, word ptr Mdx
-			inc		di  //y++
-			Lp1_1 :
-		mov		word ptr[pxx + edx], si
-			mov		word ptr[pyy + edx], di
-			add		edx, 2
-			dec		ax
-			jnz		Lp1begin
-			jmp		LoopsEnd
-			Lp2begin : //dx>dy,sx<0,sy>0
-		dec		si	//x--
-			add		cx, bx
-			cmp		cx, word ptr Mdx
-			jb		Lp2_1
-			sub		cx, word ptr Mdx
-			inc		di //y++
-			Lp2_1 :
-		mov		word ptr[pxx + edx], si
-			mov		word ptr[pyy + edx], di
-			add		edx, 2
-			dec		ax
-			jnz		Lp2begin
-			jmp		LoopsEnd
-			Lp3xx :	//dy<0
-		cmp		sx, 0
-			jl		Lp4begin
-			Lp3begin : //dx>dy,sx>0,sy<0
-		inc		si	//x++
-			add		cx, bx
-			cmp		cx, word ptr Mdx
-			jb		Lp3_1
-			sub		cx, word ptr Mdx
-			dec		di //y--
-			Lp3_1 :
-		mov		word ptr[pxx + edx], si
-			mov		word ptr[pyy + edx], di
-			add		edx, 2
-			dec		ax
-			jnz		Lp3begin
-			jmp		LoopsEnd
-			Lp4begin : //dx>dy,sx<0,sy<0
-		dec		si	//x--
-			add		cx, bx
-			cmp		cx, word ptr Mdx
-			jb		Lp4_1
-			sub		cx, word ptr Mdx
-			dec		di //y--
-			Lp4_1 :
-		mov		word ptr[pxx + edx], si
-			mov		word ptr[pyy + edx], di
-			add		edx, 2
-			dec		ax
-			jnz		Lp4begin
-			jmp		LoopsEnd
-			Lp5xx :	//dx<dy
-		mov		word ptr[pxx + edx], si
-			mov		word ptr[pyy + edx], di
-			add		edx, 2
-			or bx, bx
-			jz		LoopsEnd
-			cmp		sx, 0
-			jl		Lp7xx
-			cmp		sy, 0
-			jl		Lp6begin
-			Lp5Begin :
-		inc		di	//y++
-			add		cx, ax
-			cmp		cx, word ptr dy
-			jb		Lp5_1
-			sub		cx, word ptr dy
-			inc		si	//x++
-			Lp5_1 :
-		mov		word ptr[pxx + edx], si
-			mov		word ptr[pyy + edx], di
-			add		edx, 2
-			dec		bx
-			jnz		Lp5begin
-			jmp		LoopsEnd
-			Lp6Begin ://sx>0,sy<0
-		dec		di	//y++
-			add		cx, ax
-			cmp		cx, word ptr dy
-			jb		Lp6_1
-			sub		cx, word ptr dy
-			inc		si	//x++
-			Lp6_1 :
-		mov		word ptr[pxx + edx], si
-			mov		word ptr[pyy + edx], di
-			add		edx, 2
-			dec		bx
-			jnz		Lp6begin
-			jmp		LoopsEnd
-			Lp7xx :	//dx<0
-		cmp		sy, 0
-			jl		Lp8begin
-			Lp7Begin ://dx<0,dy>0
-		inc		di	//y++
-			add		cx, ax
-			cmp		cx, word ptr dy
-			jb		Lp7_1
-			sub		cx, word ptr dy
-			dec		si	//x--
-			Lp7_1 :
-		mov		word ptr[pxx + edx], si
-			mov		word ptr[pyy + edx], di
-			add		edx, 2
-			dec		bx
-			jnz		Lp7begin
-			jmp		LoopsEnd
-			Lp8Begin ://dx<0,dy<0
-		dec		di	//y--
-			add		cx, ax
-			cmp		cx, word ptr dy
-			jb		Lp8_1
-			sub		cx, word ptr dy
-			dec		si	//x--
-			Lp8_1 :
-		mov		word ptr[pxx + edx], si
-			mov		word ptr[pyy + edx], di
-			add		edx, 2
-			dec		bx
-			jnz		Lp8begin
-			LoopsEnd :
-		shr		edx, 1
-			mov		Pps, edx
-	};
-	#endif
+	//Bresenham line rasterization: connect start and end points
+	{
+		unsigned short cMdx = (unsigned short)Mdx;
+		unsigned short cMdy = (unsigned short)Mdy;
+		unsigned short csi = (unsigned short)Mx;
+		unsigned short cdi = (unsigned short)My;
+		unsigned short cum = 0;
+		Pps = 0;
+		if (cMdy < cMdx) {
+			pxx[Pps] = csi;
+			pyy[Pps] = cdi;
+			Pps++;
+			for (unsigned short i = cMdx; i > 0; i--) {
+				csi += sx;
+				cum += cMdy;
+				if (cum >= cMdx) {
+					cum -= cMdx;
+					cdi += sy;
+				}
+				pxx[Pps] = csi;
+				pyy[Pps] = cdi;
+				Pps++;
+			}
+		} else {
+			pxx[Pps] = csi;
+			pyy[Pps] = cdi;
+			Pps++;
+			for (unsigned short i = cMdy; i > 0; i--) {
+				cdi += sy;
+				cum += cMdx;
+				if (cum >= (unsigned short)dy) {
+					cum -= (unsigned short)dy;
+					csi += sx;
+				}
+				pxx[Pps] = csi;
+				pyy[Pps] = cdi;
+				Pps++;
+			}
+		}
+	}
 	Pps--;
 	if (InLocked)
 	{

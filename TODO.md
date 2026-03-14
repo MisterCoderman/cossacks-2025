@@ -22,16 +22,10 @@ Also replaced inline assembly in MapDiscr.h (`DistTo`) and NewMon.h
 (`Norma`) with portable C equivalents. Fixed `WallSystem::Show` extra
 qualification in walls.h. More pointer-to-int casts likely in Main executable.
 
-## 4. Rewrite x86 inline assembly (PARTIALLY DONE)
-3DGraph.cpp, MapDiscr.h, NewMon.h, AntiBug.cpp have real C implementations.
-Remaining files have assembly wrapped in `#ifdef` with empty stubs or no
-fallback — the game compiles but these functions are non-functional on ARM64.
-**Hard blocker on ARM64** — x86 assembly cannot compile at all on Apple Silicon.
-- `Fastdraw.cpp` — RLC sprite decoding/blitting (`__asm` blocks with
-  `rep movsb`/`rep movsd`). Self-contained: decode run-length data and
-  copy palette-indexed bytes to `ScreenPtr`.
-- `3DGraph.cpp` — textured triangle rasterization with fog lookup.
-- Both need full C/C++ rewrites. No compiler flag can work around this.
+## ~~4. Rewrite x86 inline assembly~~ DONE
+All 21 files with x86 assembly now have portable C implementations.
+Original assembly preserved in `#if defined(_MSC_VER) && defined(_M_IX86)`
+guards for Windows builds.
 
 ## 5. Port CommCore to POSIX sockets
 CommCore already compiles and links on macOS. Remaining work:
@@ -73,35 +67,29 @@ Examples: `HiMap`, `TerrMap`, `SelCenter`, `CurPalette`, `ChatMess`, etc.
 This is the **only remaining blocker** for linking.
 
 ### Assembly rewrite status by file
-Files needing C implementations (priority order):
 
-**Critical (rendering — game won't display without these):**
-- `Fastdraw.cpp` — 8 RLC sprite functions (empty stubs exist). Core sprite renderer.
-- `GP_Draw.cpp` — 79 asm blocks. Graphics primitives (pixel fills, blends, sprites).
-- `fog.cpp` — 13 blocks. Fog/atmosphere rendering.
-- `RealWater.cpp` — 15 blocks. Water surface simulation.
-- `Lines.cpp` — 6 blocks. Vector line drawing.
-- `Masks.cpp` — 7 blocks. Sprite masking.
-
-**Important (gameplay — game won't play correctly):**
-- `path.cpp` — 16 blocks. Pathfinding algorithms.
-- `mapa.cpp` — 4 blocks. Map operations.
-- `ShipTrace.cpp` — 4 blocks. Naval movement.
-
-**Minor (small/simple blocks):**
-- `Multi.cpp` — 1 block. Memory zero fill.
-- `Stringshash.cpp` — 1 block. String hash (byte sum).
-- `ZBuffer.cpp` — 1 block. Z-buffer sort.
-- `Megapolis.cpp` — 1 block. Marker pixel.
-- `Nation.cpp` — 1 block. State marker.
-- `NewMon.cpp` — 3 blocks. Memory zeroing.
-- `Groups.cpp` — 1 block. Group management.
-
-**Already done:**
-- `3DGraph.cpp` — full C rewrite
+**All done (real C implementations):**
+- `3DGraph.cpp` — full C rewrite (13 functions: triangle rendering, fog, texture mapping)
+- `Fastdraw.cpp` — 8 RLC sprite functions (full clipped renderer with palette variants)
+- `Masks.cpp` — 7 blocks (RLE mask decode, transparency blending, diamond shapes)
+- `Lines.cpp` — 6 blocks (Hline, Vline, Bresenham line drawing)
+- `ShipTrace.cpp` — 4 blocks (blob rendering, update loop, slot search)
+- `mapa.cpp` — 4 blocks (minimap square rendering)
+- `3DRandMap.cpp` — 3 blocks (grass rendering, dead code removal)
+- `NewMon.cpp` — 3 blocks (memory zeroing)
+- `Groups.cpp` — 1 block (bubble sort)
+- `ZBuffer.cpp` — 1 block (bubble sort)
+- `Multi.cpp` — 1 block (memset)
+- `Stringshash.cpp` — 1 block (byte hash sum)
+- `Megapolis.cpp` — 1 block (5-pixel cross)
+- `Nation.cpp` — 1 block (struct fill)
+- `fog.cpp` — 13 blocks (fog blur, darkfog bilinear interpolation, minimap fog)
+- `path.cpp` — 15 blocks (bitmap bit ops, Bresenham line rasterization)
+- `RealWater.cpp` — 15 blocks (wave simulation, water rendering, gradient lookup)
+- `GP_Draw.cpp` — 79 blocks (sprite rendering, pixel ops, clipping, decompression)
+- `AntiBug.cpp` — 1 block (checksum)
 - `MapDiscr.h` (`DistTo`) — Chebyshev distance
 - `NewMon.h` (`Norma`) — approximate distance
-- `AntiBug.cpp` — checksum calculation
 
 ### Build status on macOS ARM64
 - **CommCore** — compiles and links (static lib)

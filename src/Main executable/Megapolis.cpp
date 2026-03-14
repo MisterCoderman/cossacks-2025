@@ -3742,6 +3742,13 @@ void HandleGeology()
 						mov[edi + edx], al
 						pop		edi
 					};
+					#else
+					byte* ptr = (byte*)ScreenPtr + (x + minix) + (miniy + y) * ScrWidth;
+					ptr[0]          = 0xFB;
+					ptr[1]          = 0xFB;
+					ptr[-1]         = 0xFB;
+					ptr[ScrWidth]   = 0xFB;
+					ptr[-ScrWidth]  = 0xFB;
 					#endif
 				};
 			};

@@ -9,6 +9,8 @@
 #include "3DGraph.h"
 #include "AntiBug.h"
 
+#include <cstring>
+
 //Offset for fog coordinates calculation
 const int kFogOffset = 3;
 
@@ -70,6 +72,28 @@ int FogMode;
 
 void ShowSuperFog();
 
+// Helper: ProcessFog blur kernel used by ProcessFog1_1, _2, _3
+// Reads from src, writes to dst, using the given FMSX2_C stride.
+// cols = (mlx & mask) - 1, rows = (mly & mask) - 1 for byte variants;
+// for _3 variant, cols/rows use full 16-bit values.
+static void ProcessFogBlur(byte* src, byte* dst, int cols, int rows,
+                           int fDH, int fmsx2c)
+{
+	int offset = 2 + fmsx2c;
+	for (int row = 0; row < rows; row++) {
+		for (int col = 0; col < cols; col++) {
+			word sum = *(word*)(src + offset - fmsx2c)
+			         + *(word*)(src + offset + fmsx2c)
+			         + *(word*)(src + offset - 2)
+			         + *(word*)(src + offset + 2);
+			word result = (word)((sum >> 2) - (sum >> 10));
+			*(word*)(dst + offset) = result;
+			offset += 2;
+		}
+		offset = offset - fDH + fmsx2c;
+	}
+}
+
 #define FMSX_C 134
 #define FMSX2_C (2*FMSX_C)
 
@@ -121,6 +145,12 @@ void ProcessFog1_1()
 		jnz		lab4
 		pop		edi
 		pop		esi
+	}
+	#else
+	{
+		int cols = (mlx & 0xFF) - 1;
+		int rows = (mly & 0xFF) - 1;
+		ProcessFogBlur((byte*)fmap1, (byte*)fmap, cols, rows, fDH, FMSX2_C);
 	}
 	#endif
 }
@@ -178,6 +208,12 @@ void ProcessFog1_2()
 		pop		edi
 		pop		esi
 	};
+	#else
+	{
+		int cols = (mlx & 0xFF) - 1;
+		int rows = (mly & 0xFF) - 1;
+		ProcessFogBlur((byte*)fmap1, (byte*)fmap, cols, rows, fDH, FMSX2_C);
+	}
 	#endif
 };
 
@@ -234,6 +270,13 @@ void ProcessFog1_3()
 		pop		edi
 		pop		esi
 	};
+	#else
+	{
+		// _3 variant uses 16-bit counters (word), not byte
+		int cols = (mlx & 0xFFFF) - 1;
+		int rows = (mly & 0xFFFF) - 1;
+		ProcessFogBlur((byte*)fmap1, (byte*)fmap, cols, rows, fDH, FMSX2_C);
+	}
 	#endif
 };
 
@@ -387,6 +430,36 @@ void SetScreenFog16x16()
 			pop		edi
 			pop		esi
 	}
+	#else
+	{
+		word* srcPtr = (word*)(intptr_t)fofs;
+		byte* dstBase = &BFog[0][0] + 64 + 2;
+		int colCount = smaplx & 0xFF;
+		int rowCount = smaply & 0xFF;
+		byte* dstPtr = dstBase;
+		for (int row = 0; row < rowCount; row++) {
+			for (int col = 0; col < colCount; col++) {
+				word val = *srcPtr++;
+				byte fogVal;
+				if (val >= MaxShad) {
+					fogVal = 0;
+				} else if (val <= MinShad) {
+					fogVal = 32;
+				} else {
+					fogVal = (byte)((MaxShad - val) >> Shifter);
+				}
+				// ah=al means both bytes are the same value
+				dstPtr[0] = fogVal;
+				dstPtr[1] = fogVal;
+				// also write to next row (edi+64)
+				dstPtr[64] = fogVal;
+				dstPtr[64 + 1] = fogVal;
+				dstPtr += 2;
+			}
+			srcPtr += (256 - smaplx); // Saddy is in bytes, srcPtr steps by words
+			dstPtr += (64 - smaplx) * 2; // Daddy is in bytes
+		}
+	}
 	#endif
 
 	smaplx--;
@@ -421,6 +494,26 @@ void ProcessScreenFog16x16()
 		jnz		gt0
 		pop		esi
 	}
+	#else
+	{
+		byte* base = &BFog[0][0] + 64 + 2;
+		int rowCount = (smaply & 0xFF) * 2;
+		int colCount = smaplx & 0xFF;
+		byte* ptr = base;
+		for (int row = 0; row < rowCount; row++) {
+			for (int col = 0; col < colCount; col++) {
+				// Read 16-bit values at offsets -1, +1, -64, +64
+				word v1 = *(word*)(ptr - 1);
+				word v2 = *(word*)(ptr + 1);
+				word v3 = *(word*)(ptr - 64);
+				word v4 = *(word*)(ptr + 64);
+				word avg = (word)(((v1 + v2 + v3 + v4) >> 2) & 0x1F1F);
+				*(word*)ptr = avg;
+				ptr += 2;
+			}
+			ptr += ads;
+		}
+	}
 	#endif
 	smaplx--;
 	smaply--;
@@ -428,6 +521,32 @@ void ProcessScreenFog16x16()
 
 #define zmin 0
 #define zmax 32
+
+// Helper: apply darkfog lookup across a scanline of pixels.
+// fogAcc is the fog accumulator (fixed-point 8.8 in upper bits),
+// fogInc is the per-pixel fog increment.
+// Pixels are 1-byte indexed color values.
+// width is the number of pixels per scanline (e.g. 16 or 32).
+static inline void ApplyDarkfogScanline(byte* scanline, int width, int& fogAcc, int fogInc)
+{
+	for (int i = 0; i < width; i++) {
+		// fog level is in the upper bytes; mask to get the table page index
+		int fogLevel = (fogAcc >> 8) & 0xFF00;
+		// Clamp fogLevel to darkfog table bounds (40960 = 160*256)
+		// The high byte selects the fog table page, the low byte is the pixel value
+		scanline[i] = darkfog[fogLevel | scanline[i]];
+		fogAcc += fogInc;
+	}
+}
+
+// Helper: zero-fill a rectangular block of bytes
+static inline void ZeroFillBlock(byte* dst, int width, int height, int pitch)
+{
+	for (int row = 0; row < height; row++) {
+		memset(dst, 0, width);
+		dst += pitch;
+	}
+}
 
 void ShowSuperFluentFog32_160_16(int x, int y, int z1x, int z2x, int z3x, int z4x)
 {
@@ -466,6 +585,12 @@ void ShowSuperFluentFog32_160_16(int x, int y, int z1x, int z2x, int z3x, int z4
 			dec		dl
 			jnz		iug
 			pop		edi
+		}
+		#else
+		{
+			// Fill 32 bytes (8 dwords) per row, 16 rows, with zeros
+			byte* dst = (byte*)(intptr_t)scrof;
+			ZeroFillBlock(dst, 32, 16, SCRSizeX);
 		}
 		#endif
 		return;
@@ -732,6 +857,23 @@ void ShowSuperFluentFog32_160_16(int x, int y, int z1x, int z2x, int z3x, int z4
 			pop		esi
 			pop		edi
 		}
+		#else
+		{
+			// Bilinear fog: 32 pixels wide, 16 rows
+			// a = z1, b = (z2-z1)/32, c = (z3-z1)/16, d = (z1+z4-z3-z2)/512
+			a = z1;
+			b = (z2 - z1) >> 5;
+			p = a;
+			byte* scanline = (byte*)(intptr_t)scrof;
+			int fogInc = b;
+			for (int row = 0; row < 16; row++) {
+				int fogAcc = p;
+				ApplyDarkfogScanline(scanline, 32, fogAcc, fogInc);
+				scanline += SCRSizeX;
+				fogInc += d;
+				p += c;
+			}
+		}
 		#endif
 	}
 }
@@ -767,6 +909,12 @@ void ShowSuperFluentFog16_160(int x, int y, int z1x, int z2x, int z3x, int z4x)
 			dec		dl
 			jnz		iug
 			pop		edi
+		}
+		#else
+		{
+			// Fill 16 bytes (4 dwords) per row, 16 rows, with zeros
+			byte* dst = (byte*)(intptr_t)scrof;
+			ZeroFillBlock(dst, 16, 16, SCRSizeX);
 		}
 		#endif
 		return;
@@ -931,6 +1079,24 @@ void ShowSuperFluentFog16_160(int x, int y, int z1x, int z2x, int z3x, int z4x)
 			pop		esi
 			pop		edi
 		}
+		#else
+		{
+			// Bilinear fog: 16 pixels wide, 16 rows
+			a = z1;
+			b = (z2 - z1) >> 4;
+			c = (z3 - z1) >> 4;
+			d = (z1 + z4 - z3 - z2) >> 8;
+			p = a;
+			byte* scanline = (byte*)(intptr_t)scrof;
+			int fogInc = b;
+			for (int row = 0; row < 16; row++) {
+				int fogAcc = p;
+				ApplyDarkfogScanline(scanline, 16, fogAcc, fogInc);
+				scanline += SCRSizeX;
+				fogInc += d;
+				p += c;
+			}
+		}
 		#endif
 	}
 }
@@ -961,6 +1127,12 @@ void ShowSuperFluentFog12_160(int x, int y, int z1x, int z2x, int z3x, int z4x)
 			jnz		iug
 			pop		edi
 		};
+		#else
+		{
+			// Fill 16 bytes (4 dwords) per row, 12 rows, with zeros
+			byte* dst = (byte*)(intptr_t)scrof;
+			ZeroFillBlock(dst, 16, 12, SCRSizeX);
+		}
 		#endif
 		return;
 	}
@@ -1126,6 +1298,22 @@ void ShowSuperFluentFog12_160(int x, int y, int z1x, int z2x, int z3x, int z4x)
 			pop		esi
 			pop		edi
 		};
+		#else
+		{
+			// Bilinear fog: 16 pixels wide, 12 rows
+			a = z1;
+			b = (z2 - z1) >> 4;
+			p = a;
+			byte* scanline = (byte*)(intptr_t)scrof;
+			int fogInc = b;
+			for (int row = 0; row < 12; row++) {
+				int fogAcc = p;
+				ApplyDarkfogScanline(scanline, 16, fogAcc, fogInc);
+				scanline += SCRSizeX;
+				fogInc += d;
+				p += c;
+			}
+		}
 		#endif
 	};
 };
@@ -1183,6 +1371,14 @@ void SetLightPoint(int x, int y)
 		mov		ah, byte ptr yy1
 		shl		eax, 1
 		mov		word ptr[fmap + eax], 16383;
+	}
+	#else
+	{
+		// Compose index from low bytes of xx1 and yy1:
+		// al = xx1 & 0xFF, ah = yy1 & 0xFF, then shift left by 1
+		// This gives a word offset into fmap
+		int idx = ((xx1 & 0xFF) | ((yy1 & 0xFF) << 8));
+		fmap[idx] = 16383;
 	}
 	#endif
 }
@@ -1525,6 +1721,27 @@ void DrawMiniFog()
 			popf
 			pop		edi
 			pop		esi
+	}
+	#else
+	{
+		byte* fogPtr = (byte*)(intptr_t)fofs;
+		byte* scrPtr = (byte*)(intptr_t)sofs;
+		int scrPitch = ScrWidth;
+		for (int row = 0; row < MMSY; row++) {
+			byte* fp = fogPtr;
+			byte* sp = scrPtr;
+			for (int col = 0; col < MMSX; col++) {
+				word fogVal = *(word*)fp;
+				fp += DDDX;
+				if (fogVal <= 1300) {
+					*(word*)sp = 0;
+					*(word*)(sp + scrPitch) = 0;
+				}
+				sp += 2;
+			}
+			fogPtr += F_add + MMSX * DDDX; // total fog row advance
+			scrPtr += addscr + MMSX * 2;    // total screen row advance
+		}
 	}
 	#endif
 }

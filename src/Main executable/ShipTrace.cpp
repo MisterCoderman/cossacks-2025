@@ -89,92 +89,105 @@ void ShowBlob(int x, int y, byte* Blob, int Lx, int Ly) {
 	int bufo = int(bof);
 	int scadd = ScrWidth - BLX;
 	int badd = Lx - BLX;
-	if (BLX & 3) {
+	{
+		// Both paths do the same thing: for each pixel, look up
+		// TraceGrd[blobByte * 256 + screenByte] and write it back to screen.
+		// The "aligned" path just unrolled 4 pixels at a time.
 		#if defined(_MSC_VER) && defined(_M_IX86)
-		__asm {
-			push	esi
-			push	edi
-			mov		esi, bufo
-			mov		edi, sof
-			mov		ch, byte ptr BLY
-			xor eax, eax
-			lab1 :
-			mov		cl, byte ptr BLX
-				lab2 :
-			mov		ah, [esi]
-				mov		al, [edi]
-				mov		al, [TraceGrd + eax]
-				mov[edi], al
-				inc		esi
-				inc		edi
-				dec		cl
-				jnz		lab2
-				add		esi, badd
-				add		edi, scadd
-				dec		ch
-				jnz		lab1
-				pop		edi
-				pop		esi
-		};
-		#endif
-	}
-	else {
-		BLX >>= 2;
-		#if defined(_MSC_VER) && defined(_M_IX86)
-		__asm {
-			push	esi
-			push	edi
-			mov		esi, bufo
-			mov		edi, sof
-			mov		ch, byte ptr BLY
-			xor eax, eax
-			lab1o :
-			mov		cl, byte ptr BLX
-				lab2o :
-			mov		ebx, [esi]
-				mov		edx, [edi]
-				mov		ah, bl
-				mov		al, dl
-				shr		ebx, 8
-				mov		al, [TraceGrd + eax]
-				mov		dl, al
-				mov		ah, bl
-				ror		edx, 8
-				mov		al, dl
+		if (BLX & 3) {
+			__asm {
+				push	esi
+				push	edi
+				mov		esi, bufo
+				mov		edi, sof
+				mov		ch, byte ptr BLY
+				xor eax, eax
+				lab1 :
+				mov		cl, byte ptr BLX
+					lab2 :
+				mov		ah, [esi]
+					mov		al, [edi]
+					mov		al, [TraceGrd + eax]
+					mov[edi], al
+					inc		esi
+					inc		edi
+					dec		cl
+					jnz		lab2
+					add		esi, badd
+					add		edi, scadd
+					dec		ch
+					jnz		lab1
+					pop		edi
+					pop		esi
+			};
+		} else {
+			BLX >>= 2;
+			__asm {
+				push	esi
+				push	edi
+				mov		esi, bufo
+				mov		edi, sof
+				mov		ch, byte ptr BLY
+				xor eax, eax
+				lab1o :
+				mov		cl, byte ptr BLX
+					lab2o :
+				mov		ebx, [esi]
+					mov		edx, [edi]
+					mov		ah, bl
+					mov		al, dl
+					shr		ebx, 8
+					mov		al, [TraceGrd + eax]
+					mov		dl, al
+					mov		ah, bl
+					ror		edx, 8
+					mov		al, dl
 
-				shr		ebx, 8
-				mov		al, [TraceGrd + eax]
-				mov		dl, al
-				mov		ah, bl
-				ror		edx, 8
-				mov		al, dl
+					shr		ebx, 8
+					mov		al, [TraceGrd + eax]
+					mov		dl, al
+					mov		ah, bl
+					ror		edx, 8
+					mov		al, dl
 
-				add		edi, 4
+					add		edi, 4
 
-				shr		ebx, 8
-				mov		al, [TraceGrd + eax]
-				mov		dl, al
-				mov		ah, bl
-				ror		edx, 8
-				mov		al, dl
+					shr		ebx, 8
+					mov		al, [TraceGrd + eax]
+					mov		dl, al
+					mov		ah, bl
+					ror		edx, 8
+					mov		al, dl
 
-				add		esi, 4
+					add		esi, 4
 
-				mov		al, [TraceGrd + eax]
-				mov		dl, al
-				ror		edx, 8
-				dec		cl
+					mov		al, [TraceGrd + eax]
+					mov		dl, al
+					ror		edx, 8
+					dec		cl
 
-				mov[edi - 4], edx
+					mov[edi - 4], edx
 
-				jnz		lab2o
-				add		esi, badd
-				add		edi, scadd
-				dec		ch
-				jnz		lab1o
-				pop		edi
-				pop		esi
-		};
+					jnz		lab2o
+					add		esi, badd
+					add		edi, scadd
+					dec		ch
+					jnz		lab1o
+					pop		edi
+					pop		esi
+			};
+		}
+		#else
+		byte* src = (byte*)(intptr_t)bufo;
+		byte* dst = (byte*)(intptr_t)sof;
+		for (int row = 0; row < BLY; row++) {
+			for (int col = 0; col < BLX; col++) {
+				// TraceGrd is a 256x256 lookup: high byte = blob pixel, low byte = screen pixel
+				dst[col] = TraceGrd[src[col] * 256 + dst[col]];
+			}
+			src += Lx;
+			dst += ScrWidth;
+		}
 		#endif
 	};
 };
@@ -256,6 +269,22 @@ void ProcessBlobs() {
 			final:
 		pop		edi
 			pop		esi
+	}
+	#else
+	// For each blob: skip if dead (BlobTime==0), otherwise update position,
+	// decrement timer, and mark visible if within screen bounds.
+	for (int idx = 0; idx < NBlobs; idx++) {
+		if (BlobTime[idx] == 0) {
+			continue;
+		}
+		BlobX[idx] += BlobVx[idx];
+		BlobY[idx] += BlobVy[idx];
+		BlobTime[idx]--;
+		int bx = BlobX[idx];
+		int by = BlobY[idx];
+		if (bx >= MinX && bx <= MaxX && by >= MinY && by <= MaxY) {
+			BlobVisible[idx] = 1;
+		}
 	}
 	#endif
 
@@ -352,6 +381,21 @@ void AddBlob(int x, int y, byte Dir, bool dir2)
 			inc		eax
 			lpp3 : mov		CurBlob, eax
 		}
+		#else
+		// Search from CurBlob to end of array for a free slot (BlobTime == 0)
+		Cur = -1;
+		int pos = CurBlob;
+		int remaining = MaxBlob - pos;
+		while (remaining > 0) {
+			if (BlobTime[pos] == 0) {
+				Cur = pos;
+				pos++;
+				break;
+			}
+			pos++;
+			remaining--;
+		}
+		CurBlob = pos;
 		#endif
 	}
 

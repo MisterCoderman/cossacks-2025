@@ -478,6 +478,25 @@ void SortWords(int NWords, word* Data, short* Factor)
 			pop		edi
 			pop		esi
 	}
+	#else
+	// Bubble sort: sort Data[] by Factor[] in ascending order
+	bool swapped;
+	do {
+		swapped = false;
+		for (int i = 0; i < NWords - 1; i++) {
+			if (Factor[i + 1] < Factor[i]) {
+				// Swap Factor entries
+				short tmpF = Factor[i];
+				Factor[i] = Factor[i + 1];
+				Factor[i + 1] = tmpF;
+				// Swap Data entries
+				word tmpD = Data[i];
+				Data[i] = Data[i + 1];
+				Data[i + 1] = tmpD;
+				swapped = true;
+			}
+		}
+	} while (swapped);
 	#endif
 }
 

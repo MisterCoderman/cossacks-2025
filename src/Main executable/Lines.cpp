@@ -20,9 +20,9 @@ void Hline(int x, int y, int xend, byte c) {
 		if (xend < WindX)xr = WindX; else xr = xend;
 		if (x > WindX1)Lxr = WindX1 - xr + 1; else Lxr = x - xr + 1;
 	};
-	int scr = int(ScreenPtr) + xr + y * ScrWidth;
 	if (Lxr <= 0)return;
 	#if defined(_MSC_VER) && defined(_M_IX86)
+	int scr = int(ScreenPtr) + xr + y * ScrWidth;
 	__asm {
 		mov		edi, scr
 		mov		al, c
@@ -30,6 +30,8 @@ void Hline(int x, int y, int xend, byte c) {
 		cld
 		rep		stosb
 	};
+	#else
+	memset((byte*)ScreenPtr + xr + y * ScrWidth, c, Lxr);
 	#endif
 };
 void Vline(int x, int y, int yend, byte c) {
@@ -47,9 +49,9 @@ void Vline(int x, int y, int yend, byte c) {
 		if (yend < WindY)yr = WindY; else yr = yend;
 		if (y > WindY1)Lyr = WindY1 - yr + 1; else Lyr = y - yr + 1;
 	};
-	int scr = int(ScreenPtr) + x + yr * ScrWidth;
 	if (Lyr <= 0)return;
 	#if defined(_MSC_VER) && defined(_M_IX86)
+	int scr = int(ScreenPtr) + x + yr * ScrWidth;
 	__asm {
 		mov		edi, scr
 		mov		al, c
@@ -61,6 +63,9 @@ void Vline(int x, int y, int yend, byte c) {
 		add		edi, edx
 		loop	uuuuu
 	};
+	#else
+	byte* dst = (byte*)ScreenPtr + x + yr * ScrWidth;
+	for (int i = 0; i < Lyr; i++) { *dst = c; dst += ScrWidth; }
 	#endif
 };
 void Xbar(int x, int y, int lx, int ly, byte c) {
@@ -123,7 +128,9 @@ void DrawLine(int x, int y, int x1, int y1, byte c) {
 	if (GetXKind(x) | GetXKind(x1) | GetYKind(y) | GetYKind(y1))return;
 	int Lx = x1 - x;
 	int Ly;
+	#if defined(_MSC_VER) && defined(_M_IX86)
 	int ofst = int(ScreenPtr) + x + y * ScrWidth;
+	#endif
 	if (y < y1) {
 		Ly = y1 - y;
 		if (Lx < Ly) {
@@ -147,6 +154,13 @@ void DrawLine(int x, int y, int x1, int y1, byte c) {
 				jnz		lpp1
 				pop		edi
 			};
+			#else
+			byte* dst = (byte*)ScreenPtr + x + y * ScrWidth;
+			int err = Ly >> 1, count = Ly + 1;
+			for (int i = 0; i < count; i++) {
+				*dst = c; dst += ScrWidth; err -= Lx;
+				if (err <= 0) { err += Ly; dst++; }
+			}
 			#endif
 		}
 		else {
@@ -170,6 +184,13 @@ void DrawLine(int x, int y, int x1, int y1, byte c) {
 				jnz		lpp1_1
 				pop		edi
 			};
+			#else
+			byte* dst = (byte*)ScreenPtr + x + y * ScrWidth;
+			int err = Lx >> 1, count = Lx + 1;
+			for (int i = 0; i < count; i++) {
+				*dst = c; dst++; err -= Ly;
+				if (err <= 0) { err += Lx; dst += ScrWidth; }
+			}
 			#endif
 		};
 	}
@@ -196,6 +217,13 @@ void DrawLine(int x, int y, int x1, int y1, byte c) {
 				jnz		lpp1_2
 				pop		edi
 			};
+			#else
+			byte* dst = (byte*)ScreenPtr + x + y * ScrWidth;
+			int err = Ly >> 1, count = Ly + 1;
+			for (int i = 0; i < count; i++) {
+				*dst = c; dst -= ScrWidth; err -= Lx;
+				if (err <= 0) { err += Ly; dst++; }
+			}
 			#endif
 		}
 		else {
@@ -219,6 +247,13 @@ void DrawLine(int x, int y, int x1, int y1, byte c) {
 				jnz		lpp1_3
 				pop		edi
 			};
+			#else
+			byte* dst = (byte*)ScreenPtr + x + y * ScrWidth;
+			int err = Lx >> 1, count = Lx + 1;
+			for (int i = 0; i < count; i++) {
+				*dst = c; dst++; err -= Ly;
+				if (err <= 0) { err += Lx; dst -= ScrWidth; }
+			}
 			#endif
 		};
 	};

@@ -17,6 +17,11 @@ __forceinline byte CalcHash(char* s) {
 		jnz strlp1
 		mov al, bl
 	};
+	#else
+	byte hash = 0;
+	const unsigned char* p = (const unsigned char*)s;
+	while (*p) { hash += *p; p++; }
+	return hash;
 	#endif
 };
 StrHash::StrHash(){

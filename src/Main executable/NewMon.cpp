@@ -3977,6 +3977,8 @@ void ZMem(byte* pntr, int siz)
 		//sti
 		www : pop		edi
 	};
+	#else
+	memset(pntr, 0, (size_t)(siz & ~3));
 	#endif
 };
 

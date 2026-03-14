@@ -2094,15 +2094,375 @@ void ShowRLCihtpal(int x, int y, void* PicPtr, byte* pal)
 	}
 }
 //End of inverted RLC with clipping & encoding(half-transparent fog)
-#else // non-MSVC/non-x86 stubs
-void ShowRLC(int x, int y, void* PicPtr) { (void)x; (void)y; (void)PicPtr; }
-void ShowRLCi(int x, int y, void* PicPtr) { (void)x; (void)y; (void)PicPtr; }
-void ShowRLCpal(int x, int y, void* PicPtr, byte* pal) { (void)x; (void)y; (void)PicPtr; (void)pal; }
-void ShowRLCipal(int x, int y, void* PicPtr, byte* pal) { (void)x; (void)y; (void)PicPtr; (void)pal; }
-void ShowRLCfonpal(int x, int y, void* PicPtr, byte* pal) { (void)x; (void)y; (void)PicPtr; (void)pal; }
-void ShowRLCifonpal(int x, int y, void* PicPtr, byte* pal) { (void)x; (void)y; (void)PicPtr; (void)pal; }
-void ShowRLChtpal(int x, int y, void* PicPtr, byte* pal) { (void)x; (void)y; (void)PicPtr; (void)pal; }
-void ShowRLCihtpal(int x, int y, void* PicPtr, byte* pal) { (void)x; (void)y; (void)PicPtr; (void)pal; }
+#else // non-MSVC/non-x86: portable C implementations
+
+// Skip over 'count' scanlines in the RLC data stream, returning the byte offset
+// from the start of pixel data (i.e., past the 4-byte header).
+static int SkipRLCLines(byte* data, int count) {
+	int offset = 0;
+	for (int line = 0; line < count; line++) {
+		int nRuns = data[offset++];
+		for (int r = 0; r < nRuns; r++) {
+			// skip byte (skip count), then copy count + pixel data
+			int copyLen = data[offset + 1];
+			offset += 2 + copyLen;
+		}
+	}
+	return offset;
+}
+
+// ShowRLC: basic RLC display with clipping
+void ShowRLC(int x, int y, void* PicPtr) {
+	int PLY = (lpRLCHeader(PicPtr)->SizeY) & 65535;
+	int PLX = (lpRLCHeader(PicPtr)->SizeX) & 65535;
+	if ((y + PLY - 1 < WindY) | (y > WindY1) ||
+		(x + PLX <= WindX) || (x > WindX1) || !PLY) return;
+
+	byte* data = (byte*)PicPtr + 4;
+	byte* scr = (byte*)ScreenPtr;
+	int startLine = 0;
+	int drawY = y;
+
+	if (y < WindY) {
+		startLine = WindY - y;
+		data += SkipRLCLines(data, startLine);
+		drawY = WindY;
+	}
+
+	int endLine = PLY;
+	if (y + PLY - 1 > WindY1)
+		endLine = WindY1 - y + 1;
+
+	for (int line = startLine; line < endLine; line++) {
+		byte* dst = scr + drawY * ScrWidth + x;
+		int nRuns = *data++;
+		int xpos = 0;
+		for (int r = 0; r < nRuns; r++) {
+			int skipLen = data[0];
+			int copyLen = data[1];
+			data += 2;
+			xpos += skipLen;
+			for (int p = 0; p < copyLen; p++) {
+				int dx = x + xpos;
+				if (dx >= WindX && dx <= WindX1)
+					dst[xpos] = data[p];
+				xpos++;
+			}
+			data += copyLen;
+		}
+		drawY++;
+	}
+}
+
+// ShowRLCi: horizontally mirrored RLC display with clipping
+void ShowRLCi(int x, int y, void* PicPtr) {
+	int PLY = (lpRLCHeader(PicPtr)->SizeY) & 65535;
+	int PLX = (lpRLCHeader(PicPtr)->SizeX) & 65535;
+	if ((y + PLY - 1 < WindY) | (y > WindY1) ||
+		(x < WindX) || (x - PLX + 1 >= WindX1) || !PLY) return;
+
+	byte* data = (byte*)PicPtr + 4;
+	byte* scr = (byte*)ScreenPtr;
+	int startLine = 0;
+	int drawY = y;
+
+	if (y < WindY) {
+		startLine = WindY - y;
+		data += SkipRLCLines(data, startLine);
+		drawY = WindY;
+	}
+
+	int endLine = PLY;
+	if (y + PLY - 1 > WindY1)
+		endLine = WindY1 - y + 1;
+
+	for (int line = startLine; line < endLine; line++) {
+		byte* dst = scr + drawY * ScrWidth + x;
+		int nRuns = *data++;
+		int xpos = 0; // offset going left from x
+		for (int r = 0; r < nRuns; r++) {
+			int skipLen = data[0];
+			int copyLen = data[1];
+			data += 2;
+			xpos += skipLen;
+			for (int p = 0; p < copyLen; p++) {
+				int dx = x - xpos;
+				if (dx >= WindX && dx <= WindX1)
+					dst[-xpos] = data[p];
+				xpos++;
+			}
+			data += copyLen;
+		}
+		drawY++;
+	}
+}
+
+// ShowRLCpal: RLC display with palette remapping and clipping
+void ShowRLCpal(int x, int y, void* PicPtr, byte* pal) {
+	int PLY = (lpRLCHeader(PicPtr)->SizeY) & 65535;
+	int PLX = (lpRLCHeader(PicPtr)->SizeX) & 65535;
+	if ((y + PLY - 1 < WindY) | (y > WindY1) ||
+		(x + PLX <= WindX) || (x > WindX1) || !PLY) return;
+
+	byte* data = (byte*)PicPtr + 4;
+	byte* scr = (byte*)ScreenPtr;
+	int startLine = 0;
+	int drawY = y;
+
+	if (y < WindY) {
+		startLine = WindY - y;
+		data += SkipRLCLines(data, startLine);
+		drawY = WindY;
+	}
+
+	int endLine = PLY;
+	if (y + PLY - 1 > WindY1)
+		endLine = WindY1 - y + 1;
+
+	for (int line = startLine; line < endLine; line++) {
+		byte* dst = scr + drawY * ScrWidth + x;
+		int nRuns = *data++;
+		int xpos = 0;
+		for (int r = 0; r < nRuns; r++) {
+			int skipLen = data[0];
+			int copyLen = data[1];
+			data += 2;
+			xpos += skipLen;
+			for (int p = 0; p < copyLen; p++) {
+				int dx = x + xpos;
+				if (dx >= WindX && dx <= WindX1)
+					dst[xpos] = pal[data[p]];
+				xpos++;
+			}
+			data += copyLen;
+		}
+		drawY++;
+	}
+}
+
+// ShowRLCipal: mirrored RLC display with palette remapping and clipping
+void ShowRLCipal(int x, int y, void* PicPtr, byte* pal) {
+	int PLY = (lpRLCHeader(PicPtr)->SizeY) & 65535;
+	int PLX = (lpRLCHeader(PicPtr)->SizeX) & 65535;
+	if ((y + PLY - 1 < WindY) | (y > WindY1) ||
+		(x < WindX) || (x - PLX + 1 >= WindX1) || !PLY) return;
+
+	byte* data = (byte*)PicPtr + 4;
+	byte* scr = (byte*)ScreenPtr;
+	int startLine = 0;
+	int drawY = y;
+
+	if (y < WindY) {
+		startLine = WindY - y;
+		data += SkipRLCLines(data, startLine);
+		drawY = WindY;
+	}
+
+	int endLine = PLY;
+	if (y + PLY - 1 > WindY1)
+		endLine = WindY1 - y + 1;
+
+	for (int line = startLine; line < endLine; line++) {
+		byte* dst = scr + drawY * ScrWidth + x;
+		int nRuns = *data++;
+		int xpos = 0;
+		for (int r = 0; r < nRuns; r++) {
+			int skipLen = data[0];
+			int copyLen = data[1];
+			data += 2;
+			xpos += skipLen;
+			for (int p = 0; p < copyLen; p++) {
+				int dx = x - xpos;
+				if (dx >= WindX && dx <= WindX1)
+					dst[-xpos] = pal[data[p]];
+				xpos++;
+			}
+			data += copyLen;
+		}
+		drawY++;
+	}
+}
+
+// ShowRLCfonpal: font palette variant - reads destination pixel, remaps through palette
+// The source pixel data is ignored; only the destination pixel is used for the lookup.
+void ShowRLCfonpal(int x, int y, void* PicPtr, byte* pal) {
+	if (!PicPtr) return;
+	int PLY = (lpRLCHeader(PicPtr)->SizeY) & 65535;
+	int PLX = (lpRLCHeader(PicPtr)->SizeX) & 65535;
+	if ((y + PLY - 1 < WindY) | (y > WindY1) ||
+		(x + PLX <= WindX) || (x > WindX1) || !PLY) return;
+
+	byte* data = (byte*)PicPtr + 4;
+	byte* scr = (byte*)ScreenPtr;
+	int startLine = 0;
+	int drawY = y;
+
+	if (y < WindY) {
+		startLine = WindY - y;
+		data += SkipRLCLines(data, startLine);
+		drawY = WindY;
+	}
+
+	int endLine = PLY;
+	if (y + PLY - 1 > WindY1)
+		endLine = WindY1 - y + 1;
+
+	for (int line = startLine; line < endLine; line++) {
+		byte* dst = scr + drawY * ScrWidth + x;
+		int nRuns = *data++;
+		int xpos = 0;
+		for (int r = 0; r < nRuns; r++) {
+			int skipLen = data[0];
+			int copyLen = data[1];
+			data += 2;
+			xpos += skipLen;
+			// source pixels are skipped past but not used for the lookup
+			data += copyLen;
+			for (int p = 0; p < copyLen; p++) {
+				int dx = x + xpos;
+				if (dx >= WindX && dx <= WindX1)
+					dst[xpos] = pal[dst[xpos]];
+				xpos++;
+			}
+		}
+		drawY++;
+	}
+}
+
+// ShowRLCifonpal: mirrored font palette variant
+void ShowRLCifonpal(int x, int y, void* PicPtr, byte* pal) {
+	int PLY = (lpRLCHeader(PicPtr)->SizeY) & 65535;
+	int PLX = (lpRLCHeader(PicPtr)->SizeX) & 65535;
+	if ((y + PLY - 1 < WindY) | (y > WindY1) ||
+		(x < WindX) || (x - PLX + 1 >= WindX1) || !PLY) return;
+
+	byte* data = (byte*)PicPtr + 4;
+	byte* scr = (byte*)ScreenPtr;
+	int startLine = 0;
+	int drawY = y;
+
+	if (y < WindY) {
+		startLine = WindY - y;
+		data += SkipRLCLines(data, startLine);
+		drawY = WindY;
+	}
+
+	int endLine = PLY;
+	if (y + PLY - 1 > WindY1)
+		endLine = WindY1 - y + 1;
+
+	for (int line = startLine; line < endLine; line++) {
+		byte* dst = scr + drawY * ScrWidth + x;
+		int nRuns = *data++;
+		int xpos = 0;
+		for (int r = 0; r < nRuns; r++) {
+			int skipLen = data[0];
+			int copyLen = data[1];
+			data += 2;
+			xpos += skipLen;
+			data += copyLen;
+			for (int p = 0; p < copyLen; p++) {
+				int dx = x - xpos;
+				if (dx >= WindX && dx <= WindX1)
+					dst[-xpos] = pal[dst[-xpos]];
+				xpos++;
+			}
+		}
+		drawY++;
+	}
+}
+
+// ShowRLChtpal: height palette variant - uses source as high byte, destination as low byte
+// for a 256*256 palette lookup: pal[src*256 + dst]
+void ShowRLChtpal(int x, int y, void* PicPtr, byte* pal) {
+	int PLY = (lpRLCHeader(PicPtr)->SizeY) & 65535;
+	int PLX = (lpRLCHeader(PicPtr)->SizeX) & 65535;
+	if ((y + PLY - 1 < WindY) | (y > WindY1) ||
+		(x + PLX <= WindX) || (x > WindX1) || !PLY) return;
+
+	byte* data = (byte*)PicPtr + 4;
+	byte* scr = (byte*)ScreenPtr;
+	int startLine = 0;
+	int drawY = y;
+
+	if (y < WindY) {
+		startLine = WindY - y;
+		data += SkipRLCLines(data, startLine);
+		drawY = WindY;
+	}
+
+	int endLine = PLY;
+	if (y + PLY - 1 > WindY1)
+		endLine = WindY1 - y + 1;
+
+	for (int line = startLine; line < endLine; line++) {
+		byte* dst = scr + drawY * ScrWidth + x;
+		int nRuns = *data++;
+		int xpos = 0;
+		for (int r = 0; r < nRuns; r++) {
+			int skipLen = data[0];
+			int copyLen = data[1];
+			data += 2;
+			xpos += skipLen;
+			for (int p = 0; p < copyLen; p++) {
+				int dx = x + xpos;
+				if (dx >= WindX && dx <= WindX1) {
+					int idx = (data[p] << 8) | dst[xpos];
+					dst[xpos] = pal[idx];
+				}
+				xpos++;
+			}
+			data += copyLen;
+		}
+		drawY++;
+	}
+}
+
+// ShowRLCihtpal: mirrored height palette variant
+void ShowRLCihtpal(int x, int y, void* PicPtr, byte* pal) {
+	int PLY = (lpRLCHeader(PicPtr)->SizeY) & 65535;
+	int PLX = (lpRLCHeader(PicPtr)->SizeX) & 65535;
+	if ((y + PLY - 1 < WindY) | (y > WindY1) ||
+		(x < WindX) || (x - PLX + 1 >= WindX1) || !PLY) return;
+
+	byte* data = (byte*)PicPtr + 4;
+	byte* scr = (byte*)ScreenPtr;
+	int startLine = 0;
+	int drawY = y;
+
+	if (y < WindY) {
+		startLine = WindY - y;
+		data += SkipRLCLines(data, startLine);
+		drawY = WindY;
+	}
+
+	int endLine = PLY;
+	if (y + PLY - 1 > WindY1)
+		endLine = WindY1 - y + 1;
+
+	for (int line = startLine; line < endLine; line++) {
+		byte* dst = scr + drawY * ScrWidth + x;
+		int nRuns = *data++;
+		int xpos = 0;
+		for (int r = 0; r < nRuns; r++) {
+			int skipLen = data[0];
+			int copyLen = data[1];
+			data += 2;
+			xpos += skipLen;
+			for (int p = 0; p < copyLen; p++) {
+				int dx = x - xpos;
+				if (dx >= WindX && dx <= WindX1) {
+					int idx = (data[p] << 8) | dst[-xpos];
+					dst[-xpos] = pal[idx];
+				}
+				xpos++;
+			}
+			data += copyLen;
+		}
+		drawY++;
+	}
+}
+
 #endif // _MSC_VER && _M_IX86
 
 void ShowRLCp1(int x, int y, void* PicPtr)
