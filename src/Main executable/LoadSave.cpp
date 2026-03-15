@@ -1327,7 +1327,7 @@ void SaveSelection( SaveBuf* SB )
 	for (int i = 0; i < 80; i++)
 	{
 		SelGroup* SG = &SelSet[i];
-		xBlockWrite( SB, &SG->NMemb, ( sizeof(SelGroup) ) - 8 );
+		xBlockWrite( SB, &SG->NMemb, ( sizeof(SelGroup) ) - 2 * sizeof(word*) );
 		if (SG->NMemb)
 		{
 			xBlockWrite( SB, SG->Member, SG->NMemb << 1 );
@@ -1353,7 +1353,7 @@ void LoadSelection( SaveBuf* SB )
 	for (int i = 0; i < 80; i++)
 	{
 		SelGroup* SG = &SelSet[i];
-		xBlockRead( SB, &SG->NMemb, ( sizeof(SelGroup) ) - 8 );
+		xBlockRead( SB, &SG->NMemb, ( sizeof(SelGroup) ) - 2 * sizeof(word*) );
 		if (SG->NMemb)
 		{
 			SG->Member = new word[SG->NMemb];
@@ -1737,7 +1737,8 @@ void LS_SaveTopology( SaveBuf* SB )
 	for (int j = 0; j < NAreas; j++)
 	{
 		Area Ar1 = TopMap[j];
-		xBlockWrite( SB, &Ar1, sizeof(Area) );
+		Area_File af; AreaToFile(&af, &Ar1);
+		xBlockWrite( SB, &af, sizeof(Area_File) );
 		Ar1.MaxLink = Ar1.NLinks;
 		if (Ar1.NMines)xBlockWrite( SB, Ar1.MinesIdx, Ar1.NMines << 1 );
 		if (Ar1.NLinks)xBlockWrite( SB, Ar1.Link, Ar1.NLinks << 2 );
@@ -1781,7 +1782,8 @@ void LS_LoadTopology( SaveBuf* SB )
 	for (int j = 0; j < NAreas; j++)
 	{
 		Area* Ar1 = TopMap + j;
-		xBlockRead( SB, Ar1, sizeof(Area) );
+		Area_File af; xBlockRead( SB, &af, sizeof(Area_File) );
+		AreaFromFile(Ar1, &af);
 		if (Ar1->NMines)Ar1->MinesIdx = new word[Ar1->NMines];
 		else Ar1->MinesIdx = NULL;
 		if (Ar1->MaxLink)Ar1->Link = new word[Ar1->MaxLink << 1];
@@ -2642,7 +2644,8 @@ void SaveActiveObjects( SaveBuf* f1 )
 	for (int i = 0; i < NAZones; i++)
 	{
 		ActiveZone* AZ = AZones + i;
-		xBlockWrite( f1, AZ, sizeof(ActiveZone) );
+		ActiveZone_File azf; ActiveZoneToFile(&azf, AZ);
+		xBlockWrite( f1, &azf, sizeof(ActiveZone_File) );
 		sz = strlen( AZ->Name ) + 1;
 		xBlockWrite( f1, &sz, 1 );
 		xBlockWrite( f1, AZ->Name, sz );
@@ -2651,7 +2654,8 @@ void SaveActiveObjects( SaveBuf* f1 )
 	for (int i = 0; i < NAGroups; i++)
 	{
 		ActiveGroup* AG = AGroups + i;
-		xBlockWrite( f1, AG, sizeof(ActiveGroup) );
+		ActiveGroup_File agf; ActiveGroupToFile(&agf, AG);
+		xBlockWrite( f1, &agf, sizeof(ActiveGroup_File) );
 		sz = strlen( AG->Name ) + 1;
 		xBlockWrite( f1, &sz, 1 );
 		xBlockWrite( f1, AG->Name, sz );
@@ -2673,7 +2677,8 @@ void LoadActiveObjects( SaveBuf* f1 )
 	{
 		int sz = 0;
 		ActiveZone* AZ = AZones + i;
-		xBlockRead( f1, AZ, sizeof(ActiveZone) );
+		ActiveZone_File azf; xBlockRead( f1, &azf, sizeof(ActiveZone_File) );
+		ActiveZoneFromFile(AZ, &azf);
 		xBlockRead( f1, &sz, 1 );
 		AZ->Name = new char[sz];
 		xBlockRead( f1, AZ->Name, sz );
@@ -2683,7 +2688,8 @@ void LoadActiveObjects( SaveBuf* f1 )
 	{
 		int sz = 0;
 		ActiveGroup* AG = AGroups + i;
-		xBlockRead( f1, AG, sizeof(ActiveGroup) );
+		ActiveGroup_File agf; xBlockRead( f1, &agf, sizeof(ActiveGroup_File) );
+		ActiveGroupFromFile(AG, &agf);
 		xBlockRead( f1, &sz, 1 );
 		AG->Name = new char[sz];
 		xBlockRead( f1, AG->Name, sz );

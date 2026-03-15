@@ -36,39 +36,17 @@ Created `compat_sdl_events.h` — translates SDL events to Win32 MSG structs.
 Fixed SmartLink (function pointer obfuscation), UParam2 (fog pointer storage),
 Nation.cpp pointer arithmetic, SpRefs/WRefs/Obj3Map/TRIANG/SCINF allocations,
 Masks.cpp RLC_ADDR, StrHash memset overflow, more memset pointer sizes.
-Main issues:
-- Font/text rendering shows as horizontal lines instead of proper glyphs.
-  Likely bug in Fastdraw.cpp RLC sprite renderer C implementation —
-  character sprites render as 1px-high lines instead of full height.
-- Mouse cursor may also have similar rendering issues.
-- Fonts are rendered via GP sprites (not RLC files) — LoadRLC is never called.
-- Background and GP text ("Single Player" etc) render correctly.
-- Interactive UI elements (buttons, scrollbars) show horizontal line artifacts.
-- This suggests the GP rendering for certain sprite types (transparent/blended)
-  has a stride or offset issue. Could be in `ShowGPTransparent` or similar.
-- Also: `Pitch` vs `ScrWidth` vs `MaxSizeX` relationship needs verification.
-- `FlipPages` uses `Pitch` as SDL surface stride — if Pitch != actual buffer
-  stride, rows will be misaligned.
-Main menu renders but mouse/keyboard don't work. Need to translate
-SDL events to the game's Win32 input system:
-- `SDL_MOUSEMOTION` → call `HandleMouse(x, y)` or set mouse globals
-- `SDL_MOUSEBUTTONDOWN/UP` → trigger click handlers
-- `SDL_KEYDOWN/UP` → map SDL keycodes to VK_* codes
-- Check how `Interface.cpp` and `Mouse_X.cpp` read input
-Also: investigate graphics rendering artifacts (colors/palette may be off).
-GP_Draw.cpp line 9877: `byte* PACKOFS = (byte*)(*PAK)` casts a DWORD (32-bit
-value from the sprite cache) to a 64-bit pointer — truncation crash.
-The CASHREF system stores 32-bit offsets/pointers that were valid addresses
-on Win32 but are meaningless on 64-bit. Need to understand how CASHREF is
-populated (see `LoadGP`, decompression functions) and convert the offset
-scheme to use proper pointer arithmetic relative to the mmap base address.
-Also: GP_Draw.cpp has many `int(...)` casts already fixed to `intptr_t`,
-but the `CASHREF`/`PAK`/`PACKOFS` chain is a separate 32-bit assumption.
-Game initializes fully, loads .gsc archives, passes all early init, then
-crashes (SIGSEGV) in `Loading()` (Ddex1.cpp:463) which loads sprites,
-textures, nations, fonts etc. Likely another 32-bit pointer assumption in
-the resource loading code. Debug with traces or CLion breakpoints inside
-`Loading()` to find which sub-function crashes.
+
+## ~~PREV: Fix struct serialization 32/64-bit mismatch~~ DONE
+Structs with pointer fields (`Area`, `ActiveZone`, `ActiveGroup`, `SelGroup`)
+were serialized with `sizeof()` which differs between 32-bit (file format)
+and 64-bit (macOS). Created on-disk structs (`Area_File`, `ActiveZone_File`,
+`ActiveGroup_File`) with DWORD placeholders for pointers and conversion
+helpers. Fixed 7 read/write sites + 3 size calculations in SaveNewMap.cpp
+and LoadSave.cpp. Also fixed `SelGroup` buffer overflow
+(`sizeof(SelGroup)-8` → `sizeof(SelGroup)-2*sizeof(word*)`).
+This was causing Brigade.cpp crashes (corrupted topology `Link` pointers)
+when loading designed maps.
 
 ## Wire up SDL window and event loop (partially done)
 Game initializes fully — loads .gsc archives, reads game data, exits cleanly.
@@ -113,7 +91,12 @@ Already linking statically on macOS. Future cleanup.
   - Multiplayer: TCP/IP LAN mode doesn't work (requires DirectPlay which
     is Windows-only). Direct IP mode uses CommCore UDP stack and should
     work — select "Direct IP" when creating/joining a game.
-  - May still have crashes in untested gameplay paths (combat, etc.)
+  - `Order1` struct serialization still uses `sizeof()` with pointers in
+    save files — self-consistent on 64-bit but cross-platform saves won't work
+  - Occasional crashes in gameplay — some may be pre-existing bugs,
+    some may be remaining 64-bit issues
+  - `#pragma pack(1)` from game headers can break system struct layouts —
+    fixed for iphlpapi.h, may affect other system headers
 
 ## Assembly rewrite status (ALL DONE)
 21 files, ~155 blocks rewritten from x86 to portable C:

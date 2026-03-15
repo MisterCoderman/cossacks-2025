@@ -56,6 +56,46 @@ struct Area{
 	word MaxLink;
 	StrategyInfo SINF[8];
 };
+// On-disk Area layout: pointers stored as 4-byte DWORD (matches 32-bit Windows format)
+struct Area_File{
+	short x;
+	short y;
+	byte  Importance;
+	byte NTrees;
+	byte NStones;
+	word  NMines;
+	DWORD _minesIdx;
+	word  NLinks;
+	DWORD _link;
+	word MaxLink;
+	StrategyInfo SINF[8];
+};
+inline void AreaFromFile(Area* ar, const Area_File* af) {
+	ar->x = af->x;
+	ar->y = af->y;
+	ar->Importance = af->Importance;
+	ar->NTrees = af->NTrees;
+	ar->NStones = af->NStones;
+	ar->NMines = af->NMines;
+	ar->MinesIdx = NULL;
+	ar->NLinks = af->NLinks;
+	ar->Link = NULL;
+	ar->MaxLink = af->MaxLink;
+	memcpy(ar->SINF, af->SINF, sizeof(ar->SINF));
+}
+inline void AreaToFile(Area_File* af, const Area* ar) {
+	af->x = ar->x;
+	af->y = ar->y;
+	af->Importance = ar->Importance;
+	af->NTrees = ar->NTrees;
+	af->NStones = ar->NStones;
+	af->NMines = ar->NMines;
+	af->_minesIdx = 0;
+	af->NLinks = ar->NLinks;
+	af->_link = 0;
+	af->MaxLink = ar->MaxLink;
+	memcpy(af->SINF, ar->SINF, sizeof(af->SINF));
+}
 struct MediaTop{
 	word* MotionLinks;
 	word* LinksDist;

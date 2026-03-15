@@ -1116,7 +1116,7 @@ void SaveTopology( ResFile f1 )
 	CreateTotalLocking();
 	int i = '1POT';
 	RBlockWrite( f1, &i, 4 );
-	i = 4 + 4 + NAreas * sizeof( Area ) + 4 * NAreas*NAreas + 2 * TopLx*TopLy;
+	i = 4 + 4 + NAreas * sizeof( Area_File ) + 4 * NAreas*NAreas + 2 * TopLx*TopLy;
 	for ( int j = 0; j < NAreas; j++ )
 	{
 		Area* Ar1 = TopMap + j;
@@ -1127,7 +1127,8 @@ void SaveTopology( ResFile f1 )
 	for ( int j = 0; j < NAreas; j++ )
 	{
 		Area Ar1 = TopMap[j];
-		RBlockWrite( f1, &Ar1, sizeof(Area) );
+		Area_File af; AreaToFile(&af, &Ar1);
+		RBlockWrite( f1, &af, sizeof(Area_File) );
 		Ar1.MaxLink = Ar1.NLinks;
 		if ( Ar1.NMines )RBlockWrite( f1, Ar1.MinesIdx, Ar1.NMines << 1 );
 		if ( Ar1.NLinks )RBlockWrite( f1, Ar1.Link, Ar1.NLinks << 2 );
@@ -1148,7 +1149,8 @@ void LoadTopology( ResFile f1 )
 	for ( int j = 0; j < NAreas; j++ )
 	{
 		Area* Ar1 = TopMap + j;
-		RBlockRead( f1, Ar1, sizeof(Area) );
+		Area_File af; RBlockRead( f1, &af, sizeof(Area_File) );
+		AreaFromFile(Ar1, &af);
 		if ( Ar1->NMines )Ar1->MinesIdx = new word[Ar1->NMines];
 		else Ar1->MinesIdx = NULL;
 		if ( Ar1->NLinks )Ar1->Link = new word[Ar1->NLinks];
@@ -1166,7 +1168,7 @@ void SaveWTopology( ResFile f1 )
 {
 	int i = 'WPOT';
 	RBlockWrite( f1, &i, 4 );
-	i = 4 + 4 + WNAreas * sizeof( Area ) + 4 * WNAreas*WNAreas + 2 * TopLx*TopLy;
+	i = 4 + 4 + WNAreas * sizeof( Area_File ) + 4 * WNAreas*WNAreas + 2 * TopLx*TopLy;
 	for ( int j = 0; j < WNAreas; j++ )
 	{
 		Area* Ar1 = WTopMap + j;
@@ -1177,7 +1179,8 @@ void SaveWTopology( ResFile f1 )
 	for ( int j = 0; j < WNAreas; j++ )
 	{
 		Area Ar1 = WTopMap[j];
-		RBlockWrite( f1, &Ar1, sizeof(Area) );
+		Area_File af; AreaToFile(&af, &Ar1);
+		RBlockWrite( f1, &af, sizeof(Area_File) );
 		Ar1.MaxLink = Ar1.NLinks;
 		if ( Ar1.NMines )RBlockWrite( f1, Ar1.MinesIdx, Ar1.NMines << 1 );
 		if ( Ar1.NLinks )RBlockWrite( f1, Ar1.Link, Ar1.NLinks << 2 );
@@ -1197,7 +1200,8 @@ void LoadTopology1( ResFile f1 )
 	for ( int j = 0; j < NAreas; j++ )
 	{
 		Area* Ar1 = TopMap + j;
-		RBlockRead( f1, Ar1, sizeof(Area) );
+		Area_File af; RBlockRead( f1, &af, sizeof(Area_File) );
+		AreaFromFile(Ar1, &af);
 		if ( Ar1->NMines )Ar1->MinesIdx = new word[Ar1->NMines];
 		else Ar1->MinesIdx = NULL;
 		if ( Ar1->NLinks )Ar1->Link = new word[Ar1->MaxLink << 1];
@@ -1220,7 +1224,8 @@ void LoadWTopology1( ResFile f1 )
 	for ( int j = 0; j < WNAreas; j++ )
 	{
 		Area* Ar1 = WTopMap + j;
-		RBlockRead( f1, Ar1, sizeof(Area) );
+		Area_File af; RBlockRead( f1, &af, sizeof(Area_File) );
+		AreaFromFile(Ar1, &af);
 		if ( Ar1->NMines )Ar1->MinesIdx = new word[Ar1->NMines];
 		else Ar1->MinesIdx = NULL;
 		if ( Ar1->NLinks )Ar1->Link = new word[Ar1->MaxLink << 1];
@@ -1242,7 +1247,7 @@ void SaveZonesAndGroups( ResFile f1 )
 {
 	int i = '1NOZ';
 	RBlockWrite( f1, &i, 4 );
-	int sz = 4 + 8 + NAZones*( sizeof(ActiveZone) ) + NAGroups*( sizeof(ActiveGroup) );
+	int sz = 4 + 8 + NAZones*( sizeof(ActiveZone_File) ) + NAGroups*( sizeof(ActiveGroup_File) );
 	for ( int i = 0; i < NAZones; i++ )
 	{
 		ActiveZone* AZ = AZones + i;
@@ -1260,7 +1265,8 @@ void SaveZonesAndGroups( ResFile f1 )
 	for ( int i = 0; i < NAZones; i++ )
 	{
 		ActiveZone* AZ = AZones + i;
-		RBlockWrite( f1, AZ, sizeof(ActiveZone) );
+		ActiveZone_File azf; ActiveZoneToFile(&azf, AZ);
+		RBlockWrite( f1, &azf, sizeof(ActiveZone_File) );
 		sz = strlen( AZ->Name ) + 1;
 		RBlockWrite( f1, &sz, 1 );
 		RBlockWrite( f1, AZ->Name, sz );
@@ -1268,7 +1274,8 @@ void SaveZonesAndGroups( ResFile f1 )
 	for ( int i = 0; i < NAGroups; i++ )
 	{
 		ActiveGroup* AG = AGroups + i;
-		RBlockWrite( f1, AG, sizeof(ActiveGroup) );
+		ActiveGroup_File agf; ActiveGroupToFile(&agf, AG);
+		RBlockWrite( f1, &agf, sizeof(ActiveGroup_File) );
 		sz = strlen( AG->Name ) + 1;
 		RBlockWrite( f1, &sz, 1 );
 		RBlockWrite( f1, AG->Name, sz );
@@ -1310,7 +1317,8 @@ void LoadZonesAndGroups( ResFile f1 )
 	for ( int i = 0; i < NAZones; i++ )
 	{
 		ActiveZone* AZ = AZones + i;
-		RBlockRead( f1, AZ, sizeof(ActiveZone) );
+		ActiveZone_File azf; RBlockRead( f1, &azf, sizeof(ActiveZone_File) );
+		ActiveZoneFromFile(AZ, &azf);
 		byte L;
 		RBlockRead( f1, &L, 1 );
 		AZ->Name = new char[L];
@@ -1319,7 +1327,8 @@ void LoadZonesAndGroups( ResFile f1 )
 	for ( int q = 0; q < NAGroups; q++ )
 	{
 		ActiveGroup* AG = AGroups + q;
-		RBlockRead( f1, AG, sizeof(ActiveGroup) );
+		ActiveGroup_File agf; RBlockRead( f1, &agf, sizeof(ActiveGroup_File) );
+		ActiveGroupFromFile(AG, &agf);
 		byte L;
 		RBlockRead( f1, &L, 1 );
 		AG->Name = new char[L];
