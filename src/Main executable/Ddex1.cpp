@@ -3461,7 +3461,6 @@ int PASCAL WinMain(
 
 	LockGrid = false;
 
-#ifdef _WIN32
 	FILE* Fx = fopen( "cew.dll", "r" );
 	if (!Fx)
 	{
@@ -3472,7 +3471,6 @@ int PASCAL WinMain(
 	{
 		fclose( Fx );
 	}
-#endif
 
 	fprintf(stderr, "[INIT] SetupNatList...\n"); fflush(stderr);
 	//Init buffers for national units?

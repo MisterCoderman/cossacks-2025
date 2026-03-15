@@ -101,7 +101,9 @@ Already linking statically on macOS. Future cleanup.
 - **Runtime** — GAME IS FULLY PLAYABLE WITH AUDIO! Build, move, save/load,
   sound effects all work. Rendering correct. Built-in AI works.
   Keyboard (F12=menu, Escape=cancel) and mouse (click, drag select) work.
-  Campaigns don't work (need cew.dll scripting engine).
+  Campaigns show immediate defeat — the campaign scripting engine needs
+  investigation. cew.dll contains script data but the interpreter may
+  depend on LoadLibrary to load AI DLLs for mission scripts.
   May still have crashes in untested paths (combat, multiplayer, etc.).
 
 ## Assembly rewrite status (ALL DONE)
