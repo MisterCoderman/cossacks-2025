@@ -247,5 +247,5 @@ The game compiles to WASM and runs in the browser. Current status:
   to persist via IndexedDB or download to file.
 - **Networking**: no raw sockets in WASM. Multiplayer would need
   WebSocket or WebRTC bridge.
-- **Audio**: SDL2_mixer works via Emscripten but may need testing.
+- **Audio**: SDL2_mixer works via Emscripten.
 - **Input**: keyboard and mouse work via SDL2.

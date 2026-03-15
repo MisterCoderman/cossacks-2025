@@ -132,6 +132,7 @@ if(EMSCRIPTEN)
         -sASYNCIFY_STACK_SIZE=1048576  # 1MB — game has deep call stacks
         -pthread                       # enable pthreads / std::thread support
         -sPTHREAD_POOL_SIZE=16
+        -fexceptions                   # needed for std::thread error handling
         # TODO: emscripten_set_main_loop for non-blocking main loop
     )
 
@@ -144,8 +145,8 @@ if(EMSCRIPTEN)
             "SHELL:--preload-file ${GAME_DATA_DIR}/cew.dll@cew.dll"
             "SHELL:--preload-file ${GAME_DATA_DIR}/agew_1.pal@agew_1.pal"
             "SHELL:--preload-file ${GAME_DATA_DIR}/all.gsc@all.gsc"
-            "SHELL:--preload-file ${GAME_DATA_DIR}/sound@sound"
-            "SHELL:--preload-file ${GAME_DATA_DIR}/sounds@sounds"
+            "SHELL:--preload-file ${GAME_DATA_DIR}/sound@Sound"
+            "SHELL:--preload-file ${GAME_DATA_DIR}/sounds@Sounds"
             "SHELL:--preload-file ${GAME_DATA_DIR}/single.opt@single.opt"
             "SHELL:--preload-file ${GAME_DATA_DIR}/players@players"
             "SHELL:--preload-file ${GAME_DATA_DIR}/ai@ai"

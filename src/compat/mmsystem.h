@@ -39,7 +39,7 @@ typedef struct {
 inline HMMIO mmioOpenA(LPSTR szFilename, void* lpmmioinfo, DWORD dwOpenFlags) {
     (void)lpmmioinfo; (void)dwOpenFlags;
     if (!szFilename) return NULL;
-    // Convert backslashes to forward slashes for macOS/Linux
+    // Convert backslashes to forward slashes for macOS/Linux/WASM
     char fixedPath[512];
     strncpy(fixedPath, szFilename, sizeof(fixedPath) - 1);
     fixedPath[sizeof(fixedPath) - 1] = 0;

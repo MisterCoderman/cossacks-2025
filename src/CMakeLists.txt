@@ -1,6 +1,3 @@
-cmake_minimum_required(VERSION 3.16)
-project(Cossacks VERSION 1.52 LANGUAGES C CXX)
-
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_C_STANDARD 11)
@@ -57,7 +54,7 @@ endif()
 if(EMSCRIPTEN)
     # Emscripten provides SDL2 built-in via -s USE_SDL=2
     # Include dirs come from emscripten's sysroot automatically
-    add_compile_options(-sUSE_SDL=2 -sUSE_SDL_MIXER=2 -pthread)
+    add_compile_options(-sUSE_SDL=2 -sUSE_SDL_MIXER=2 -pthread -fexceptions)
     add_link_options(-sUSE_SDL=2 -sUSE_SDL_MIXER=2)
 elseif(WIN32)
     # On Windows, use the bundled SDL2
