@@ -206,17 +206,15 @@ cd "/Users/mazhnik/Codes/opensource/cossacks-1.52/Cossacks Back to War v1.52 (20
   - `CDirSound` class — `#pragma pack(1)` corrupted `std::string` layout
   - `minimap` off-by-one: `MaxMLX - MiniLx - 1` → `-1` when equal
 
-### Known issue: terrain artifacts on first save load after restart
-SectMap (terrain section data) gets corrupted during the first save load
-after app restart. Subsequent loads in the same session work correctly.
-The corruption produces invalid section values (should be 0-2, gets values
-like 109, 201, 235) causing wrong terrain blending. Guarded in
-`CopyMaskedBitmap` and `PrepareIntersection1/2` to prevent crashes.
-Root cause: likely an initialization order issue — first load allocates
-new arrays via `SetupArrays()` (ADDSH≠ACTUAL_ADDSH), subsequent loads
-reuse arrays via `ClearArrays()` (ADDSH==ACTUAL_ADDSH). The difference
-in code paths may leave SectMap partially uninitialized or corrupted
-by the random map regeneration code.
+### Fixed: terrain artifacts on first save load after restart
+SectMap was corrupted during random map regeneration on first save load.
+Root cause: `FAST_RM_Load` in 3DRandMap.cpp reads terrain stamp data via
+`GET_INT` past the buffer boundary. On Windows 32-bit, adjacent heap
+memory happened to contain harmless values. On macOS 64-bit, heap layout
+differs (ASLR, sparse address space) producing garbage values (93, 201,
+235) in SectMap where only 0-2 are valid. Fix: zero SectMap after
+`Load3DMapLandOnly` in save loading path, plus bounds guards in
+`CopyMaskedBitmap` and `PrepareIntersection1/2`.
 
 
 ## Check

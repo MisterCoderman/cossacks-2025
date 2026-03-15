@@ -810,6 +810,15 @@ void LoadMap( SaveBuf* SB )
 	xBlockRead( SB, &LightDZ, 4 );
 	fprintf(stderr, "[LOAD] Load3DMapLandOnly: '%s'\n", CurrentMap);
 	Load3DMapLandOnly( CurrentMap );
+	// Random map regeneration corrupts SectMap via buffer overflow in
+	// FAST_RM_Load (GET_INT reads past terrain stamp buffer). On Windows
+	// 32-bit this was harmless — dense heap meant adjacent memory contained
+	// small values that happened to be valid section indices (0-2). On macOS
+	// 64-bit with ASLR/sparse heap, the overflow reads pointer fragments
+	// (values like 93, 201, 235), corrupting SectMap and crashing in
+	// CopyMaskedBitmap with invalid MaskID. Zero SectMap after map generation
+	// to ensure valid default blending (value 0 = first section type).
+	if (SectMap && ADDSH == 1) memset(SectMap, 0, MaxSector * MaxTH * 6);
 	LoadRLE1( SB, UnitsField.MapV );
 	LoadRLE1( SB, MFIELDS[0].MapV );
 	LoadRLE1( SB, MFIELDS[1].MapV );

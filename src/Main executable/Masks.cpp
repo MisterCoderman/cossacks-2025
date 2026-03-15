@@ -352,7 +352,7 @@ extern RLCTable SimpleMaskB;
 extern RLCTable SimpleMaskC;
 extern RLCTable SimpleMaskD;
 void CopyMaskedBitmap(byte* Bits, int x, int y, int MaskID) {
-	if (MaskID < 0 || MaskID >= SimpleMaskA->SCount) return; // TODO: find root cause of SectMap corruption that produces invalid MaskID
+	if (MaskID < 0 || MaskID >= SimpleMaskA->SCount) return; // guard against corrupt SectMap values
 	CopyMaskedBitmap64(Bits, x, y, RLC_ADDR(SimpleMaskA, MaskID));
 	CopyMaskedTransparentBitmap_4(Bits, x, y, RLC_ADDR(SimpleMaskB, MaskID));
 	CopyMaskedTransparentBitmap_8(Bits, x, y, RLC_ADDR(SimpleMaskC, MaskID));
