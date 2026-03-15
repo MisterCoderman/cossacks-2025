@@ -98,10 +98,10 @@ Already linking statically on macOS. Future cleanup.
 - **IChat** — compiles and links (static lib)
 - **IntExplorer** — compiles and links (static lib)
 - **Main executable** — compiles, links, and runs. Native ARM64 binary (3.5MB)
-- **Runtime** — GAME IS PLAYABLE! Can build, move units, navigate menus.
-  Main menu, game setup, map loading, terrain, units, UI all work.
-  Mouse/keyboard/text input work. Rendering correct. Built-in AI works.
-  May still have crashes in untested gameplay paths (combat, multiplayer, etc.).
+- **Runtime** — GAME IS FULLY PLAYABLE! Build, move, navigate menus,
+  save/load games all work. Rendering correct. Built-in AI works.
+  Keyboard (F12=menu, Escape=cancel) and mouse (click, drag select) work.
+  May still have crashes in untested paths (combat, multiplayer, etc.).
 
 ## Assembly rewrite status (ALL DONE)
 21 files, ~155 blocks rewritten from x86 to portable C:

@@ -846,7 +846,7 @@ void SaveNations( SaveBuf* SB )
 		SAVMES1( SB, " MONSAMOUNT :", NT->NMon );
 		xBlockWrite( SB, &NT->NMon, 4 );
 		xBlockWrite( SB, &NT->Harch, 2 );
-		xBlockWrite( SB, &NT->SharStage, int( &NT->UID_PEASANT ) - int( &NT->SharStage ) );
+		xBlockWrite( SB, &NT->SharStage, (int)( (intptr_t)&NT->UID_PEASANT - (intptr_t)&NT->SharStage ) );
 		//Informtion about monsters(GeneralObject)
 		word NMON = 0;
 		for (int i = 0; i < NT->NMon; i++)
@@ -980,7 +980,7 @@ bool LoadNations( SaveBuf* SB )
 		LOADMES( SB );
 		xBlockRead( SB, &NT->NMon, 4 );
 		xBlockRead( SB, &NT->Harch, 2 );
-		xBlockRead( SB, &NT->SharStage, int( &NT->UID_PEASANT ) - int( &NT->SharStage ) );
+		xBlockRead( SB, &NT->SharStage, (int)( (intptr_t)&NT->UID_PEASANT - (intptr_t)&NT->SharStage ) );
 		//Informtion about monsters(GeneralObject)
 		int NMON = 0;
 		xBlockRead( SB, &NMON, 2 );
@@ -1206,14 +1206,14 @@ void SaveObjects( SaveBuf* SB )
 		{
 			SAVMES1( SB, " OBJECT:", OB->Index );
 			xBlockWrite( SB, &OB->Index, 2 );
-			xBlockWrite( SB, &OB->NeedPath, int( &OB->Inside ) - int( &OB->NeedPath ) );
+			xBlockWrite( SB, &OB->NeedPath, (int)( (intptr_t)&OB->Inside - (intptr_t)&OB->NeedPath ) );
 			if (OB->NInside)
 			{
 				xBlockWrite( SB, OB->Inside, OB->NInside << 1 );
 			};
 			//saving index of selection group
 			int pp;
-			if (OB->GroupIndex)pp = div( int( OB->GroupIndex ) - int( SelSet ), sizeof(SelGroup) ).quot;
+			if (OB->GroupIndex)pp = (int)(( (intptr_t)( OB->GroupIndex ) - (intptr_t)( SelSet ) ) / (intptr_t)sizeof(SelGroup));
 			else pp = 255;
 			xBlockWrite( SB, &pp, 1 );
 			SAVMES( SB, " ORDERINFO" );
@@ -1244,13 +1244,13 @@ void SaveObjects( SaveBuf* SB )
 				};
 			};
 			//NewAnimations
-			if (OB->HiLayer)pp = int( OB->HiLayer ) - int( OB->newMons );
+			if (OB->HiLayer)pp = (int)( (intptr_t)( OB->HiLayer ) - (intptr_t)( OB->newMons ) );
 			else pp = -1;
 			xBlockWrite( SB, &pp, 4 );
-			if (OB->NewAnm)pp = int( OB->NewAnm ) - int( OB->newMons );
+			if (OB->NewAnm)pp = (int)( (intptr_t)( OB->NewAnm ) - (intptr_t)( OB->newMons ) );
 			else pp = -1;
 			xBlockWrite( SB, &pp, 4 );
-			if (OB->LoLayer)pp = int( OB->LoLayer ) - int( OB->newMons );
+			if (OB->LoLayer)pp = (int)( (intptr_t)( OB->LoLayer ) - (intptr_t)( OB->newMons ) );
 			else pp = -1;
 			xBlockWrite( SB, &pp, 4 );
 		};
@@ -1276,7 +1276,7 @@ void LoadObjects( SaveBuf* SB )
 		Group[IND] = OB;
 		memset( OB, 0, sizeof(OneObject) );
 		OB->Index = IND;
-		xBlockRead( SB, &OB->NeedPath, int( &OB->Inside ) - int( &OB->NeedPath ) );
+		xBlockRead( SB, &OB->NeedPath, (int)( (intptr_t)&OB->Inside - (intptr_t)&OB->NeedPath ) );
 		Nation* NT = &NATIONS[OB->NNUM];
 		OB->Nat = NT;
 		OB->Ref.General = NT->Mon[OB->NIndex];
@@ -1303,17 +1303,17 @@ void LoadObjects( SaveBuf* SB )
 			OR1 = GetOrdBlock();
 			if (!j)OB->LocalOrder = OR1;
 			xBlockRead( SB, OR1, sizeof(Order1) );
-			OR1->DoLink = GetOrderRef( int( OR1->DoLink ) );
+			OR1->DoLink = GetOrderRef( (int)(intptr_t)( OR1->DoLink ) );
 			if (PRE)PRE->NextOrder = OR1;
 			PRE = OR1;
 		};
 		//NewAnimations
 		xBlockRead( SB, &pp, 4 );
-		if (pp != -1)OB->HiLayer = (NewAnimation*) ( int( OB->newMons ) + pp );
+		if (pp != -1)OB->HiLayer = (NewAnimation*) ( (intptr_t)( OB->newMons ) + pp );
 		xBlockRead( SB, &pp, 4 );
-		if (pp != -1)OB->NewAnm = (NewAnimation*) ( int( OB->newMons ) + pp );
+		if (pp != -1)OB->NewAnm = (NewAnimation*) ( (intptr_t)( OB->newMons ) + pp );
 		xBlockRead( SB, &pp, 4 );
-		if (pp != -1)OB->LoLayer = (NewAnimation*) ( int( OB->newMons ) + pp );
+		if (pp != -1)OB->LoLayer = (NewAnimation*) ( (intptr_t)( OB->newMons ) + pp );
 		if (OB->InFire)CreateGround( OB );
 		OB->ImSelected = OB->Selected;
 	};
@@ -1570,13 +1570,13 @@ void SaveSprites( SaveBuf* SB )
 		{
 			xBlockWrite( SB, &i, 4 );
 			OneSprite OS = Sprites[i];
-			xBlockWrite( SB, &OS, int( &OS.SG ) - int( &OS ) );
+			xBlockWrite( SB, &OS, (int)( (intptr_t)&OS.SG - (intptr_t)&OS ) );
 			byte typ = 0;
 			if (OS.SG == &STONES)typ = 1;
 			if (OS.SG == &HOLES)typ = 2;
 			if (OS.SG == &COMPLEX)typ = 3;
 			xBlockWrite( SB, &typ, 1 );
-			xBlockWrite( SB, &OS.Index, int( &OS.Damage ) - int( &OS.Index ) + 1 );
+			xBlockWrite( SB, &OS.Index, (int)( (intptr_t)&OS.Damage - (intptr_t)&OS.Index ) + 1 );
 		};
 	};
 	//timer
@@ -1613,7 +1613,7 @@ void LoadSprites( SaveBuf* SB )
 		int spid;
 		xBlockRead( SB, &spid, 4 );
 		OneSprite* OS = &Sprites[spid];
-		xBlockRead( SB, OS, int( &OS->SG ) - int( OS ) );
+		xBlockRead( SB, OS, (int)( (intptr_t)&OS->SG - (intptr_t)OS ) );
 		byte typ;
 		xBlockRead( SB, &typ, 1 );
 		switch (typ)
@@ -1631,7 +1631,7 @@ void LoadSprites( SaveBuf* SB )
 			OS->SG = &COMPLEX;
 			break;
 		};
-		xBlockRead( SB, &OS->Index, int( &OS->Damage ) - int( &OS->Index ) + 1 );
+		xBlockRead( SB, &OS->Index, (int)( (intptr_t)&OS->Damage - (intptr_t)&OS->Index ) + 1 );
 		OS->OC = &OS->SG->ObjChar[OS->SGIndex];
 	};
 	//timer

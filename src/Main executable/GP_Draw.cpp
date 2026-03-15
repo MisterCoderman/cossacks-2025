@@ -10461,7 +10461,7 @@ void GP_System::FreeRefs(int FileIndex)
 		{
 			if ((PACKOFS) && PACKOFS != NO_PACK)
 			{
-				INTV(PACKOFS - 8) = 0;
+				PTRV(PACKOFS - CASH_HDR_SIZE) = 0;
 			}
 
 			//lpGPCUR->Pack=NULL;
