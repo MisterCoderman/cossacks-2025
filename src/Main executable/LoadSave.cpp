@@ -145,7 +145,7 @@ void SAVMES( SaveBuf* ff1, char* mes )
 	char mss[16];
 	memset( mss, 0, 16 );
 	int len = strlen( mes );
-	if (len > 10)len = 16;
+	if (len > 16)len = 16;
 	memcpy( mss, mes, len );
 	xBlockWrite( ff1, mss, 16 );
 };
@@ -476,7 +476,7 @@ void UnLoading()
 
 	for (int i = 0; i < 8; i++)
 	{
-		DEFPLNAMES[8][0] = 0;
+		DEFPLNAMES[i][0] = 0;
 	}
 
 	if (TopIslands)
@@ -808,6 +808,7 @@ void LoadMap( SaveBuf* SB )
 	xBlockRead( SB, &LightDX, 4 );
 	xBlockRead( SB, &LightDY, 4 );
 	xBlockRead( SB, &LightDZ, 4 );
+	fprintf(stderr, "[LOAD] Load3DMapLandOnly: '%s'\n", CurrentMap);
 	Load3DMapLandOnly( CurrentMap );
 	LoadRLE1( SB, UnitsField.MapV );
 	LoadRLE1( SB, MFIELDS[0].MapV );
@@ -1197,7 +1198,7 @@ void SaveObjects( SaveBuf* SB )
 	SAVMES( SB, " OBJECTSINFO" );
 	for (int i = 0; i < MAXOBJECT; i++)if (Group[i])NObjects++;
 	xBlockWrite( SB, &NObjects, 4 );
-	xBlockWrite( SB, &MAXOBJECT, 4 );
+	{ int tmp = MAXOBJECT; xBlockWrite( SB, &tmp, 4 ); }
 	//Information for every object
 	for (tt = 0; tt < MAXOBJECT; tt++)
 	{
@@ -1266,7 +1267,7 @@ void LoadObjects( SaveBuf* SB )
 	int NObjects = 0;
 	LOADMES( SB );
 	xBlockRead( SB, &NObjects, 4 );
-	xBlockRead( SB, &MAXOBJECT, 4 );
+	{ int tmp = 0; xBlockRead( SB, &tmp, 4 ); MAXOBJECT = (word)tmp; }
 	//Information for every object
 	for (tt = 0; tt < NObjects; tt++)
 	{
@@ -3031,16 +3032,17 @@ void PreSaveGame( SaveBuf* SB, char* Messtr, int ID )
 
 	xBlockWrite( SB, &sz, 4 );
 	xBlockWrite( SB, Ptr, sz );
-	xBlockWrite( SB, &BalloonState, 4 );
-	xBlockWrite( SB, &CannonState, 4 );
-	xBlockWrite( SB, &NoArtilleryState, 4 );
-	xBlockWrite( SB, &XVIIIState, 4 );
-	xBlockWrite( SB, &DipCentreState, 4 );
-	xBlockWrite( SB, &ShipyardState, 4 );
-	xBlockWrite( SB, &MarketState, 4 );
+	{ int t;
+	t=BalloonState; xBlockWrite( SB, &t, 4 );
+	t=CannonState; xBlockWrite( SB, &t, 4 );
+	t=NoArtilleryState; xBlockWrite( SB, &t, 4 );
+	t=XVIIIState; xBlockWrite( SB, &t, 4 );
+	t=DipCentreState; xBlockWrite( SB, &t, 4 );
+	t=ShipyardState; xBlockWrite( SB, &t, 4 );
+	t=MarketState; xBlockWrite( SB, &t, 4 );
+	}
 
-	byte NN = MyNation;
-	xBlockWrite( SB, &NN, 8 );
+	{ long long nn = MyNation; xBlockWrite( SB, &nn, 8 ); }
 	xBlockWrite( SB, NatRefTBL, 8 );
 	int tt = 2;
 	xBlockWrite( SB, &tt, 1 );
@@ -3244,13 +3246,15 @@ void SFLB_PreLoadGame( SaveBuf* SB, bool LoadNation )
 
 	xBlockRead( SB, &sz, 4 );
 	xBlockRead( SB, Ptr, sz );
-	xBlockRead( SB, &BalloonState, 4 );
-	xBlockRead( SB, &CannonState, 4 );
-	xBlockRead( SB, &NoArtilleryState, 4 );
-	xBlockRead( SB, &XVIIIState, 4 );
-	xBlockRead( SB, &DipCentreState, 4 );
-	xBlockRead( SB, &ShipyardState, 4 );
-	xBlockRead( SB, &MarketState, 4 );
+	{ int t;
+	xBlockRead( SB, &t, 4 ); BalloonState = (byte)t;
+	xBlockRead( SB, &t, 4 ); CannonState = (byte)t;
+	xBlockRead( SB, &t, 4 ); NoArtilleryState = (byte)t;
+	xBlockRead( SB, &t, 4 ); XVIIIState = (byte)t;
+	xBlockRead( SB, &t, 4 ); DipCentreState = (byte)t;
+	xBlockRead( SB, &t, 4 ); ShipyardState = (byte)t;
+	xBlockRead( SB, &t, 4 ); MarketState = (byte)t;
+	}
 
 	if (LoadNation)
 	{

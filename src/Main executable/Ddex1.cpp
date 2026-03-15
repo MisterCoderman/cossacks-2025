@@ -789,7 +789,7 @@ MouseStack* ReadMEvent()
 		CURMS = MSTC[0];
 		if (NInStack > 1)
 		{
-			memcpy( MSTC, MSTC + 1, ( NInStack - 1 ) * sizeof(MouseStack) );
+			memmove( MSTC, MSTC + 1, ( NInStack - 1 ) * sizeof(MouseStack) );
 		}
 		NInStack--;
 		return &CURMS;
@@ -830,8 +830,8 @@ void AddKey( byte Key, byte Ascii )
 {
 	if (32 <= NKeys)
 	{//Push the stack back by one element
-		memcpy( KeyStack, KeyStack + 1, 31 );
-		memcpy( AsciiStack, AsciiStack + 1, 31 );
+		memmove( KeyStack, KeyStack + 1, 31 );
+		memmove( AsciiStack, AsciiStack + 1, 31 );
 		NKeys--;
 	}
 	KeyStack[NKeys] = Key;
@@ -849,8 +849,8 @@ int ReadKey()
 		LastAscii = AsciiStack[0];
 		if (NKeys)
 		{
-			memcpy( KeyStack, KeyStack + 1, NKeys - 1 );
-			memcpy( AsciiStack, AsciiStack + 1, NKeys - 1 );
+			memmove( KeyStack, KeyStack + 1, NKeys - 1 );
+			memmove( AsciiStack, AsciiStack + 1, NKeys - 1 );
 		}
 		NKeys--;
 		return c;

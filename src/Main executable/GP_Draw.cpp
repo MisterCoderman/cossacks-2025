@@ -98,7 +98,7 @@ int  GP_System::GetGPWidth(int i, int n)
 {
 	if (LoadGP(i))
 	{
-		if (n >= GPS.GPNFrames[i])
+		if (n < 0 || n >= GPS.GPNFrames[i])
 			return 0;
 		if (ItLX[i])
 			return ItLX[i][n];
@@ -111,7 +111,7 @@ int  GP_System::GetGPShift(int i, int n)
 {
 	if (LoadGP(i))
 	{
-		if (n >= GPS.GPNFrames[i])return 0;
+		if (n < 0 || n >= GPS.GPNFrames[i])return 0;
 		if (ItDX[i])return ItDX[i][n];
 		else return 0;
 	}
@@ -122,7 +122,7 @@ int  GP_System::GetGPHeight(int i, int n)
 {
 	if (LoadGP(i))
 	{
-		if (n >= GPS.GPNFrames[i])
+		if (n < 0 || n >= GPS.GPNFrames[i])
 		{
 			return 0;
 		}

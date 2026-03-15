@@ -4494,7 +4494,7 @@ void ComboBox::AddLine( char* Text )
 	}
 	else
 	{
-		Lines = (char**) malloc( 4 );
+		Lines = (char**) malloc( sizeof(char*) );
 		Lines[0] = new char[strlen( Text ) + 1];
 		strcpy( Lines[0], Text );
 		NLines++;
@@ -4686,7 +4686,7 @@ void WinComboBox::AddLine( char* Text )
 	}
 	else
 	{
-		Lines = (char**) malloc( 4 );
+		Lines = (char**) malloc( sizeof(char*) );
 		Lines[0] = new char[strlen( Text ) + 1];
 		strcpy( Lines[0], Text );
 		NLines++;

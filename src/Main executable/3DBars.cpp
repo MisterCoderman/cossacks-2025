@@ -92,7 +92,7 @@ STARTA:;
 		{
 			if (CEMAP[j] == BarID)
 			{
-				if (j < NCE - 1)memcpy( CEMAP + j, CEMAP + j + 1, ( NCE - j - 1 ) << 1 );
+				if (j < NCE - 1)memmove( CEMAP + j, CEMAP + j + 1, ( NCE - j - 1 ) << 1 );
 				NObj3[Cell]--;
 				goto STARTA;
 			};

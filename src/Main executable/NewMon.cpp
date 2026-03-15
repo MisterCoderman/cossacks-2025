@@ -15497,7 +15497,7 @@ bool BlockBars::Delete( word x, word y )
 		if ( i >= NBars )return false;
 		if ( i < NBars - 1 )
 		{
-			memcpy( SDAT + i, SDAT + i + 1, ( NBars - i - 1 ) << 2 );
+			memmove( SDAT + i, SDAT + i + 1, ( NBars - i - 1 ) << 2 );
 		};
 		NBars--;
 		return false;

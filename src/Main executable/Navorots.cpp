@@ -270,7 +270,7 @@ bool HealDoubleUnits()
 			{
 				if (j < N - 1)
 				{
-					memcpy( units + j, units + j + 1, ( N - j - 1 ) * 2 );
+					memmove( units + j, units + j + 1, ( N - j - 1 ) * 2 );
 				};
 				NtNUnits[i]--;
 				return true;
@@ -327,7 +327,7 @@ void DelObject( OneObject* OB )
 			{
 				if (j < N - 1)
 				{
-					memcpy( UList + j, UList + j + 1, ( N - j - 1 ) * 2 );
+					memmove( UList + j, UList + j + 1, ( N - j - 1 ) * 2 );
 				}
 				NtNUnits[NNUM]--;
 				return;

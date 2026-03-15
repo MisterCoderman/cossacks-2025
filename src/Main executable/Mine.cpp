@@ -268,7 +268,7 @@ void LeaveMineLink( OneObject* OBJ )
 		OB = Group[p];
 		if (OB&&OB->NIndex == Type)
 		{
-			if (i + 1 < OBJ->NInside)memcpy( OBJ->Inside + i, OBJ->Inside + i + 1, ( OBJ->NInside - i - 1 ) << 1 );
+			if (i + 1 < OBJ->NInside)memmove( OBJ->Inside + i, OBJ->Inside + i + 1, ( OBJ->NInside - i - 1 ) << 1 );
 			OBJ->NInside--;
 		}
 		else OB = NULL;

@@ -2499,10 +2499,13 @@ void GMiniShow()
 		MiniY = 0;
 
 	if (MiniX + MiniLx >= MaxMLX)
-		MiniX = MaxMLX - MiniLx - 1;
+		MiniX = MaxMLX - MiniLx;
 
 	if (MiniY + MiniLy >= MaxMLY)
-		MiniY = MaxMLY - MiniLy - 1;
+		MiniY = MaxMLY - MiniLy;
+
+	if (MiniX < 0) MiniX = 0;
+	if (MiniY < 0) MiniY = 0;
 
 	minix = RealLx - MiniLx - 12;
 	miniy = RealLy - MiniLy - 16;

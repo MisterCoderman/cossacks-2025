@@ -5,17 +5,46 @@ All changes must remain compatible with the existing MSVC/Windows build.
 Primary dev environment: macOS ARM64 (Apple Silicon M1), CLion.
 
 ## ~~1. Fix backslash includes~~ DONE
+~~Replace Windows-style `#include "arc\gscarch.h"` paths with forward slashes.~~
+
 ## ~~2. Add missing compat stubs~~ DONE
+~~Extend `src/compat/windows.h` and other compat headers incrementally.~~
+CommCore, IChat, IntExplorer all compile on macOS.
+
 ## ~~3. Fix pointer-to-int casts (64-bit)~~ DONE
+~~Original code stores pointers in `int`/`DWORD` (32-bit) — truncates on
+ARM64 where pointers are 8 bytes. Fixed with `intptr_t`/`uintptr_t`.~~
+
 ## ~~4. Rewrite x86 inline assembly~~ DONE (21 files, ~155 blocks)
+~~x86 `__asm` blocks cannot compile on ARM64. Rewrote all to portable C:
+`Fastdraw.cpp` (RLC sprite decoding), `3DGraph.cpp` (textured triangle
+rasterization), `GP_Draw.cpp` (79 blocks), `fog.cpp`, `RealWater.cpp`,
+`path.cpp`, `Masks.cpp`, `Lines.cpp`, and 13 more files.~~
+
 ## ~~8. Replace Win32 file I/O~~ DONE (compat_file_io.h)
+~~`CreateFile`/`ReadFile`/`WriteFile` → `open`/`read`/`write`.
+`CreateFileMapping`/`MapViewOfFile` → `mmap`.
+`FindFirstFile`/`FindNextFile` → `opendir`/`readdir` with `fnmatch`.~~
+
 ## ~~9. Replace WinMain~~ DONE (platform_main.cpp)
+~~`int main()` entry point on non-Windows, calls `WinMain()`.
+DirectPlayLobby stubs, CPinger stub implementation.~~
+
 ## ~~Fix duplicate symbols~~ DONE
+~~25 symbols defined in both exe and libraries. Fixed with `extern`/`static`.~~
+
 ## ~~Fix custom memory allocator~~ DONE
+~~`_ExMalloc` writes `0xCAFEBABE` to first 4 bytes of every allocation,
+corrupting C++ standard library objects during static init. Disabled on
+non-Win32. `operator new`/`delete` override also disabled.~~
+
 ## ~~Fix 32-bit pointer size assumptions~~ DONE (32 locations, `malloc(4*N)` → `malloc(sizeof(T*)*N)`)
 
-## ~~PREV: Fix crash in Loading()~~ DONE (Nature.cpp `short**` alloc, GP_Draw.cpp `int`→`intptr_t`)
-## ~~PREV: Fix GP_Header::Pack pointer size~~ DONE (changed `byte*` to `DWORD` to match file format)
+## ~~PREV: Fix crash in Loading()~~ DONE
+~~Nature.cpp `short**` alloc, GP_Draw.cpp `int`→`intptr_t`.~~
+
+## ~~PREV: Fix GP_Header::Pack pointer size~~ DONE
+~~Changed `byte*` to `DWORD` to match 4-byte on-disk format.~~
 
 ## ~~PREV: Fix GP sprite rendering~~ DONE
 Fixed CASHREF (DWORD→uintptr_t), INTV/PTRV macros, cash buffer header layout
@@ -152,3 +181,41 @@ cd "/Users/mazhnik/Codes/opensource/cossacks-1.52/Cossacks Back to War v1.52 (20
 - 32-bit pointer assumptions (`malloc(4*N)`) fixed across 32 locations
 - `std::ifstream` in static init replaced with `fopen()` to avoid crashes
 - Wine detection bypassed on non-Win32
+- `memcpy` → `memmove` for overlapping array shifts (~70 instances).
+  The original code uses `memcpy(arr+i, arr+i+1, ...)` to shift array
+  elements when removing an item. Source and destination overlap, which is
+  undefined behavior per the C standard. On Windows/MSVC x86, `memcpy`
+  happened to copy forward (low→high), which is safe for this pattern.
+  On macOS ARM64/Clang, `memcpy` may use optimized SIMD that copies in
+  arbitrary order, corrupting the data. `memmove` handles overlap correctly
+  on all platforms. ASan catches this as `memcpy-param-overlap`.
+- Buffer overflow fixes found via ASan (all pre-existing UB, harmless on
+  Windows 32-bit due to struct padding/alignment, crashes on macOS 64-bit):
+  - `xBlockRead/Write(&byteVar, 4)` — reading/writing 4 bytes from 1-byte
+    globals (`BalloonState`, `CannonState`, etc.) and 2-byte globals
+    (`MAXOBJECT`). Overwrites adjacent globals. Fixed with temp `int`.
+  - `DEFPLNAMES[8][0]` — off-by-one, should be `DEFPLNAMES[i][0]`
+  - `SAVMES` length check `> 10` should be `> 16`
+  - `Dialogs.cpp` `malloc(4)` for `char**` — 4 bytes for an 8-byte pointer
+  - `GET_INT/GET_BYTE` in 3DRandMap.cpp — no bounds check on SaveBuf
+  - `HostID == -1` used as array index without guard
+  - `GetGPWidth/Height/Shift` — no `n < 0` guard
+  - `CDirSound` class — `#pragma pack(1)` corrupted `std::string` layout
+  - `minimap` off-by-one: `MaxMLX - MiniLx - 1` → `-1` when equal
+
+### Known issue: terrain artifacts on first save load after restart
+SectMap (terrain section data) gets corrupted during the first save load
+after app restart. Subsequent loads in the same session work correctly.
+The corruption produces invalid section values (should be 0-2, gets values
+like 109, 201, 235) causing wrong terrain blending. Guarded in
+`CopyMaskedBitmap` and `PrepareIntersection1/2` to prevent crashes.
+Root cause: likely an initialization order issue — first load allocates
+new arrays via `SetupArrays()` (ADDSH≠ACTUAL_ADDSH), subsequent loads
+reuse arrays via `ClearArrays()` (ADDSH==ACTUAL_ADDSH). The difference
+in code paths may leave SectMap partially uninitialized or corrupted
+by the random map regeneration code.
+
+
+## Check
+- archives unarchiving location: currently work root (Cossacks Back to War v1.52 (2025)), not sure that is how it was on Windows. 
+Need to check if Windows unarchived to the archive location.

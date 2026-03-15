@@ -352,6 +352,7 @@ extern RLCTable SimpleMaskB;
 extern RLCTable SimpleMaskC;
 extern RLCTable SimpleMaskD;
 void CopyMaskedBitmap(byte* Bits, int x, int y, int MaskID) {
+	if (MaskID < 0 || MaskID >= SimpleMaskA->SCount) return; // TODO: find root cause of SectMap corruption that produces invalid MaskID
 	CopyMaskedBitmap64(Bits, x, y, RLC_ADDR(SimpleMaskA, MaskID));
 	CopyMaskedTransparentBitmap_4(Bits, x, y, RLC_ADDR(SimpleMaskB, MaskID));
 	CopyMaskedTransparentBitmap_8(Bits, x, y, RLC_ADDR(SimpleMaskC, MaskID));
@@ -863,6 +864,7 @@ void PrepareIntersection2(int bm1,int bm2,int bm3,
 						  int x0,int y01,
 						  int s1,int s2,int s3,
 						  RLCTable Masks,byte* BitmapsArray){
+	if (s1 > 2 || s2 > 2 || s3 > 2 || s1 < 0 || s2 < 0 || s3 < 0) return; // corrupt SectMap
 	int y0=y01-31;
 	if(bm1==bm2){
 		if(bm3<bm2){
@@ -950,6 +952,7 @@ void PrepareIntersection1(int bm1, int bm2, int bm3,
 	int x0, int y0,
 	int s1, int s2, int s3,
 	RLCTable Masks, byte* BitmapsArray) {
+	if (s1 > 2 || s2 > 2 || s3 > 2 || s1 < 0 || s2 < 0 || s3 < 0) return; // corrupt SectMap
 	if (bm1 == bm2) {
 		if (bm3 < bm2) {
 			//1,2 over 3 - inverse mask

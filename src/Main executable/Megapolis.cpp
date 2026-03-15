@@ -833,12 +833,12 @@ void City::UnRegisterNewUnit(OneObject* OB)
 			}
 			else
 			{
-				memcpy(Memb + Index, Memb + Index + 1, (NMemb - Index - 1) << 1);
-				memcpy(MembSN + Index, MembSN + Index + 1, (NMemb - Index - 1) << 1);
+				memmove(Memb + Index, Memb + Index + 1, (NMemb - Index - 1) << 1);
+				memmove(MembSN + Index, MembSN + Index + 1, (NMemb - Index - 1) << 1);
 				if (BR->PosCreated)
 				{
-					memcpy(BR->posX + Index, BR->posX + Index + 1, (NMemb - Index - 1) << 2);
-					memcpy(BR->posY + Index, BR->posY + Index + 1, (NMemb - Index - 1) << 2);
+					memmove(BR->posX + Index, BR->posX + Index + 1, (NMemb - Index - 1) << 2);
+					memmove(BR->posY + Index, BR->posY + Index + 1, (NMemb - Index - 1) << 2);
 				};
 				BR->NMemb--;
 			};
@@ -1857,9 +1857,9 @@ void City::HandleConstructions()
 		{
 			if (i < NConstructions - 1)
 			{
-				memcpy(Construction + i, Construction + i + 1, (NConstructions - i - 1) << 1);
-				memcpy(ConstructionSN + i, ConstructionSN + i + 1, (NConstructions - i - 1) << 1);
-				memcpy(ConstructionTime + i, ConstructionTime + i + 1, (NConstructions - i - 1) << 1);
+				memmove(Construction + i, Construction + i + 1, (NConstructions - i - 1) << 1);
+				memmove(ConstructionSN + i, ConstructionSN + i + 1, (NConstructions - i - 1) << 1);
+				memmove(ConstructionTime + i, ConstructionTime + i + 1, (NConstructions - i - 1) << 1);
 			}
 			NConstructions--;
 			i--;
@@ -2073,8 +2073,8 @@ void City::HandleFields()
 			{
 				if (i < NFields - 1)
 				{
-					memcpy(FieldsID + i, FieldsID + i + 1, (NFields - i - 1) << 2);
-					memcpy(FieldsSN + i, FieldsSN + i + 1, (NFields - i - 1) << 1);
+					memmove(FieldsID + i, FieldsID + i + 1, (NFields - i - 1) << 2);
+					memmove(FieldsSN + i, FieldsSN + i + 1, (NFields - i - 1) << 1);
 				}
 				NFields--;
 				i--;
@@ -3787,8 +3787,8 @@ void City::HandleDefending()
 					{
 						if (j < N - 1)
 						{
-							memcpy(IDS + j, IDS + j + 1, (N - j - 1) << 1);
-							memcpy(USN + j, USN + j + 1, (N - j - 1) << 1);
+							memmove(IDS + j, IDS + j + 1, (N - j - 1) << 1);
+							memmove(USN + j, USN + j + 1, (N - j - 1) << 1);
 						};
 						N--;
 						DI->NDefenders--;
@@ -5008,7 +5008,7 @@ void ArmyMakeBattleLink(AI_Army* ARM)
 					AIAR->Enabled = false;
 					std::lock_guard<std::mutex> cityLock(cityMutex);
 					if (i < Na - 1) {
-						memcpy(Amid + i, Amid + i + 1, (Na - i - 1) << 1);
+						memmove(Amid + i, Amid + i + 1, (Na - i - 1) << 1);
 					}
 					CT->NDefArms--;
 					return;
@@ -5046,7 +5046,7 @@ void ArmyMakeBattleLink(AI_Army* ARM)
 						AIAR->Enabled = false;
 						std::lock_guard<std::mutex> cityLock(cityMutex);
 						if (i < Na - 1) {
-							memcpy(Amid + i, Amid + i + 1, (Na - i - 1) << 1);
+							memmove(Amid + i, Amid + i + 1, (Na - i - 1) << 1);
 						}
 						CT->NDefArms--;
 						return;
@@ -5460,7 +5460,7 @@ void ArmyMakeDiversiaLink(AI_Army* ARM)
 				AIAR->ClearArmy();
 				AIAR->Enabled = false;
 				if (i < Na - 1)
-					memcpy(Amid + i, Amid + i + 1, (Na - i - 1) << 1);
+					memmove(Amid + i, Amid + i + 1, (Na - i - 1) << 1);
 				CT->NDefArms--;
 				return;
 			}
@@ -5488,7 +5488,7 @@ void ArmyMakeDiversiaLink(AI_Army* ARM)
 						AIAR->ClearArmy();
 						AIAR->Enabled = false;
 						if (i < Na - 1)
-							memcpy(Amid + i, Amid + i + 1, (Na - i - 1) << 1);
+							memmove(Amid + i, Amid + i + 1, (Na - i - 1) << 1);
 						CT->NDefArms--;
 						return;
 					}
@@ -5836,9 +5836,9 @@ void A_BitvaLink(AI_Army* ARM)
 			{
 				if (i < N - 1)
 				{
-					memcpy(Mem + i, Mem + i + 1, (N - i - 1) << 1);
-					memcpy(MSN + i, MSN + i + 1, (N - i - 1) << 1);
-					memcpy(ATT + i, ATT + i + 1, N - i - 1);
+					memmove(Mem + i, Mem + i + 1, (N - i - 1) << 1);
+					memmove(MSN + i, MSN + i + 1, (N - i - 1) << 1);
+					memmove(ATT + i, ATT + i + 1, N - i - 1);
 				}
 				i--;
 				N--;
@@ -7175,7 +7175,7 @@ void DeleteFromGroups(byte NI, word ID)
 			{
 				if (j < NG - 1)
 				{
-					memcpy(GRP + j, GRP + j + 1, (NG - j - 1) << 1);
+					memmove(GRP + j, GRP + j + 1, (NG - j - 1) << 1);
 				}
 
 				NG--;
@@ -7188,7 +7188,7 @@ void DeleteFromGroups(byte NI, word ID)
 
 					if (i < N - 1)
 					{
-						memcpy(CT->GroupsSet + i, CT->GroupsSet + i + 1, (N - 1 - i) * sizeof(word*));
+						memmove(CT->GroupsSet + i, CT->GroupsSet + i + 1, (N - 1 - i) * sizeof(word*));
 					}
 
 					N--;

@@ -2131,7 +2131,7 @@ void NetCash::Process()
 				free( CELLS[i].Data );
 				if (i < NCells - 1)
 				{
-					memcpy( CELLS + i, CELLS + i + 1, ( NCells - i - 1 ) * sizeof(NetCell) );
+					memmove( CELLS + i, CELLS + i + 1, ( NCells - i - 1 ) * sizeof(NetCell) );
 				}
 				NCells--;
 				i--;
@@ -4351,7 +4351,7 @@ void LongSocket::CloseSocket(DWORD ID){
  free(LSI[i].Data);
  free(LSI[i].L);
  };
- if(i<NSINF+1)memcpy(LSI+i,LSI+i+1,(NSINF-i-1)<<2);
+ if(i<NSINF+1)memmove(LSI+i,LSI+i+1,(NSINF-i-1)<<2);
  NSINF--;
  if(!NSINF){
  free(LSI);
@@ -4433,7 +4433,7 @@ void PLAYERSBACKUP::AddInf( byte* BUF, int L, DPID ID, int RT )
 	if (NBDATA == 32)
 	{
 		free( BSTR[0].Data );
-		memcpy( BSTR, BSTR + 1, 31 * sizeof(BACKUPSTR) );
+		memmove( BSTR, BSTR + 1, 31 * sizeof(BACKUPSTR) );
 		NBDATA--;
 	}
 	BSTR[NBDATA].Data = new byte[L];
@@ -4502,7 +4502,7 @@ void RETRANS::CheckRetr( DWORD From, DWORD RT )
 		PBACK.SendInfoAboutTo( From, TOT[i].IDTO, RT );
 		if (i < NRET - 1)
 		{
-			memcpy( TOT + i, TOT + i + 1, ( NRET - i - 1 ) * sizeof(SingleRetr) );
+			memmove( TOT + i, TOT + i + 1, ( NRET - i - 1 ) * sizeof(SingleRetr) );
 		};
 		NRET--;
 		i--;
@@ -4673,7 +4673,7 @@ void LoosedPack::Remove( int ID )
 				}
 				if (j < N - 1)
 				{
-					memcpy( OLID[i].PING + j, OLID[i].PING + j + 1, ( N - j - 1 ) * sizeof(OneLPing) );
+					memmove( OLID[i].PING + j, OLID[i].PING + j + 1, ( N - j - 1 ) * sizeof(OneLPing) );
 				}
 				OLID[i].NPings--;
 				if (!OLID[i].NPings)
@@ -4698,7 +4698,7 @@ void LoosedPack::Process()
 				if (OLID[i].NReceived)OLID[i].NSent++;
 				if (j < N - 1)
 				{
-					memcpy( OLID[i].PING + j, OLID[i].PING + j + 1, ( N - j - 1 ) * sizeof(OneLPing) );
+					memmove( OLID[i].PING + j, OLID[i].PING + j + 1, ( N - j - 1 ) * sizeof(OneLPing) );
 				};
 				OLID[i].NPings--;
 				if (!OLID[i].NPings)

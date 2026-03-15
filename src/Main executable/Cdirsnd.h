@@ -1,5 +1,5 @@
 // ==============================================
-// Эмулятор DirectSound на базе SDL2 Mixer
+// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ DirectSound пїЅпїЅ пїЅпїЅпїЅпїЅ SDL2 Mixer
 // MR.CODERMAN 2025
 // ==============================================
 #ifndef __CDIRSND_H
@@ -17,6 +17,8 @@
 #define MaxSlider 1000
 #define SDL_MAX 1024
 
+// Reset packing вЂ” game headers use #pragma pack(1) which corrupts std::string layout
+#pragma pack(push, 8)
 class CDirSound {
 protected:
     void* m_pDirectSoundObj; // SDL audio context (opaque)
@@ -56,6 +58,7 @@ protected:
     void ReleaseAll();
     std::string m_iniPath;
 };
+#pragma pack(pop)
 
 #endif
 

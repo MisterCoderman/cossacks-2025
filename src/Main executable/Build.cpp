@@ -655,7 +655,7 @@ void TakeUnitFromCash( byte NI, word ID )
 		{
 			if ( i < CSSIZE - 1 )
 			{
-				memcpy( UNICASH + i, UNICASH + i + 1, ( CSSIZE - i - 1 ) * sizeof(ProCash) );
+				memmove( UNICASH + i, UNICASH + i + 1, ( CSSIZE - i - 1 ) * sizeof(ProCash) );
 			};
 			CSSIZE--;
 			i--;

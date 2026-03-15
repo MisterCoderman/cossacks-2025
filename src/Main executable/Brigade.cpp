@@ -63,12 +63,12 @@ bool Brigade::RemoveOne( int Index, Brigade* Dest )
 	( &BM.Peons )[GetBMIndex( OB )]--;
 	if ( Index < NMemb - 1 )
 	{
-		memcpy( Memb + Index, Memb + Index + 1, ( NMemb - Index - 1 ) << 1 );
-		memcpy( MembSN + Index, MembSN + Index + 1, ( NMemb - Index - 1 ) << 1 );
+		memmove( Memb + Index, Memb + Index + 1, ( NMemb - Index - 1 ) << 1 );
+		memmove( MembSN + Index, MembSN + Index + 1, ( NMemb - Index - 1 ) << 1 );
 		if ( PosCreated )
 		{
-			memcpy( posX + Index, posX + Index + 1, ( NMemb - Index - 1 ) << 2 );
-			memcpy( posY + Index, posY + Index + 1, ( NMemb - Index - 1 ) << 2 );
+			memmove( posX + Index, posX + Index + 1, ( NMemb - Index - 1 ) << 2 );
+			memmove( posY + Index, posY + Index + 1, ( NMemb - Index - 1 ) << 2 );
 		};
 	};
 	NMemb--;
@@ -84,12 +84,12 @@ void Brigade::FreeMember( int Index )
 	( &BM.Peons )[GetBMIndex( OB )]--;
 	if ( Index < NMemb - 1 )
 	{
-		memcpy( Memb + Index, Memb + Index + 1, ( NMemb - Index - 1 ) << 1 );
-		memcpy( MembSN + Index, MembSN + Index + 1, ( NMemb - Index - 1 ) << 1 );
+		memmove( Memb + Index, Memb + Index + 1, ( NMemb - Index - 1 ) << 1 );
+		memmove( MembSN + Index, MembSN + Index + 1, ( NMemb - Index - 1 ) << 1 );
 		if ( PosCreated )
 		{
-			memcpy( posX + Index, posX + Index + 1, ( NMemb - Index - 1 ) << 2 );
-			memcpy( posY + Index, posY + Index + 1, ( NMemb - Index - 1 ) << 2 );
+			memmove( posX + Index, posX + Index + 1, ( NMemb - Index - 1 ) << 2 );
+			memmove( posY + Index, posY + Index + 1, ( NMemb - Index - 1 ) << 2 );
 		};
 	};
 	NMemb--;
@@ -248,12 +248,12 @@ void Brigade::CheckMembers(City* pCT)
 				(&BM.Peons)[GetBMIndex(OB)]--;
 				if (i < NMemb - 1)
 				{
-					memcpy(Memb + i, Memb + i + 1, (NMemb - i - 1) << 1);
-					memcpy(MembSN + i, MembSN + i + 1, (NMemb - i - 1) << 1);
+					memmove(Memb + i, Memb + i + 1, (NMemb - i - 1) << 1);
+					memmove(MembSN + i, MembSN + i + 1, (NMemb - i - 1) << 1);
 					if (PosCreated)
 					{
-						memcpy(posX + i, posX + i + 1, (NMemb - i - 1) << 2);
-						memcpy(posY + i, posY + i + 1, (NMemb - i - 1) << 2);
+						memmove(posX + i, posX + i + 1, (NMemb - i - 1) << 2);
+						memmove(posY + i, posY + i + 1, (NMemb - i - 1) << 2);
 					}
 				}
 				--NMemb;
@@ -3703,9 +3703,9 @@ void B_BitvaLink( Brigade* BR )
 				//delete enemy from list
 				if ( i < N - 1 )
 				{
-					memcpy( Mem + i, Mem + i + 1, ( N - i - 1 ) << 1 );
-					memcpy( MSN + i, MSN + i + 1, ( N - i - 1 ) << 1 );
-					memcpy( ATT + i, ATT + i + 1, N - i - 1 );
+					memmove( Mem + i, Mem + i + 1, ( N - i - 1 ) << 1 );
+					memmove( MSN + i, MSN + i + 1, ( N - i - 1 ) << 1 );
+					memmove( ATT + i, ATT + i + 1, N - i - 1 );
 				};
 				i--;
 				N--;
@@ -6000,8 +6000,8 @@ void MakeDiversionLink( Brigade* BR )
 					{
 						if ( q < DORD->NU - 1 )
 						{
-							memcpy( DORD->IDX + q, DORD->IDX + q + 1, ( DORD->NU - q - 1 ) << 1 );
-							memcpy( DORD->USN + q, DORD->USN + q + 1, ( DORD->NU - q - 1 ) << 1 );
+							memmove( DORD->IDX + q, DORD->IDX + q + 1, ( DORD->NU - q - 1 ) << 1 );
+							memmove( DORD->USN + q, DORD->USN + q + 1, ( DORD->NU - q - 1 ) << 1 );
 						};
 						q--;
 						DORD->NU--;
@@ -6028,8 +6028,8 @@ void MakeDiversionLink( Brigade* BR )
 										CT->RegisterNewUnit( OB );
 										if ( q < DORD->NU - 1 )
 										{
-											memcpy( DORD->IDX + q, DORD->IDX + q + 1, ( DORD->NU - q - 1 ) << 1 );
-											memcpy( DORD->USN + q, DORD->USN + q + 1, ( DORD->NU - q - 1 ) << 1 );
+											memmove( DORD->IDX + q, DORD->IDX + q + 1, ( DORD->NU - q - 1 ) << 1 );
+											memmove( DORD->USN + q, DORD->USN + q + 1, ( DORD->NU - q - 1 ) << 1 );
 										};
 										q--;
 										DORD->NU--;
@@ -6685,8 +6685,8 @@ void CalculateFreeUnits( AI_Army* AIR )
 			if ( i < AIR->NCom - 1 )
 			{
 				word NCp = ( AIR->NCom - i - 1 ) << 1;
-				memcpy( AIR->ComID + i, AIR->ComID + i + 1, NCp );
-				memcpy( AIR->ComSN + i, AIR->ComSN + i + 1, NCp );
+				memmove( AIR->ComID + i, AIR->ComID + i + 1, NCp );
+				memmove( AIR->ComSN + i, AIR->ComSN + i + 1, NCp );
 			};
 			i--;
 			AIR->NCom--;
@@ -6719,8 +6719,8 @@ void CalculateFreeUnits( AI_Army* AIR )
 			if ( i < AIR->NBar - 1 )
 			{
 				word NCp = ( AIR->NBar - i - 1 ) << 1;
-				memcpy( AIR->BarID + i, AIR->BarID + i + 1, NCp );
-				memcpy( AIR->BarSN + i, AIR->BarSN + i + 1, NCp );
+				memmove( AIR->BarID + i, AIR->BarID + i + 1, NCp );
+				memmove( AIR->BarSN + i, AIR->BarSN + i + 1, NCp );
 			};
 			i--;
 			AIR->NBar--;

@@ -6366,8 +6366,8 @@ extern "C" __declspec( dllexport ) void RemoveUnitFromGroup( GAMEOBJ* Src, int I
 	{
 		if ( Index < SG->N - 1 )
 		{
-			memcpy( SG->IDS + Index, SG->IDS + Index + 1, ( SG->N - Index - 1 ) << 1 );
-			memcpy( SG->SNS + Index, SG->SNS + Index + 1, ( SG->N - Index - 1 ) << 1 );
+			memmove( SG->IDS + Index, SG->IDS + Index + 1, ( SG->N - Index - 1 ) << 1 );
+			memmove( SG->SNS + Index, SG->SNS + Index + 1, ( SG->N - Index - 1 ) << 1 );
 		}
 		SG->N--;
 	}

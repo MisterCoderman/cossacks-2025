@@ -656,8 +656,8 @@ void ProcessDeathList()
 		{
 			if (i < NDeath - 1)
 			{
-				memcpy( DeathList + i, DeathList + i + 1, ( NDeath - i - 1 ) << 1 );
-				memcpy( DeathSN + i, DeathSN + i + 1, ( NDeath - i - 1 ) << 1 );
+				memmove( DeathList + i, DeathList + i + 1, ( NDeath - i - 1 ) << 1 );
+				memmove( DeathSN + i, DeathSN + i + 1, ( NDeath - i - 1 ) << 1 );
 			}
 			NDeath--;
 		}
@@ -844,7 +844,7 @@ void OneObject::Die()
 							//need to remove
 							if (j < N - 1)
 							{
-								memcpy( INS + j, INS + j + 1, ( N - j - 1 ) << 1 );
+								memmove( INS + j, INS + j + 1, ( N - j - 1 ) << 1 );
 							}
 							N--;
 							OB->NInside--;

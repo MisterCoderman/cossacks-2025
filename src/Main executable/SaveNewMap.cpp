@@ -167,9 +167,17 @@ void SaveSect( ResFile f1 )
 
 void LoadSect( ResFile f1 )
 {
+	fprintf(stderr, "[SECT] LoadSect: SectMap=%p MaxSector=%d MaxTH=%d size=%d\n",
+		(void*)SectMap, MaxSector, MaxTH, SectMap ? MaxSector*MaxTH*6 : 0);
 	if ( SectMap )
 	{
-		RBlockRead( f1, SectMap, MaxSector*MaxTH * 6 );
+		int sectSize = MaxSector*MaxTH * 6;
+		RBlockRead( f1, SectMap, sectSize );
+		int bad = 0;
+		for (int i = 0; i < sectSize; i++) {
+			if (SectMap[i] > 2) { bad++; SectMap[i] = 0; }
+		}
+		fprintf(stderr, "[SECT] LoadSect done: %d/%d bad values clamped\n", bad, sectSize);
 	}
 }
 

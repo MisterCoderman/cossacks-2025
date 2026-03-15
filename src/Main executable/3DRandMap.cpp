@@ -5482,8 +5482,8 @@ void SamplesSet::DelSquare(int x, int y)
 			{
 				if (j < n - 1)
 				{
-					memcpy(SSET[i].xi + j, SSET[i].xi + j + 1, (n - j - 1) << 1);
-					memcpy(SSET[i].yi + j, SSET[i].yi + j + 1, (n - j - 1) << 1);
+					memmove(SSET[i].xi + j, SSET[i].xi + j + 1, (n - j - 1) << 1);
+					memmove(SSET[i].yi + j, SSET[i].yi + j + 1, (n - j - 1) << 1);
 				};
 				SSET[i].Npt--;
 			};
@@ -5492,7 +5492,7 @@ void SamplesSet::DelSquare(int x, int y)
 			{
 				if (j < n - 1)
 				{
-					memcpy(SSET[i].ROOT + j, SSET[i].ROOT + j + 1, (n - j - 1) * sizeof(SampleRoot));
+					memmove(SSET[i].ROOT + j, SSET[i].ROOT + j + 1, (n - j - 1) * sizeof(SampleRoot));
 				};
 				SSET[i].NRoots--;
 
@@ -6537,21 +6537,25 @@ void LinkSys::ExecuteStamps()
 void xBlockRead(SaveBuf* SB, void* Data, int Size);
 inline int GET_INT(SaveBuf* SB)
 {
+	if (SB->Pos + 4 > SB->Size) return -1;
 	SB->Pos += 4;
-	return *((int*)(SB->Buf + SB->Pos - 4));
+	int val; memcpy(&val, SB->Buf + SB->Pos - 4, 4); return val;
 };
 inline int GET_DWORD(SaveBuf* SB)
 {
+	if (SB->Pos + 4 > SB->Size) return -1;
 	SB->Pos += 4;
-	return *((DWORD*)(SB->Buf + SB->Pos - 4));
+	DWORD val; memcpy(&val, SB->Buf + SB->Pos - 4, 4); return (int)val;
 };
 inline int GET_BYTE(SaveBuf* SB)
 {
+	if (SB->Pos + 1 > SB->Size) return 0;
 	SB->Pos++;
 	return *((byte*)(SB->Buf + SB->Pos - 1));
 };
 inline int GET_CHAR(SaveBuf* SB)
 {
+	if (SB->Pos + 1 > SB->Size) return 0;
 	SB->Pos++;
 	return *((char*)(SB->Buf + SB->Pos - 1));
 };

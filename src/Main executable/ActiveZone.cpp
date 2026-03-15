@@ -112,7 +112,7 @@ void DeleteAZone( int id )
 		free( AZones[id].Name );
 		if (id < NAZones - 1)
 		{
-			memcpy( AZones + id, AZones + id + 1, ( NAZones - id - 1 ) * sizeof(ActiveZone) );
+			memmove( AZones + id, AZones + id + 1, ( NAZones - id - 1 ) * sizeof(ActiveZone) );
 		};
 		NAZones--;
 	};
@@ -388,7 +388,7 @@ bool DeleteActiveGroup()
 	free( AGroups[CurrentAGroup].Name );
 	if (CurrentAGroup < NAGroups - 1)
 	{
-		memcpy( AGroups + CurrentAGroup, AGroups + CurrentAGroup + 1, ( NAGroups - CurrentAGroup - 1 ) * sizeof(ActiveGroup) );
+		memmove( AGroups + CurrentAGroup, AGroups + CurrentAGroup + 1, ( NAGroups - CurrentAGroup - 1 ) * sizeof(ActiveGroup) );
 	};
 	NAGroups--;
 	CurrentAGroup = -1;
@@ -474,8 +474,8 @@ void RefreshGroup( ActiveGroup* AG )
 		{
 			if (i < AG->N - 1)
 			{
-				memcpy( AG->Units + i, AG->Units + i + 1, ( AG->N - i - 1 ) * 2 );
-				memcpy( AG->Serials + i, AG->Serials + i + 1, ( AG->N - i - 1 ) * 2 );
+				memmove( AG->Units + i, AG->Units + i + 1, ( AG->N - i - 1 ) * 2 );
+				memmove( AG->Serials + i, AG->Serials + i + 1, ( AG->N - i - 1 ) * 2 );
 			};
 			AG->N--;
 			i--;

@@ -84,8 +84,8 @@ void EraseFName( ResFile F )
 		free( FHNames[i] );
 		if (i < NHNames - 1)
 		{
-			memcpy( FHNames + i, FHNames + i + 1, sizeof(char*) * ( NHNames - i - 1 ) );
-			memcpy( FHANDLES + i, FHANDLES + i + 1, sizeof(ResFile) * ( NHNames - i - 1 ) );
+			memmove( FHNames + i, FHNames + i + 1, sizeof(char*) * ( NHNames - i - 1 ) );
+			memmove( FHANDLES + i, FHANDLES + i + 1, sizeof(ResFile) * ( NHNames - i - 1 ) );
 		};
 		NHNames--;
 	};

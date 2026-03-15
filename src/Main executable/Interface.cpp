@@ -2311,8 +2311,8 @@ void AddPrimitiveChat(char* Nick, char* str,
 	{
 		free(ChatMess[0]);
 		free(ChatSender[0]);
-		memcpy(ChatMess, ChatMess + 1, NCHATS * 4);
-		memcpy(ChatSender, ChatSender + 1, NCHATS * 4);
+		memmove(ChatMess, ChatMess + 1, NCHATS * 4);
+		memmove(ChatSender, ChatSender + 1, NCHATS * 4);
 		NCHATS--;
 	};
 	ChatMess[NCHATS] = new char[strlen(str) + 1];
@@ -3863,6 +3863,7 @@ ffe2:
 				CMask |= 1 << PINFO[q].ColorID;
 			}
 			int NN = 0;
+			if (HostID != -1)
 			for (int q = NPlayers; q < 8; q++)
 			{
 				if (PINFO[HostID].COMPINFO[q])
@@ -4144,6 +4145,7 @@ ffe2:
 				{
 					Nats[7 - PINFO[q].ColorID] = NTCHAR[MNATION[q]->CurLine + 1];
 				}
+				if (HostID != -1)
 				for (int q = NPlayers; q < 8; q++)
 				{
 					if (PINFO[HostID].COMPINFO[q])

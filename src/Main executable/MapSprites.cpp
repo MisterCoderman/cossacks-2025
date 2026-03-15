@@ -148,7 +148,7 @@ void UnregisterSprite( int N )
 		{
 			if (i < nsp - 1)
 			{
-				memcpy( SPR + i, SPR + i + 1, ( nsp - i - 1 ) << 2 );
+				memmove( SPR + i, SPR + i + 1, ( nsp - i - 1 ) << 2 );
 			}
 			NSpri[nn]--;
 			if (!NSpri[nn])
@@ -2208,8 +2208,8 @@ void TimeReq::Del( int ID, byte Kind )
 		{
 			if (i < NMembers - 1)
 			{
-				memcpy( IDS + i, IDS + i + 1, ( NMembers - i - 1 ) << 2 );
-				memcpy( Kinds + i, Kinds + i + 1, NMembers - i - 1 );
+				memmove( IDS + i, IDS + i + 1, ( NMembers - i - 1 ) << 2 );
+				memmove( Kinds + i, Kinds + i + 1, NMembers - i - 1 );
 			};
 			NMembers--;
 		};
