@@ -181,9 +181,11 @@ byte* GP_System::GetCash(int Size)
 	tpos = CashPos;
 	for (int i = 0; i < NSeg; i++)
 	{
+		if (tpos + CASH_HDR_SIZE > cas) break;
 		int sz = INTV(Cash + tpos + CASH_SZ_OFS);
+		if (sz <= 0 || tpos + sz > cas) break;
 		uintptr_t* ptr = (uintptr_t*)PTRV(Cash + tpos + CASH_PTR_OFS);
-		if (ptr)
+		if (ptr && ptr != (uintptr_t*)NO_PACK)
 		{
 			ptr[0] = (uintptr_t)(intptr_t)-1; // NO_PACK
 			PTRV(Cash + tpos + CASH_PTR_OFS) = 0;

@@ -446,8 +446,12 @@ void ReadPichTicks()
 			memcpy( RGAME.Stream + RGAME.Size, RBUF, sz );
 			RGAME.Size += sz;
 		}
-		PitchTicks = RGAME.Stream[RGAME.Pos];
-		RGAME.Pos++;
+		if (RGAME.Pos < RGAME.Size) {
+			PitchTicks = RGAME.Stream[RGAME.Pos];
+			RGAME.Pos++;
+		} else {
+			PitchTicks = 0;
+		}
 	}
 	else
 	{

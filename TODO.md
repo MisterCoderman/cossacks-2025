@@ -217,6 +217,7 @@ differs (ASLR, sparse address space) producing garbage values (93, 201,
 `CopyMaskedBitmap` and `PrepareIntersection1/2`.
 
 
-## Check
-- archives unarchiving location: currently work root (Cossacks Back to War v1.52 (2025)), not sure that is how it was on Windows. 
-Need to check if Windows unarchived to the archive location.
+## ~~Check: archive extraction location~~ VERIFIED
+~~`ExtractArchive` passes `lpFileName` as `DestName` to `RARProcessFile`
+with `DestPath=NULL`. This extracts to the exact filename relative to CWD.
+Windows behavior is identical — CWD is the game data root in both cases.~~

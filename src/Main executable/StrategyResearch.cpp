@@ -1,9 +1,9 @@
-// В начале StrategyResearch.cpp замените все ваши текущие инклюды на эти:
+// пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ StrategyResearch.cpp пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅ:
 #include <stdlib.h>   // malloc, free
 #include <string.h>   // memset
 #include <stdio.h>    // fprintf, stderr
 
-// --- проектные заголовки
+// --- пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 #include "ddini.h"
 #include "ResFile.h"
 #include "FastDraw.h"
@@ -207,32 +207,32 @@ void GlobalArmyInfo::ResearchArmyDistribution(byte NI){
 	//COUNTER=GetTickCount()-tt;
 };
 */
-// Решена проблема повреждения кучи
+// пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ
 void GlobalArmyInfo::ResearchArmyDistribution(byte NI)
 {
-	// Общее число клеток
+	// пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
 	size_t totalCells = (size_t)StratLx * StratLy;
 
-	// Разово выделяем ArmDistr
+	// пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ ArmDistr
 	if (!ArmDistr) {
 		ArmDistr = (word*)malloc(totalCells * sizeof(word));
 		if (!ArmDistr) {
 			fprintf(stderr,
-				"ResearchArmyDistribution: не удалось выделить ArmDistr (%zu entries)\n",
+				"ResearchArmyDistribution: пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ ArmDistr (%zu entries)\n",
 				totalCells);
 			return;
 		}
 	}
-	// Помечаем все как пустые (0xFFFF)
+	// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ (0xFFFF)
 	memset(ArmDistr, 0xFF, totalCells * sizeof(word));
 
-	// Разово выделяем CIN
+	// пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ CIN
 	if (!CIN) {
 		MaxCIN = totalCells;
 		CIN = (CellInfo*)malloc(MaxCIN * sizeof(CellInfo));
 		if (!CIN) {
 			fprintf(stderr,
-				"ResearchArmyDistribution: не удалось выделить CIN (%zu entries)\n",
+				"ResearchArmyDistribution: пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ CIN (%zu entries)\n",
 				MaxCIN);
 			return;
 		}
@@ -250,6 +250,7 @@ void GlobalArmyInfo::ResearchArmyDistribution(byte NI)
 			continue;
 
 		NewMonster* NM = OB->newMons;
+		if (NM->Usage >= 26) continue;
 		byte ID = StrCod[NM->Usage];
 		if (ID == 0xFF)
 			continue;
