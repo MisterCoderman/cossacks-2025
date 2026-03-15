@@ -4,7 +4,6 @@ This is an ongoing effort to make the engine run natively on macOS & web (with t
 
 The game is playable on **macOS** and in **web browsers (WASM)** in Random Map mode.
 Campaigns are not yet supported (see limitations below).
-Direct IP multiplayer is supported on macOS but not well-tested yet.
 
 ### Building on macOS
 
@@ -37,18 +36,8 @@ ln -sf "/path/to/Cossacks Back to War v1.52 (2025)" /tmp/cossacks-data
 emcmake cmake -B build-wasm -S . -DGAME_DATA_DIR=/tmp/cossacks-data
 cmake --build build-wasm
 
-# Serve (requires special headers for threading support)
-cd build-wasm/src/Main\ executable/
-python3 -c "
-from http.server import HTTPServer, SimpleHTTPRequestHandler
-class H(SimpleHTTPRequestHandler):
-    def end_headers(self):
-        self.send_header('Cross-Origin-Opener-Policy', 'same-origin')
-        self.send_header('Cross-Origin-Embedder-Policy', 'require-corp')
-        super().end_headers()
-HTTPServer(('', 8080), H).serve_forever()
-"
-# Open http://localhost:8080/Cossacks.html
+# Serve and open in browser
+emrun --port 8080 build-wasm/src/Main\ executable/Cossacks.html
 ```
 
 Note: the WASM build preloads ~293MB of game data. The browser will download this on first load.
