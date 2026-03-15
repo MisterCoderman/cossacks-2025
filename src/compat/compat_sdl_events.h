@@ -101,14 +101,19 @@ inline BOOL PeekMessageA(LPMSG msg, HWND hw, UINT min_val, UINT max_val, UINT re
             msg->wParam = 0;
             return TRUE;
 
-        case SDL_MOUSEMOTION:
+        case SDL_MOUSEMOTION: {
             _sdl_update_modifiers(SDL_GetModState());
             msg->message = WM_MOUSEMOVE;
             msg->wParam = _sdl_mouse_wparam;
-            msg->lParam = MAKELONG(sdlEvent.motion.x, sdlEvent.motion.y);
+            // Clamp negative coords to 0 — MAKELONG casts to WORD (unsigned),
+            // wrapping -1 to 65535 which triggers wrong-direction edge scrolling
+            int mx = sdlEvent.motion.x < 0 ? 0 : sdlEvent.motion.x;
+            int my = sdlEvent.motion.y < 0 ? 0 : sdlEvent.motion.y;
+            msg->lParam = MAKELONG(mx, my);
             return TRUE;
+        }
 
-        case SDL_MOUSEBUTTONDOWN:
+        case SDL_MOUSEBUTTONDOWN: {
             _sdl_update_modifiers(SDL_GetModState());
             if (sdlEvent.button.button == SDL_BUTTON_LEFT) {
                 msg->message = WM_LBUTTONDOWN;
@@ -121,10 +126,13 @@ inline BOOL PeekMessageA(LPMSG msg, HWND hw, UINT min_val, UINT max_val, UINT re
                 _sdl_mouse_wparam |= MK_MBUTTON;
             } else continue; // skip unknown buttons
             msg->wParam = _sdl_mouse_wparam;
-            msg->lParam = MAKELONG(sdlEvent.button.x, sdlEvent.button.y);
+            int bx = sdlEvent.button.x < 0 ? 0 : sdlEvent.button.x;
+            int by = sdlEvent.button.y < 0 ? 0 : sdlEvent.button.y;
+            msg->lParam = MAKELONG(bx, by);
             return TRUE;
+        }
 
-        case SDL_MOUSEBUTTONUP:
+        case SDL_MOUSEBUTTONUP: {
             _sdl_update_modifiers(SDL_GetModState());
             if (sdlEvent.button.button == SDL_BUTTON_LEFT) {
                 msg->message = WM_LBUTTONUP;
@@ -137,8 +145,11 @@ inline BOOL PeekMessageA(LPMSG msg, HWND hw, UINT min_val, UINT max_val, UINT re
                 _sdl_mouse_wparam &= ~MK_MBUTTON;
             } else continue;
             msg->wParam = _sdl_mouse_wparam;
-            msg->lParam = MAKELONG(sdlEvent.button.x, sdlEvent.button.y);
+            int bx = sdlEvent.button.x < 0 ? 0 : sdlEvent.button.x;
+            int by = sdlEvent.button.y < 0 ? 0 : sdlEvent.button.y;
+            msg->lParam = MAKELONG(bx, by);
             return TRUE;
+        }
 
         case SDL_MOUSEWHEEL:
             msg->message = WM_MOUSEWHEEL;
