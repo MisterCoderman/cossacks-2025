@@ -164,12 +164,12 @@ Software-based 8-bit rendering to `ScreenPtr`, then `FlipPages()` in
 ### Build and test commands
 ```bash
 # Build (from project root):
-cd /Users/mazhnik/Codes/opensource/cossacks-1.52
+cd /cossacks-1.52
 cmake -B build -S .
 cmake --build build
 
 # Run (from game data directory):
-cd "/Users/mazhnik/Codes/opensource/cossacks-1.52/Cossacks Back to War v1.52 (2025)"
+cd "/cossacks-1.52/Cossacks Back to War v1.52 (2025)"
 "../build/src/Main executable/Cossacks" 2>&1
 
 # CLion: Set working directory to the game data folder in Run > Edit Configurations

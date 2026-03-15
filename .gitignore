@@ -3,8 +3,7 @@ src/Temp/
 src/.vs/
 src/Testing/
 build/
-build-test/
-src/build/
+build-*
 cmake-build-*/
 .idea/
 /cossacks-revamp-2025-1.52-source/
