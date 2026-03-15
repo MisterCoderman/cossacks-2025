@@ -1,9 +1,10 @@
-This is an ongoing effort to make the engine run natively on macOS (with the help of Claude Code).
+This is an ongoing effort to make the engine run natively on macOS & web (with the help of Claude Code).
 
 ### Current Status
 
-The game is playable on macOS in Random Map mode. Campaigns are not yet supported (see limitations below). 
-Direct IP multiplayer is supported but not well-tested yet.
+The game is playable on **macOS** and in **web browsers (WASM)** in Random Map mode.
+Campaigns are not yet supported (see limitations below).
+Direct IP multiplayer is supported on macOS but not well-tested yet.
 
 ### Building on macOS
 
@@ -12,16 +13,45 @@ Direct IP multiplayer is supported but not well-tested yet.
 brew install sdl2 sdl2_mixer cmake
 
 # Build
-cd /path/to/cossacks-1.52
 cmake -B build -S .
 cmake --build build
 
 # Run (from game data directory)
 cd "Cossacks Back to War v1.52 (2025)"
 "../build/src/Main executable/Cossacks"
+
+# Optional: enable AddressSanitizer for debugging
+cmake -B build -S . -DENABLE_ASAN=ON
 ```
 
-Intel Mac untested.
+Intel Mac: compiles without code changes, untested.
+
+### Building for WebAssembly (browser)
+
+```bash
+# Prerequisites
+brew install emscripten cmake
+
+# Build (point GAME_DATA_DIR to your game data — path must not contain spaces)
+ln -sf "/path/to/Cossacks Back to War v1.52 (2025)" /tmp/cossacks-data
+emcmake cmake -B build-wasm -S . -DGAME_DATA_DIR=/tmp/cossacks-data
+cmake --build build-wasm
+
+# Serve (requires special headers for threading support)
+cd build-wasm/src/Main\ executable/
+python3 -c "
+from http.server import HTTPServer, SimpleHTTPRequestHandler
+class H(SimpleHTTPRequestHandler):
+    def end_headers(self):
+        self.send_header('Cross-Origin-Opener-Policy', 'same-origin')
+        self.send_header('Cross-Origin-Embedder-Policy', 'require-corp')
+        super().end_headers()
+HTTPServer(('', 8080), H).serve_forever()
+"
+# Open http://localhost:8080/Cossacks.html
+```
+
+Note: the WASM build preloads ~293MB of game data. The browser will download this on first load.
 
 #### Compatibility updates
 - CMake build system for macOS/Linux alongside existing MSVC/Windows

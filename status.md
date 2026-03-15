@@ -1,8 +1,8 @@
 # Cross-Platform Porting TODO
 
-Goal: make the codebase cross-platform (Windows, macOS, Linux).
+Goal: make the codebase cross-platform (Windows, macOS, Linux, web).
 All changes must remain compatible with the existing MSVC/Windows build.
-Primary dev environment: macOS ARM64 (Apple Silicon M1), CLion.
+Primary dev environment: macOS ARM64 + web, CLion.
 
 ## ~~1. Fix backslash includes~~ DONE
 ~~Replace Windows-style `#include "arc\gscarch.h"` paths with forward slashes.~~
@@ -221,3 +221,31 @@ differs (ASLR, sparse address space) producing garbage values (93, 201,
 ~~`ExtractArchive` passes `lpFileName` as `DestName` to `RARProcessFile`
 with `DestPath=NULL`. This extracts to the exact filename relative to CWD.
 Windows behavior is identical — CWD is the game data root in both cases.~~
+
+## WebAssembly (WASM) support
+The game compiles to WASM and runs in the browser. Current status:
+- Compiles with Emscripten (all source files, zero errors)
+- Game data preloaded via `--preload-file` (~293MB bundle)
+- ASYNCIFY enabled for blocking main loop (no refactoring needed)
+- pthreads enabled (`-pthread`, `SharedArrayBuffer`)
+- Menu, game creation, and gameplay rendering all work
+
+### WASM TODOs
+- **Main loop refactoring**: SDL2 warns `emscripten_set_main_loop_timing:
+  Cannot set timing mode for main loop since a main loop does not exist!`
+  Currently works via ASYNCIFY but proper `emscripten_set_main_loop()`
+  would improve performance. Requires refactoring `PlayGame()`,
+  `processMainMenu()`, and `AllGame()` from blocking `while` loops
+  to callback-based state machines.
+- **Main thread blocking**: Emscripten warns `Blocking on the main thread
+  is very dangerous`. The game uses `Sleep()`, `WaitForSingleObject()`,
+  and blocking loops on the main thread. ASYNCIFY handles this but a
+  proper fix would move blocking work to Web Workers.
+- **Game data loading**: currently preloads entire 293MB bundle at startup.
+  Could use lazy loading or split into smaller chunks for faster initial load.
+- **Save/load**: WASM virtual filesystem is in-memory. Saves would need
+  to persist via IndexedDB or download to file.
+- **Networking**: no raw sockets in WASM. Multiplayer would need
+  WebSocket or WebRTC bridge.
+- **Audio**: SDL2_mixer works via Emscripten but may need testing.
+- **Input**: keyboard and mouse work via SDL2.

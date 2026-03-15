@@ -114,26 +114,55 @@ target_include_directories(Cossacks PRIVATE
 
 target_link_libraries(Cossacks PRIVATE CommCore)
 # On non-Windows, link IChat and IntExplorer as static libraries.
-# Use -ld_classic linker to handle duplicate symbols (the exe and DLLs
-# shared symbol definitions via dllexport/dllimport on Windows).
 if(NOT WIN32)
     target_link_libraries(Cossacks PRIVATE IChat IntExplorer)
 endif()
 
-if(NOT WIN32)
-    target_link_directories(Cossacks PRIVATE ${SDL2_LIBRARY_DIRS} ${SDL2_MIXER_LIBRARY_DIRS})
-    target_link_libraries(Cossacks PRIVATE ${SDL2_LIBRARIES} ${SDL2_MIXER_LIBRARIES})
-    # Allow duplicate symbols from static libs (were separate DLLs on Windows)
-    if(APPLE)
-        # No special linker flags needed
-    endif()
-endif()
+if(EMSCRIPTEN)
+    # Emscripten: SDL2 linked via -s flags (set in parent CMakeLists)
+    # Game data directory — set with: cmake -DGAME_DATA_DIR=/path/to/game/data
+    set(GAME_DATA_DIR "" CACHE PATH "Path to game data directory for WASM preloading")
 
-# On Windows, link Windows system libraries
-if(WIN32)
+    target_link_options(Cossacks PRIVATE
+        -sALLOW_MEMORY_GROWTH=1
+        -sINITIAL_MEMORY=536870912    # 512MB (game needs ~400MB for all.gsc + runtime)
+        -sEXIT_RUNTIME=0
+        -sFORCE_FILESYSTEM=1          # enable virtual filesystem
+        -sASYNCIFY=1                  # allow sync C code to yield to browser
+        -sASYNCIFY_STACK_SIZE=1048576  # 1MB — game has deep call stacks
+        -pthread                       # enable pthreads / std::thread support
+        -sPTHREAD_POOL_SIZE=16
+        # TODO: emscripten_set_main_loop for non-blocking main loop
+    )
+
+    # Preload game data if path provided
+    if(GAME_DATA_DIR)
+        message(STATUS "WASM: preloading game data from ${GAME_DATA_DIR}")
+        # Essential startup files — mapped to virtual filesystem root
+        # Use SHELL: prefix to prevent CMake from splitting on @
+        target_link_options(Cossacks PRIVATE
+            "SHELL:--preload-file ${GAME_DATA_DIR}/cew.dll@cew.dll"
+            "SHELL:--preload-file ${GAME_DATA_DIR}/agew_1.pal@agew_1.pal"
+            "SHELL:--preload-file ${GAME_DATA_DIR}/all.gsc@all.gsc"
+            "SHELL:--preload-file ${GAME_DATA_DIR}/sound@sound"
+            "SHELL:--preload-file ${GAME_DATA_DIR}/sounds@sounds"
+            "SHELL:--preload-file ${GAME_DATA_DIR}/single.opt@single.opt"
+            "SHELL:--preload-file ${GAME_DATA_DIR}/players@players"
+            "SHELL:--preload-file ${GAME_DATA_DIR}/ai@ai"
+        )
+    else()
+        message(WARNING "WASM: no GAME_DATA_DIR set. Build will succeed but game won't find data files at runtime. Set with: cmake -DGAME_DATA_DIR=/path/to/data")
+    endif()
+
+    set_target_properties(Cossacks PROPERTIES SUFFIX ".html")
+elseif(WIN32)
     target_link_libraries(Cossacks PRIVATE
         kernel32 user32 gdi32 advapi32 shell32
         ole32 oleaut32 uuid ws2_32
         SDL2 SDL2_mixer
     )
+else()
+    # macOS/Linux
+    target_link_directories(Cossacks PRIVATE ${SDL2_LIBRARY_DIRS} ${SDL2_MIXER_LIBRARY_DIRS})
+    target_link_libraries(Cossacks PRIVATE ${SDL2_LIBRARIES} ${SDL2_MIXER_LIBRARIES})
 endif()

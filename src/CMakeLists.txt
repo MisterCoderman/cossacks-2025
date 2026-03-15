@@ -6,7 +6,9 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_C_STANDARD 11)
 
 # Platform detection
-if(WIN32)
+if(EMSCRIPTEN)
+    message(STATUS "Building for WebAssembly (Emscripten)")
+elseif(WIN32)
     message(STATUS "Building for Windows")
     if(CMAKE_SIZEOF_VOID_P EQUAL 8)
         message(STATUS "  Architecture: x64")
@@ -51,16 +53,21 @@ if(NOT WIN32)
     endif()
 endif()
 
-# Find SDL2 (use system SDL2 on macOS via Homebrew, or bundled on Windows)
-if(WIN32)
+# Find SDL2
+if(EMSCRIPTEN)
+    # Emscripten provides SDL2 built-in via -s USE_SDL=2
+    # Include dirs come from emscripten's sysroot automatically
+    add_compile_options(-sUSE_SDL=2 -sUSE_SDL_MIXER=2 -pthread)
+    add_link_options(-sUSE_SDL=2 -sUSE_SDL_MIXER=2)
+elseif(WIN32)
     # On Windows, use the bundled SDL2
     set(SDL2_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/Main executable/sdl/include")
     set(SDL2_MIXER_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/Main executable/SDL2_mixer/include")
 else()
+    # macOS/Linux: use system SDL2 via pkg-config
     find_package(PkgConfig REQUIRED)
     pkg_check_modules(SDL2 REQUIRED sdl2)
     pkg_check_modules(SDL2_MIXER REQUIRED SDL2_mixer)
-    # Add SDL2 include dirs globally so compat headers can find SDL.h
     include_directories(SYSTEM ${SDL2_INCLUDE_DIRS})
 endif()
 
