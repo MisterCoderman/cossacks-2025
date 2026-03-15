@@ -2530,8 +2530,8 @@ void GMiniShow()
 	*/
 
 	//Copy data from minimap buffer into the screen buffer
-	int scr = (int)ScreenPtr + minix + (miniy * SCRSizeX);
-	int til = (int)&minimap + MiniX + (MiniY * maxmap);
+	intptr_t scr = (intptr_t)ScreenPtr + minix + (miniy * SCRSizeX);
+	intptr_t til = (intptr_t)&minimap + MiniX + (MiniY * maxmap);
 	for (int i = 0; i < MiniLy; i++)
 	{
 		memcpy((void*)scr, (void*)til, MiniLx);//REFACTORED: __asm
@@ -2559,7 +2559,7 @@ void GMiniShow()
 			if (mxx >= 0 && myy >= 0 && mxx < MiniLx && myy < MiniLy)
 			{
 				val = CLRT[OO->NNUM];
-				int scr = (int)ScreenPtr + minix + mxx + ((myy + miniy) * SCRSizeX);
+				intptr_t scr = (intptr_t)ScreenPtr + minix + mxx + ((myy + miniy) * SCRSizeX);
 				if (OO->ImSelected & mmsk)
 				{
 					val = 0xFF;

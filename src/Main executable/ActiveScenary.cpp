@@ -5927,7 +5927,7 @@ void LoadAIFromDLL( byte Nat, char* Name )
 	}
 	else
 	{
-#ifndef STARFORCE
+#if defined(_WIN32) && !defined(STARFORCE)
 		char cc[128];
 		sprintf( cc, "Could not load %s", Name );
 		MessageBox( NULL, cc, "AI loadind from DLL", MB_TOPMOST );

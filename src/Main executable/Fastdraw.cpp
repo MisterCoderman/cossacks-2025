@@ -2833,7 +2833,7 @@ int GetRLCWidth(RLCTable lpr, byte n)
 	};
 	if (n < lpr->SCount)
 	{
-		return (*((lpRLCHeader)((void*)(lpr->OfsTable[n])))).SizeX;
+		return (*((lpRLCHeader)(RLC_ADDR(lpr, n)))).SizeX;
 	}
 	else return 0;
 }
@@ -2897,7 +2897,7 @@ __declspec(dllexport) int GetRLCHeight(RLCTable lpr, byte n)
 	}
 	if (n < lpr->SCount)
 	{
-		return (*((lpRLCHeader)((void*)(lpr->OfsTable[n])))).SizeY;
+		return (*((lpRLCHeader)(RLC_ADDR(lpr, n)))).SizeY;
 	}
 	else
 	{

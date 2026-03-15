@@ -28,7 +28,14 @@ Created `compat_sdl_events.h` — translates SDL events to Win32 MSG structs.
 `PeekMessage` polls SDL, fills MSG with WM_MOUSEMOVE/WM_LBUTTONDOWN/WM_KEYDOWN etc.
 `DispatchMessage` calls the game's `WindowProc`. Mouse, keyboard, wheel all work.
 
-## ~~PREV: Fix rendering artifacts~~ DONE
+## ~~PREV: Fix rendering artifacts~~ DONE (GP renderer lineScr save/restore)
+## ~~PREV: Fix RLC OfsTable 64-bit~~ DONE (RLC_ADDR macro, LoadRLC relative offsets)
+## ~~PREV: Fix AI DLL loading~~ DONE (skip assert on macOS)
+
+## NEXT: Fix remaining gameplay crashes
+Game crashes when building houses — likely more `(int)ScreenPtr` or `* 4`
+pointer issues in Build.cpp, NewMon.cpp, or related game logic files.
+Pattern: search for `(int)` casts of pointers and `* 4`/`<< 2` for pointer arrays.
 Main issues:
 - Font/text rendering shows as horizontal lines instead of proper glyphs.
   Likely bug in Fastdraw.cpp RLC sprite renderer C implementation —
@@ -91,9 +98,11 @@ Already linking statically on macOS. Future cleanup.
 - **IChat** — compiles and links (static lib)
 - **IntExplorer** — compiles and links (static lib)
 - **Main executable** — compiles, links, and runs. Native ARM64 binary (3.5MB)
-- **Runtime** — GAME IS PLAYABLE! Main menu renders correctly, no artifacts.
-  Mouse, keyboard, text input all work. GP sprites, fonts, UI elements
-  render correctly. SDL event→Win32 MSG translation works.
+- **Runtime** — GAME IS PLAYABLE! Main menu, game setup, map loading all work.
+  Can start a game, see terrain, units, UI. Mouse/keyboard/text input work.
+  Rendering is correct (GP sprites, fonts, minimap). Crashes when building
+  (likely another 32-bit pointer issue in Build/Construction code).
+  AI DLLs skipped on macOS (no Windows DLLs available).
 
 ## Assembly rewrite status (ALL DONE)
 21 files, ~155 blocks rewritten from x86 to portable C:
