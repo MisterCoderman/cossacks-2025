@@ -4196,7 +4196,7 @@ word  UFileID[4096];
 word  USpriteID[4096];
 word  NURef[4096];
 int   UParam1[4096];
-int   UParam2[4096];
+intptr_t UParam2[4096];
 OneObject* OBJS[4096];
 word NVUnits;
 word FirstUN;
@@ -4362,7 +4362,7 @@ void AddToVisual( short uy, short x, short y, OneObject* OB, word FileID, word S
 		} while ( true );
 	};
 };
-void AddToVisual( short uy, short x, short y, OneObject* OB, word FileID, word Sprite, int Param1, int Param2 )
+void AddToVisual( short uy, short x, short y, OneObject* OB, word FileID, word Sprite, int Param1, intptr_t Param2 )
 {
 	if ( !NVUnits )
 	{
@@ -4471,13 +4471,13 @@ void AddToVisual( short uy, short x, short y, OneObject* OB, word FileID, word S
 		switch ( CProp )
 		{
 		case AV_RED:
-			Param2 = int( yfog );
+			Param2 = (intptr_t)( yfog );
 			break;
 		case AV_WHITE:
-			Param2 = int( wfog );
+			Param2 = (intptr_t)( wfog );
 			break;
 		case AV_DARK:
-			Param2 = int( fog + 1024 );
+			Param2 = (intptr_t)( fog + 1024 );
 			break;
 		default:
 			Param1 = 0;
@@ -4489,13 +4489,13 @@ void AddToVisual( short uy, short x, short y, OneObject* OB, word FileID, word S
 		switch ( CProp )
 		{
 		case AV_RED:
-			Param2 = int( yfog + 2048 );
+			Param2 = (intptr_t)( yfog + 2048 );
 			break;
 		case AV_WHITE:
-			Param2 = int( wfog + 2048 );
+			Param2 = (intptr_t)( wfog + 2048 );
 			break;
 		case AV_DARK:
-			Param2 = int( fog + 1024 + 2048 );
+			Param2 = (intptr_t)( fog + 1024 + 2048 );
 			break;
 		default:
 			Param1 = 0;
@@ -4505,13 +4505,13 @@ void AddToVisual( short uy, short x, short y, OneObject* OB, word FileID, word S
 		switch ( CProp )
 		{
 		case AV_RED:
-			Param2 = int( yfog );
+			Param2 = (intptr_t)( yfog );
 			break;
 		case AV_WHITE:
-			Param2 = int( wfog );
+			Param2 = (intptr_t)( wfog );
 			break;
 		case AV_DARK:
-			Param2 = int( fog + 1024 );
+			Param2 = (intptr_t)( fog + 1024 );
 			break;
 		default:
 			Param1 = 0;
@@ -12482,10 +12482,10 @@ void MakeOneShot( OneObject* OB, int xd, int yd, int zd )
 	MakeOneShotLink( OB );
 };
 void NewMonsterSmartSendToLink( OneObject* OBJ );
-int SmartLink = 0x153829;
+intptr_t SmartLink = 0x153829;
 void __stdcall CDGINIT_INIT1()
 {
-	SmartLink = int( &NewMonsterSmartSendToLink ) + 0x7654391;
+	SmartLink = (intptr_t)( &NewMonsterSmartSendToLink ) + 0x7654391;
 };
 void WaterAttackLink( OneObject* OBJ )
 {

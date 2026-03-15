@@ -371,14 +371,15 @@ typedef byte xxx[64];
 
 void COrd( Order1* ordr )
 {
-	if (!int( ordr ))
+	if (!ordr)
 	{
 		return;
 	}
 
-	if (( int( ordr ) - int( OrdBuf ) ) / sizeof(Order1) >= MaxOrdCount)
+	if (( (intptr_t)ordr - (intptr_t)OrdBuf ) / (intptr_t)sizeof(Order1) >= MaxOrdCount)
 	{
-		int RRRR = ( int( ordr ) - int( OrdBuf ) ) / sizeof(Order1);
+		intptr_t RRRR = ( (intptr_t)ordr - (intptr_t)OrdBuf ) / (intptr_t)sizeof(Order1);
+		(void)RRRR;
 	}
 }
 
