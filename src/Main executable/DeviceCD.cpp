@@ -35,6 +35,7 @@ static bool SDL_Mixer_Initialized = false;
 // Переменные для плейлиста
 static int PrevTrack1 = -1, PrevTrack2 = -1, PrevTrack3 = -1;
 static int NextCommand = -1;
+static volatile bool pendingTrackFinished = false;
 
 // Предварительные объявления
 static void channelFinished(int channel);
@@ -190,8 +191,16 @@ bool CDeviceCD::Play(DWORD Track)
 
 static void channelFinished(int channel)
 {
-    if (channel != currentChannel)
+    if (channel == currentChannel)
+        pendingTrackFinished = true;
+}
+
+// Called from main loop — safe to use SDL_mixer here
+void PollTrackFinished()
+{
+    if (!pendingTrackFinished)
         return;
+    pendingTrackFinished = false;
 
     if (!PlayMode)
     {

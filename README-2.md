@@ -59,6 +59,7 @@ Note: the WASM build preloads ~293MB of game data. The browser will download thi
 - x86 inline assembly rewritten to portable C (21 files, ~155 blocks) *
 - 32-bit → 64-bit pointer fixes (`intptr_t` casts, `sizeof(T*)` allocations) *
 - `memcpy -> memmove` for overlapping array shifts (~70 fixes) *
+- Fix heap corruption in `DialogsSystem::CloseDialogs()` — was freeing `DialogsSystem::Hint` instead of `SD->Hint`, corrupting the heap on every dialog close *
 
 \* These changes improve correctness on all platforms, and I'll probably include them in separate PRs.
 

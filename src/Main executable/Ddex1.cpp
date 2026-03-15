@@ -2423,6 +2423,8 @@ void PreDrawGameProcess()
 
 	//DirectX related sound procedures
 	CDS->ProcessSoundSystem();
+	extern void PollTrackFinished();
+	PollTrackFinished();
 
 	if (NOPAUSE)
 	{

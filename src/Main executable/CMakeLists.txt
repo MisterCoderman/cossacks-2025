@@ -132,8 +132,10 @@ if(EMSCRIPTEN)
         -sASYNCIFY_STACK_SIZE=1048576  # 1MB — game has deep call stacks
         -pthread                       # enable pthreads / std::thread support
         -sPTHREAD_POOL_SIZE=16
+        # -sMALLOC=emmalloc              # lightweight allocator — avoids mutex deadlock with asyncify
         -fexceptions                   # needed for std::thread error handling
-        # TODO: emscripten_set_main_loop for non-blocking main loop
+        -g                              # debug symbols for readable stack traces
+        -sASSERTIONS=2                  # extra runtime checks
     )
 
     # Preload game data if path provided

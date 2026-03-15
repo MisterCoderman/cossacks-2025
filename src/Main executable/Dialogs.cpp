@@ -5727,7 +5727,7 @@ void DialogsSystem::CloseDialogs()
 		{
 			if (SD->AllocHint && SD->Hint)
 			{
-				free( Hint );
+				free( SD->Hint );
 			}
 			if (SD->AllocPtr)
 			{
