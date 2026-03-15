@@ -24,21 +24,18 @@ if(NOT WIN32)
     set(COMPAT_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/compat")
     include_directories(BEFORE SYSTEM "${COMPAT_INCLUDE_DIR}")
 
-    # Suppress warnings for the massive amount of compat-related issues
+    # Suppress warnings from original codebase that can't be fixed without
+    # massive changes or are intentional patterns in the game code
     add_compile_options(
-        -Wno-pragma-once-outside-header
-        -Wno-unused-parameter
-        -Wno-unused-variable
-        -Wno-unused-function
-        -Wno-missing-field-initializers
-        -Wno-sign-compare
-        -Wno-writable-strings
-        -Wno-reorder
-        -Wno-invalid-offsetof
-        -Wno-c++11-narrowing
-        -Wno-microsoft-anon-tag
-        -Wno-error
-        -Wno-incompatible-pointer-types
+        -Wno-writable-strings          # char* from string literals (pervasive)
+        -Wno-c++11-narrowing           # narrowing conversions in initializers
+        -Wno-microsoft-anon-tag        # anonymous structs/unions (MSVC extension)
+        -Wno-pragma-once-outside-header # pragma once in .cpp files
+        -Wno-incompatible-pointer-types # C pointer type mismatches
+        -Wno-nonportable-include-path  # Windows backslash #include paths
+        -Wno-deprecated-declarations   # sprintf etc
+        -Wno-pragma-pack              # #pragma pack(1) usage
+        -Wno-multichar                 # multi-char constants like 'SJBO' (by design)
         -fpermissive
         -fms-extensions
         -ferror-limit=0
