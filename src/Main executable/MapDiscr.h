@@ -985,6 +985,47 @@ struct Order1
 
 	} info;
 };
+// On-disk Order1: pointers stored as 4-byte DWORD (matches 32-bit Windows format)
+struct Order1_File
+{
+	DWORD _nextOrder;
+	byte PrioryLevel;
+	byte OrderType;
+	byte OrderTime;
+	DWORD _doLink;
+	union
+	{
+		struct { byte VisibilityRadius; } Stand;
+		struct { int x; int y; word PrevDist; byte Times; } MoveToXY;
+		struct { byte xd; byte yd; byte time; word BuildID; word BSN; } UFO;
+		struct { word ox; word oy; word x, y, z; byte wep; } AttackXY;
+		struct { word ObjIndex; word SN; word PrevDist; byte wep; } MoveToObj;
+		struct { int ObjIndex; word SN; short ObjX; short ObjY; byte AttMethod; } BuildObj;
+		struct { word x; word y; word x1; word y1; byte dir; } Patrol;
+		struct { word ObjIndex; word Progress; word NStages; word ID; byte PStep; word Power; } Produce;
+		struct { word OldUpgrade; word NewUpgrade; word Stage; word NStages; } PUpgrade;
+		struct { byte dir; } MoveFrom;
+		struct { int x; int y; int SprObj; byte ResID; } TakeRes;
+		struct { short LockX; short LockY; short EndX; short EndY; } DelBlock;
+		struct { word x, y; short dx, dy; word NextX, NextY, NextTop; } SmartSend;
+	} info;
+};
+inline void Order1FromFile(Order1* ord, const Order1_File* of) {
+	ord->NextOrder = NULL;
+	ord->PrioryLevel = of->PrioryLevel;
+	ord->OrderType = of->OrderType;
+	ord->OrderTime = of->OrderTime;
+	ord->DoLink = (ReportFn*)(intptr_t)of->_doLink;
+	memcpy(&ord->info, &of->info, sizeof(of->info));
+}
+inline void Order1ToFile(Order1_File* of, const Order1* ord) {
+	of->_nextOrder = 0;
+	of->PrioryLevel = ord->PrioryLevel;
+	of->OrderType = ord->OrderType;
+	of->OrderTime = ord->OrderTime;
+	of->_doLink = (DWORD)(intptr_t)ord->DoLink;
+	memcpy(&of->info, &ord->info, sizeof(of->info));
+}
 
 class GOrder;
 struct GlobalIconInfo

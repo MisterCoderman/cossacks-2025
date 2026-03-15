@@ -38,15 +38,19 @@ Nation.cpp pointer arithmetic, SpRefs/WRefs/Obj3Map/TRIANG/SCINF allocations,
 Masks.cpp RLC_ADDR, StrHash memset overflow, more memset pointer sizes.
 
 ## ~~PREV: Fix struct serialization 32/64-bit mismatch~~ DONE
-Structs with pointer fields (`Area`, `ActiveZone`, `ActiveGroup`, `SelGroup`)
-were serialized with `sizeof()` which differs between 32-bit (file format)
-and 64-bit (macOS). Created on-disk structs (`Area_File`, `ActiveZone_File`,
-`ActiveGroup_File`) with DWORD placeholders for pointers and conversion
-helpers. Fixed 7 read/write sites + 3 size calculations in SaveNewMap.cpp
-and LoadSave.cpp. Also fixed `SelGroup` buffer overflow
-(`sizeof(SelGroup)-8` → `sizeof(SelGroup)-2*sizeof(word*)`).
-This was causing Brigade.cpp crashes (corrupted topology `Link` pointers)
-when loading designed maps.
+Structs with pointer fields were serialized with `sizeof()` which differs
+between 32-bit (file format) and 64-bit (macOS). Created on-disk structs
+with DWORD placeholders for pointers and conversion helpers.
+**Map files** (SaveNewMap.cpp — must match 32-bit format for original game data):
+- `Area` → `Area_File` (TopoGraf.h) — was causing Brigade.cpp crashes
+- `ActiveZone` → `ActiveZone_File` (Activezone.h)
+- `ActiveGroup` → `ActiveGroup_File` (Activezone.h)
+**Save files** (LoadSave.cpp):
+- `Order1` → `Order1_File` (MapDiscr.h) — portable
+- `SelGroup` — fixed buffer overflow (`sizeof-8` → `sizeof-2*sizeof(word*)`)
+- `AnmObject` — fixed buffer overflow (`sizeof-4` → `sizeof-sizeof(NewAnimation*)`)
+- `ExtendedBrigade` → `ExtendedBrigade_File` (Megapolis.h) — portable
+- `int()` pointer truncations → `intptr_t` (AI_Army field offset calculations)
 
 ## Wire up SDL window and event loop (partially done)
 Game initializes fully — loads .gsc archives, reads game data, exits cleanly.
@@ -91,10 +95,23 @@ Already linking statically on macOS. Future cleanup.
   - Multiplayer: TCP/IP LAN mode doesn't work (requires DirectPlay which
     is Windows-only). Direct IP mode uses CommCore UDP stack and should
     work — select "Direct IP" when creating/joining a game.
-  - `Order1` struct serialization still uses `sizeof()` with pointers in
-    save files — self-consistent on 64-bit but cross-platform saves won't work
   - Occasional crashes in gameplay — some may be pre-existing bugs,
     some may be remaining 64-bit issues
+
+## Make save files fully portable across 32-bit and 64-bit
+Most save-file structs are now portable. Remaining issues:
+- `City` (Megapolis.h) — enormous struct with many embedded `Brigade` arrays
+  (each Brigade has 7 pointers), `AI_Army` arrays, and its own pointer fields.
+  Serialized whole with `xBlockWrite(SB, CT, sizeof(City))`. Creating an
+  on-disk format would require handling hundreds of fields. Currently
+  self-consistent on 64-bit (same sizeof for write/read).
+- `BrigadeOrder` / `ArmyOrder` — variable-size allocations (`BOR->Size`
+  includes `sizeof(BrigadeOrder)` which differs per platform). The extra-data
+  scheme (`BOR + 1` for bytes beyond the struct) is tightly coupled to
+  platform-specific sizeof. On-disk format structs defined but not yet wired
+  into save/load due to variable-size complexity.
+Note: these only affect cross-platform save portability (macOS↔Windows).
+Saves created and loaded on the same platform work correctly.
   - `#pragma pack(1)` from game headers can break system struct layouts —
     fixed for iphlpapi.h, may affect other system headers
 

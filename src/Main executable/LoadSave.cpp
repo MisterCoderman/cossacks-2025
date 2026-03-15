@@ -1238,7 +1238,8 @@ void SaveObjects( SaveBuf* SB )
 					ORD1.NextOrder = NULL;
 					ORD1.DoLink = (ReportFn*) ( GetOrderKind( ORDR->DoLink ) );
 					//assert(int(ORD1.DoLink)!=-1);
-					xBlockWrite( SB, &ORD1, sizeof(ORD1) );
+					Order1_File o1f; Order1ToFile(&o1f, &ORD1);
+					xBlockWrite( SB, &o1f, sizeof(Order1_File) );
 					ORDR = ORDR->NextOrder;
 					if (ORDR)ORD1 = *ORDR;
 				};
@@ -1302,7 +1303,8 @@ void LoadObjects( SaveBuf* SB )
 		{
 			OR1 = GetOrdBlock();
 			if (!j)OB->LocalOrder = OR1;
-			xBlockRead( SB, OR1, sizeof(Order1) );
+			Order1_File o1f; xBlockRead( SB, &o1f, sizeof(Order1_File) );
+			Order1FromFile(OR1, &o1f);
 			OR1->DoLink = GetOrderRef( (int)(intptr_t)( OR1->DoLink ) );
 			if (PRE)PRE->NextOrder = OR1;
 			PRE = OR1;
@@ -1528,7 +1530,7 @@ void SaveAnmObj( SaveBuf* SB )
 			if (NANOBJ.Sender)NANOBJ.Sender = (OneObject*) ( NANOBJ.Sender->Index );
 			else NANOBJ.Sender = (OneObject*) 0xFFFFFFFF;
 			NANOBJ.Weap = (Weapon*) NANOBJ.Weap->MyIndex;
-			xBlockWrite( SB, &NANOBJ.x, sizeof( AnmObject ) - 4 );
+			xBlockWrite( SB, &NANOBJ.x, sizeof( AnmObject ) - sizeof(NewAnimation*) );
 		};
 	};
 };
@@ -1548,7 +1550,7 @@ void LoadAnmObj( SaveBuf* SB )
 		xBlockRead( SB, &ai, 2 );
 		EUsage[ai] = 1;
 		AnmObject* NANOBJ = GAnm[ai];
-		xBlockRead( SB, &NANOBJ->x, sizeof( AnmObject ) - 4 );
+		xBlockRead( SB, &NANOBJ->x, sizeof( AnmObject ) - sizeof(NewAnimation*) );
 		if (int( NANOBJ->Sender ) != -1)NANOBJ->Sender = Group[int( NANOBJ->Sender )];
 		else NANOBJ->Sender = NULL;
 		NANOBJ->Weap = WPLIST[int( NANOBJ->Weap )];
@@ -1995,7 +1997,7 @@ void SaveAI( SaveBuf* SB )
 						int j;
 						for (j = 0; j < NBR_ORD&&BO1.BLink != BR_ORD[j]; j++);
 						//assert(j<NBR_ORD);
-						BO1.BLink = (BrigadeLink*) j;
+						BO1.BLink = (BrigadeLink*)(intptr_t) j;
 						xBlockWrite( SB, &BO1, sizeof(BO1) );
 						if (BOR->Size > sizeof(BO1))xBlockWrite( SB, BOR + 1, BOR->Size - sizeof(BO1) );
 						BOR = BOR->Next;
@@ -2028,12 +2030,13 @@ void SaveAI( SaveBuf* SB )
 				{
 					xBlockWrite( SB, &i, 2 );
 					AI_Army* AR = CT->ARMS + i;
-					xBlockWrite( SB, &AR->NExBrigs, int( &AR->ArmyID ) - int( &AR->NExBrigs ) + 2 );
+					xBlockWrite( SB, &AR->NExBrigs, (int)( (intptr_t)&AR->ArmyID - (intptr_t)&AR->NExBrigs ) + 2 );
 					for (int j = 0; j < AR->NExBrigs; j++)
 					{
 						ExtendedBrigade EBR = AR->ExBrigs[j];
-						EBR.Brig = (Brigade*) ( EBR.Brig->ID );
-						xBlockWrite( SB, &EBR, sizeof( EBR ) );
+						EBR.Brig = (Brigade*)(intptr_t) ( EBR.Brig->ID );
+						ExtendedBrigade_File ebf; ExtendedBrigadeToFile(&ebf, &EBR);
+						xBlockWrite( SB, &ebf, sizeof( ExtendedBrigade_File ) );
 					};
 					xBlockWrite( SB, &AR->NI, 1 );
 					//order
@@ -2413,7 +2416,7 @@ void LoadAI( SaveBuf* SB )
 				xBlockRead( SB, &aid, 2 );
 				AI_Army* AR = CT->ARMS + aid;
 				AR->Enabled = true;
-				xBlockRead( SB, &AR->NExBrigs, int( &AR->ArmyID ) - int( &AR->NExBrigs ) + 2 );
+				xBlockRead( SB, &AR->NExBrigs, (int)( (intptr_t)&AR->ArmyID - (intptr_t)&AR->NExBrigs ) + 2 );
 				AR->CT = CT;
 				AR->NT = NT;
 
@@ -2429,8 +2432,9 @@ void LoadAI( SaveBuf* SB )
 				for (int j = 0; j < AR->NExBrigs; j++)
 				{
 					ExtendedBrigade* EBR = AR->ExBrigs + j;
-					xBlockRead( SB, EBR, sizeof( ExtendedBrigade ) );
-					EBR->Brig = CT->Brigs + int( EBR->Brig );
+					ExtendedBrigade_File ebf; xBlockRead( SB, &ebf, sizeof( ExtendedBrigade_File ) );
+					ExtendedBrigadeFromFile(EBR, &ebf);
+					EBR->Brig = CT->Brigs + (int)(intptr_t)( EBR->Brig );
 				}
 
 				xBlockRead( SB, &AR->NI, 1 );

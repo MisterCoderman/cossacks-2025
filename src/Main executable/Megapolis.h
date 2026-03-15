@@ -110,6 +110,26 @@ public:
 	BrigadeOrder* Next;
 	BrigadeLink* BLink;
 };
+// On-disk BrigadeOrder: pointers stored as 4-byte DWORD
+struct BrigadeOrder_File
+{
+	byte OrdType;
+	byte Prio;
+	word Size;
+	DWORD _message;
+	DWORD _next;
+	DWORD _blink;
+};
+inline void BrigadeOrderFromFile(BrigadeOrder* bo, const BrigadeOrder_File* bf) {
+	bo->OrdType = bf->OrdType; bo->Prio = bf->Prio; bo->Size = bf->Size;
+	bo->Message = NULL; bo->Next = NULL;
+	bo->BLink = (BrigadeLink*)(intptr_t)bf->_blink;
+}
+inline void BrigadeOrderToFile(BrigadeOrder_File* bf, const BrigadeOrder* bo) {
+	bf->OrdType = bo->OrdType; bf->Prio = bo->Prio; bf->Size = bo->Size;
+	bf->_message = 0; bf->_next = 0;
+	bf->_blink = (DWORD)(intptr_t)bo->BLink;
+}
 struct BrigMemb
 {
 	word Peons;
@@ -318,6 +338,27 @@ public:
 	word NextBrigade;
 	Brigade* Brig;
 };
+// On-disk ExtendedBrigade: pointer stored as 4-byte DWORD
+struct ExtendedBrigade_File
+{
+	byte BrigadeType;
+	int Force;
+	int NeedMembers;
+	word NextBrigade;
+	DWORD _brig;
+};
+inline void ExtendedBrigadeFromFile(ExtendedBrigade* eb, const ExtendedBrigade_File* ef) {
+	eb->BrigadeType = ef->BrigadeType;
+	eb->Force = ef->Force; eb->NeedMembers = ef->NeedMembers;
+	eb->NextBrigade = ef->NextBrigade;
+	eb->Brig = (Brigade*)(intptr_t)ef->_brig;
+}
+inline void ExtendedBrigadeToFile(ExtendedBrigade_File* ef, const ExtendedBrigade* eb) {
+	ef->BrigadeType = eb->BrigadeType;
+	ef->Force = eb->Force; ef->NeedMembers = eb->NeedMembers;
+	ef->NextBrigade = eb->NextBrigade;
+	ef->_brig = (DWORD)(intptr_t)eb->Brig;
+}
 typedef void ArmyLink( AI_Army* ARM );
 class ArmyOrder;
 class ArmyOrder
@@ -330,6 +371,26 @@ public:
 	ArmyOrder* Next;
 	ArmyLink*  ALink;
 };
+// On-disk ArmyOrder: pointers stored as 4-byte DWORD
+struct ArmyOrder_File
+{
+	byte OrdType;
+	byte Prio;
+	word Size;
+	DWORD _message;
+	DWORD _next;
+	DWORD _alink;
+};
+inline void ArmyOrderFromFile(ArmyOrder* ao, const ArmyOrder_File* af) {
+	ao->OrdType = af->OrdType; ao->Prio = af->Prio; ao->Size = af->Size;
+	ao->Message = NULL; ao->Next = NULL;
+	ao->ALink = (ArmyLink*)(intptr_t)af->_alink;
+}
+inline void ArmyOrderToFile(ArmyOrder_File* af, const ArmyOrder* ao) {
+	af->OrdType = ao->OrdType; af->Prio = ao->Prio; af->Size = ao->Size;
+	af->_message = 0; af->_next = 0;
+	af->_alink = (DWORD)(intptr_t)ao->ALink;
+}
 struct FormInfo
 {
 	word ComID;
