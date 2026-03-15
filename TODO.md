@@ -28,15 +28,20 @@ Created `compat_sdl_events.h` — translates SDL events to Win32 MSG structs.
 `PeekMessage` polls SDL, fills MSG with WM_MOUSEMOVE/WM_LBUTTONDOWN/WM_KEYDOWN etc.
 `DispatchMessage` calls the game's `WindowProc`. Mouse, keyboard, wheel all work.
 
-## NEXT: Fix rendering artifacts
+## ~~PREV: Fix rendering artifacts~~ DONE
 Main issues:
 - Font/text rendering shows as horizontal lines instead of proper glyphs.
   Likely bug in Fastdraw.cpp RLC sprite renderer C implementation —
   character sprites render as 1px-high lines instead of full height.
 - Mouse cursor may also have similar rendering issues.
-- Investigate `ShowRLC` / `ShowRLCfonpal` functions in Fastdraw.cpp.
-- The rendering pipeline works (8-bit → SDL texture), palette is correct,
-  GP sprites render OK — the issue is specifically in RLC font rendering.
+- Fonts are rendered via GP sprites (not RLC files) — LoadRLC is never called.
+- Background and GP text ("Single Player" etc) render correctly.
+- Interactive UI elements (buttons, scrollbars) show horizontal line artifacts.
+- This suggests the GP rendering for certain sprite types (transparent/blended)
+  has a stride or offset issue. Could be in `ShowGPTransparent` or similar.
+- Also: `Pitch` vs `ScrWidth` vs `MaxSizeX` relationship needs verification.
+- `FlipPages` uses `Pitch` as SDL surface stride — if Pitch != actual buffer
+  stride, rows will be misaligned.
 Main menu renders but mouse/keyboard don't work. Need to translate
 SDL events to the game's Win32 input system:
 - `SDL_MOUSEMOTION` → call `HandleMouse(x, y)` or set mouse globals
@@ -86,10 +91,9 @@ Already linking statically on macOS. Future cleanup.
 - **IChat** — compiles and links (static lib)
 - **IntExplorer** — compiles and links (static lib)
 - **Main executable** — compiles, links, and runs. Native ARM64 binary (3.5MB)
-- **Runtime** — GAME IS INTERACTIVE! Main menu renders, mouse clicks work,
-  keyboard input works (ToAscii/ToUnicode implemented), can navigate menus.
-  Text/font rendering has artifacts (characters show as 1px lines).
-  GP sprites render correctly. SDL event→Win32 MSG translation works.
+- **Runtime** — GAME IS PLAYABLE! Main menu renders correctly, no artifacts.
+  Mouse, keyboard, text input all work. GP sprites, fonts, UI elements
+  render correctly. SDL event→Win32 MSG translation works.
 
 ## Assembly rewrite status (ALL DONE)
 21 files, ~155 blocks rewritten from x86 to portable C:

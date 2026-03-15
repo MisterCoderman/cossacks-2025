@@ -2556,48 +2556,52 @@ void ShowRLCiRedN(int x, int y, void* PicPtr, int N)
 {
 	ShowRLCipal(x, y, PicPtr, yfog + (N << 8));
 };
+// Helper: compute absolute address from RLC table + index
+// OfsTable[i] stores a file-relative offset; add the base of the sign field
+#define RLC_ADDR(tbl, idx) ((void*)((byte*)&(tbl)->sign + (tbl)->OfsTable[idx]))
+
 void ShowRLCItemDarkN(int x, int y, lpRLCTable lprt, int n, int Ints)
 {
 	if (n < 4096)
 	{
-		ShowRLCDarkN(x, y, (void*)((*lprt)->OfsTable[n]), Ints);
+		ShowRLCDarkN(x, y, RLC_ADDR(*lprt, n), Ints);
 	}
 	else
 	{
-		ShowRLCiDarkN(x, y, (void*)((*lprt)->OfsTable[n - 4096]), Ints);
+		ShowRLCiDarkN(x, y, RLC_ADDR(*lprt, n - 4096), Ints);
 	};
 };
 void ShowRLCItemPal(int x, int y, lpRLCTable lprt, int n, byte* Pal)
 {
 	if (n < 4096)
 	{
-		ShowRLCpal(x, y, (void*)((*lprt)->OfsTable[n]), Pal);
+		ShowRLCpal(x, y, RLC_ADDR(*lprt, n), Pal);
 	}
 	else
 	{
-		ShowRLCipal(x, y, (void*)((*lprt)->OfsTable[n - 4096]), Pal);
+		ShowRLCipal(x, y, RLC_ADDR(*lprt, n - 4096), Pal);
 	};
 };
 void ShowRLCItemGrad(int x, int y, lpRLCTable lprt, int n, byte* Pal)
 {
 	if (n < 4096)
 	{
-		ShowRLChtpal(x, y, (void*)((*lprt)->OfsTable[n]), Pal);
+		ShowRLChtpal(x, y, RLC_ADDR(*lprt, n), Pal);
 	}
 	else
 	{
-		ShowRLCihtpal(x, y, (void*)((*lprt)->OfsTable[n - 4096]), Pal);
+		ShowRLCihtpal(x, y, RLC_ADDR(*lprt, n - 4096), Pal);
 	};
 };
 void ShowRLCItemRedN(int x, int y, lpRLCTable lprt, int n, int Ints)
 {
 	if (n < 4096)
 	{
-		ShowRLCRedN(x, y, (void*)((*lprt)->OfsTable[n]), Ints);
+		ShowRLCRedN(x, y, RLC_ADDR(*lprt, n), Ints);
 	}
 	else
 	{
-		ShowRLCiRedN(x, y, (void*)((*lprt)->OfsTable[n - 4096]), Ints);
+		ShowRLCiRedN(x, y, RLC_ADDR(*lprt, n - 4096), Ints);
 	};
 };
 void ShowRLCWFog(int x, int y, void* PicPtr)
@@ -2660,11 +2664,15 @@ bool LoadRLC(LPCSTR lpFileName, RLCTable* RLCtbl)
 		RBlockRead(f1, &((*RLCtbl)->sign), fsz);
 		RClose(f1);
 
-		int shft = int(*RLCtbl) + 4;
+		// OfsTable entries are file-relative offsets (int).
+		// Leave them as relative offsets — do NOT add base address here.
+		// The base address will be added at each access site instead,
+		// because on 64-bit the sum doesn't fit in int.
 		int cnt = ((*RLCtbl)->SCount & 65535);
-		for (int i = 0; i < cnt; i++)
-		{
-			(*RLCtbl)->OfsTable[i] += shft;
+		if (cnt > 0) {
+			fprintf(stderr, "[RLC] Loaded %s: cnt=%d, OfsTable[0]=%d, base=%p\n",
+				lpFileName, cnt, (*RLCtbl)->OfsTable[0], (void*)&(*RLCtbl)->sign);
+			fflush(stderr);
 		}
 
 		return true;
@@ -2688,11 +2696,11 @@ void ShowRLCItem(int x, int y, lpRLCTable lprt, int n, byte nt)
 		cntr = 0;
 	}
 
-	int GPID = int(*lprt);
+	intptr_t GPID = (intptr_t)(*lprt);
 
 	if (GPID < 4096)
 	{
-		GPS.ShowGP(x, y, GPID, n, nt);
+		GPS.ShowGP(x, y, (int)GPID, n, nt);
 		return;
 	}
 
@@ -2701,28 +2709,28 @@ void ShowRLCItem(int x, int y, lpRLCTable lprt, int n, byte nt)
 		switch (nt)
 		{
 		case 1:
-			ShowRLCp1(x, y, (void*)((*lprt)->OfsTable[n]));
+			ShowRLCp1(x, y, RLC_ADDR(*lprt, n));
 			break;
 		case 2:
-			ShowRLCp2(x, y, (void*)((*lprt)->OfsTable[n]));
+			ShowRLCp2(x, y, RLC_ADDR(*lprt, n));
 			break;
 		case 3:
-			ShowRLCp3(x, y, (void*)((*lprt)->OfsTable[n]));
+			ShowRLCp3(x, y, RLC_ADDR(*lprt, n));
 			break;
 		case 4:
-			ShowRLCp4(x, y, (void*)((*lprt)->OfsTable[n]));
+			ShowRLCp4(x, y, RLC_ADDR(*lprt, n));
 			break;
 		case 5:
-			ShowRLCp5(x, y, (void*)((*lprt)->OfsTable[n]));
+			ShowRLCp5(x, y, RLC_ADDR(*lprt, n));
 			break;
 		case 6:
-			ShowRLCp6(x, y, (void*)((*lprt)->OfsTable[n]));
+			ShowRLCp6(x, y, RLC_ADDR(*lprt, n));
 			break;
 		case 7:
-			ShowRLCp7(x, y, (void*)((*lprt)->OfsTable[n]));
+			ShowRLCp7(x, y, RLC_ADDR(*lprt, n));
 			break;
 		default:
-			ShowRLC(x, y, (void*)((*lprt)->OfsTable[n]));
+			ShowRLC(x, y, RLC_ADDR(*lprt, n));
 		}
 	}
 	else
@@ -2730,28 +2738,28 @@ void ShowRLCItem(int x, int y, lpRLCTable lprt, int n, byte nt)
 		switch (nt)
 		{
 		case 1:
-			ShowRLCip1(x, y, (void*)((*lprt)->OfsTable[n - 4096]));
+			ShowRLCip1(x, y, RLC_ADDR(*lprt, n - 4096));
 			break;
 		case 2:
-			ShowRLCip2(x, y, (void*)((*lprt)->OfsTable[n - 4096]));
+			ShowRLCip2(x, y, RLC_ADDR(*lprt, n - 4096));
 			break;
 		case 3:
-			ShowRLCip3(x, y, (void*)((*lprt)->OfsTable[n - 4096]));
+			ShowRLCip3(x, y, RLC_ADDR(*lprt, n - 4096));
 			break;
 		case 4:
-			ShowRLCip4(x, y, (void*)((*lprt)->OfsTable[n - 4096]));
+			ShowRLCip4(x, y, RLC_ADDR(*lprt, n - 4096));
 			break;
 		case 5:
-			ShowRLCip5(x, y, (void*)((*lprt)->OfsTable[n - 4096]));
+			ShowRLCip5(x, y, RLC_ADDR(*lprt, n - 4096));
 			break;
 		case 6:
-			ShowRLCip6(x, y, (void*)((*lprt)->OfsTable[n - 4096]));
+			ShowRLCip6(x, y, RLC_ADDR(*lprt, n - 4096));
 			break;
 		case 7:
-			ShowRLCip7(x, y, (void*)((*lprt)->OfsTable[n - 4096]));
+			ShowRLCip7(x, y, RLC_ADDR(*lprt, n - 4096));
 			break;
 		default:
-			ShowRLCi(x, y, (void*)((*lprt)->OfsTable[n - 4096]));
+			ShowRLCi(x, y, RLC_ADDR(*lprt, n - 4096));
 		}
 	}
 }
@@ -2760,11 +2768,11 @@ void ShowRLCItemTrans8(int x, int y, lpRLCTable lprt, int n)
 {
 	if (n < 4096)
 	{
-		ShowRLCTrans8(x, y, (void*)((*lprt)->OfsTable[n]));
+		ShowRLCTrans8(x, y, RLC_ADDR(*lprt, n));
 	}
 	else
 	{
-		ShowRLCiTrans8(x, y, (void*)((*lprt)->OfsTable[n - 4096]));
+		ShowRLCiTrans8(x, y, RLC_ADDR(*lprt, n - 4096));
 	};
 };
 
@@ -2772,44 +2780,44 @@ void ShowRLCItemMutno(int x, int y, lpRLCTable lprt, int n)
 {
 	if (n < 4096)
 	{
-		ShowRLCWFog(x, y, (void*)((*lprt)->OfsTable[n]));
+		ShowRLCWFog(x, y, RLC_ADDR(*lprt, n));
 	}
 	else
 	{
-		ShowRLCiWFog(x, y, (void*)((*lprt)->OfsTable[n - 4096]));
+		ShowRLCiWFog(x, y, RLC_ADDR(*lprt, n - 4096));
 	};
 };
 void ShowRLCItemDark(int x, int y, lpRLCTable lprt, int n)
 {
 	if (n < 4096)
 	{
-		ShowRLCDark(x, y, (void*)((*lprt)->OfsTable[n]));
+		ShowRLCDark(x, y, RLC_ADDR(*lprt, n));
 	}
 	else
 	{
-		ShowRLCiDark(x, y, (void*)((*lprt)->OfsTable[n - 4096]));
+		ShowRLCiDark(x, y, RLC_ADDR(*lprt, n - 4096));
 	};
 };
 void ShowRLCItemBlue(int x, int y, lpRLCTable lprt, int n)
 {
 	if (n < 4096)
 	{
-		ShowRLCBlue(x, y, (void*)((*lprt)->OfsTable[n]));
+		ShowRLCBlue(x, y, RLC_ADDR(*lprt, n));
 	}
 	else
 	{
-		ShowRLCiBlue(x, y, (void*)((*lprt)->OfsTable[n - 4096]));
+		ShowRLCiBlue(x, y, RLC_ADDR(*lprt, n - 4096));
 	};
 };
 void ShowRLCItemFired(int x, int y, lpRLCTable lprt, int n)
 {
 	if (n < 4096)
 	{
-		ShowRLCFire(x, y, (void*)((*lprt)->OfsTable[n]));
+		ShowRLCFire(x, y, RLC_ADDR(*lprt, n));
 	}
 	else
 	{
-		ShowRLCiFire(x, y, (void*)((*lprt)->OfsTable[n - 4096]));
+		ShowRLCiFire(x, y, RLC_ADDR(*lprt, n - 4096));
 	};
 };
 int GetRLCWidth(RLCTable lpr, byte n)

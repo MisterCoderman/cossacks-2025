@@ -750,6 +750,7 @@ static void gp_render_noclip(intptr_t scrofs, intptr_t CDPOS, byte* Encoder,
 			scr += ScrWidth + WSHIFT[wshiftIdx++];
 		else
 			scr += ScrWidth;
+		byte* lineScr = scr; // save start of line (like push edi)
 		byte lineType = *mask++;
 		if (lineType == 0) { if (pOCNTR) (*pOCNTR)++; continue; }
 		if (!(lineType & 128)) {
@@ -785,6 +786,7 @@ static void gp_render_noclip(intptr_t scrofs, intptr_t CDPOS, byte* Encoder,
 				}
 			}
 		}
+		scr = lineScr; // restore start of line (like pop edi)
 		if (pOCNTR) (*pOCNTR)++;
 	}
 }
@@ -800,6 +802,7 @@ static void gp_render_noclip_mirror(intptr_t scrofs, intptr_t CDPOS, intptr_t of
 	scr -= ScrWidth;
 	for (int line = 0; line < NLines; line++) {
 		scr += ScrWidth + WSHIFT[wshiftIdx++];
+		byte* lineScr = scr; // save start of line (like push edi)
 		byte lineType = *mask++;
 		if (lineType == 0) continue;
 		if (!(lineType & 128)) {
@@ -823,6 +826,7 @@ static void gp_render_noclip_mirror(intptr_t scrofs, intptr_t CDPOS, intptr_t of
 				gp_draw_pixels_mirror(scr, src, count, dir, threshold);
 			}
 		}
+		scr = lineScr; // restore start of line (like pop edi)
 	}
 }
 
@@ -847,6 +851,7 @@ static void gp_render_leftclip(intptr_t scrofs, intptr_t CDPOS, byte* Encoder,
 		} else {
 			scr += ScrWidth;
 		}
+		byte* lineScr = scr; // save start of line (like push edi)
 		byte lineType = *mask++;
 		if (lineType == 0) { if (pOCNTR) (*pOCNTR)++; continue; }
 		if (!(lineType & 128)) {
@@ -908,6 +913,7 @@ static void gp_render_leftclip(intptr_t scrofs, intptr_t CDPOS, byte* Encoder,
 				}
 			}
 		}
+		scr = lineScr; // restore start of line (like pop edi)
 		if (pOCNTR) (*pOCNTR)++;
 	}
 }
@@ -924,6 +930,7 @@ static void gp_render_leftclip_mirror(intptr_t scrofs, intptr_t CDPOS, intptr_t 
 	for (int line = 0; line < NLines; line++) {
 		int ws = WSHIFT[wshiftIdx];
 		scr += ScrWidth + ws;
+		byte* lineScr = scr; // save start of line (like push edi)
 		int curClip = CLIP - dir * ws;
 		wshiftIdx++;
 		byte lineType = *mask++;
@@ -975,6 +982,7 @@ static void gp_render_leftclip_mirror(intptr_t scrofs, intptr_t CDPOS, intptr_t 
 				gp_draw_pixels_mirror(scr, src, count, dir, threshold);
 			}
 		}
+		scr = lineScr; // restore start of line (like pop edi)
 	}
 }
 
@@ -999,6 +1007,7 @@ static void gp_render_rightclip(intptr_t scrofs, intptr_t CDPOS, byte* Encoder,
 		} else {
 			scr += ScrWidth;
 		}
+		byte* lineScr = scr; // save start of line (like push edi)
 		byte lineType = *mask++;
 		if (lineType == 0) { if (pOCNTR) (*pOCNTR)++; continue; }
 		if (!(lineType & 128)) {
@@ -1064,6 +1073,7 @@ static void gp_render_rightclip(intptr_t scrofs, intptr_t CDPOS, byte* Encoder,
 				src += skipSrc;
 			}
 		}
+		scr = lineScr; // restore start of line (like pop edi)
 		if (pOCNTR) (*pOCNTR)++;
 	}
 }
@@ -1080,6 +1090,7 @@ static void gp_render_rightclip_mirror(intptr_t scrofs, intptr_t CDPOS, intptr_t
 	for (int line = 0; line < NLines; line++) {
 		int ws = WSHIFT[wshiftIdx];
 		scr += ScrWidth + ws;
+		byte* lineScr = scr; // save start of line (like push edi)
 		int curClip = CLIP - dir * ws;
 		wshiftIdx++;
 		byte lineType = *mask++;
@@ -1129,6 +1140,7 @@ static void gp_render_rightclip_mirror(intptr_t scrofs, intptr_t CDPOS, intptr_t
 				src += skipSrc;
 			}
 		}
+		scr = lineScr; // restore start of line (like pop edi)
 	}
 }
 #endif // !_MSC_VER || !_M_IX86
