@@ -36,6 +36,8 @@ else()
     find_package(PkgConfig REQUIRED)
     pkg_check_modules(SDL2 REQUIRED sdl2)
     pkg_check_modules(SDL2_MIXER REQUIRED SDL2_mixer)
+    # Add SDL2 include dirs globally so compat headers can find SDL.h
+    include_directories(SYSTEM ${SDL2_INCLUDE_DIRS})
 endif()
 
 # Define NODDRAW as the Release config does

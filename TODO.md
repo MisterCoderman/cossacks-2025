@@ -23,7 +23,20 @@ Fixed CASHREF (DWORD→uintptr_t), INTV/PTRV macros, cash buffer header layout
 (15 instances), GP_Header::Pack (byte*→DWORD), comprehensive 32-bit sweep
 (~95 instances across 34 files).
 
-## NEXT: Wire up SDL input events
+## ~~PREV: Wire up SDL input events~~ DONE
+Created `compat_sdl_events.h` — translates SDL events to Win32 MSG structs.
+`PeekMessage` polls SDL, fills MSG with WM_MOUSEMOVE/WM_LBUTTONDOWN/WM_KEYDOWN etc.
+`DispatchMessage` calls the game's `WindowProc`. Mouse, keyboard, wheel all work.
+
+## NEXT: Fix rendering artifacts
+Main issues:
+- Font/text rendering shows as horizontal lines instead of proper glyphs.
+  Likely bug in Fastdraw.cpp RLC sprite renderer C implementation —
+  character sprites render as 1px-high lines instead of full height.
+- Mouse cursor may also have similar rendering issues.
+- Investigate `ShowRLC` / `ShowRLCfonpal` functions in Fastdraw.cpp.
+- The rendering pipeline works (8-bit → SDL texture), palette is correct,
+  GP sprites render OK — the issue is specifically in RLC font rendering.
 Main menu renders but mouse/keyboard don't work. Need to translate
 SDL events to the game's Win32 input system:
 - `SDL_MOUSEMOTION` → call `HandleMouse(x, y)` or set mouse globals
@@ -73,10 +86,10 @@ Already linking statically on macOS. Future cleanup.
 - **IChat** — compiles and links (static lib)
 - **IntExplorer** — compiles and links (static lib)
 - **Main executable** — compiles, links, and runs. Native ARM64 binary (3.5MB)
-- **Runtime** — MAIN MENU RENDERS! Game loads archives, initializes fully,
-  creates SDL window, renders 8-bit graphics with palette. Mouse/keyboard
-  input not yet connected (SDL events not mapped to game input system).
-  Some graphics artifacts (colors/rendering slightly off).
+- **Runtime** — GAME IS INTERACTIVE! Main menu renders, mouse clicks work,
+  keyboard input works (ToAscii/ToUnicode implemented), can navigate menus.
+  Text/font rendering has artifacts (characters show as 1px lines).
+  GP sprites render correctly. SDL event→Win32 MSG translation works.
 
 ## Assembly rewrite status (ALL DONE)
 21 files, ~155 blocks rewritten from x86 to portable C:

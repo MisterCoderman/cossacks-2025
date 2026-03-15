@@ -2282,6 +2282,8 @@ static BOOL doInit( HINSTANCE hInstance, int nCmdShow )
 	// Set hwnd to non-NULL so initialization continues.
 	hwnd = (HWND)(intptr_t)1;
 	bActive = TRUE;
+	// Register WindowProc so DispatchMessage can call it
+	_compat_set_wndproc(WindowProc);
 #endif
 
 	ShowWindow( hwnd, SW_SHOWNORMAL );
@@ -3565,14 +3567,16 @@ int PASCAL WinMain(
 			DispatchMessage( &msg );
 		}
 #else
-		// On macOS/Linux, pump SDL events
-		SDL_Event sdlEvent;
-		while (SDL_PollEvent(&sdlEvent))
+		// On macOS/Linux, PeekMessage now translates SDL events to Win32 MSG
+		// and DispatchMessage calls WindowProc, same as on Windows.
+		while (PeekMessage( &msg, NULL, 0, 0, PM_REMOVE ))
 		{
-			if (sdlEvent.type == SDL_QUIT)
+			if (msg.message == WM_QUIT)
 			{
 				goto cleanup;
 			}
+			TranslateMessage( &msg );
+			DispatchMessage( &msg );
 		}
 #endif
 

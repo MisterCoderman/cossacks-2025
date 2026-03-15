@@ -13,6 +13,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
+#include <time.h>
 
 // ---- Basic types ----
 typedef int                 BOOL;
@@ -431,8 +432,12 @@ extern "C" {
 #endif
 
 // These are stubs - they won't link but allow CLion to parse
-inline DWORD GetTickCount() { return 0; }
-inline void Sleep(DWORD ms) { (void)ms; }
+inline DWORD GetTickCount() {
+    struct timespec ts;
+    clock_gettime(CLOCK_MONOTONIC, &ts);
+    return (DWORD)(ts.tv_sec * 1000 + ts.tv_nsec / 1000000);
+}
+inline void Sleep(DWORD ms) { usleep(ms * 1000); }
 inline int MessageBoxA(HWND hw, LPCSTR text, LPCSTR caption, UINT type) {
     (void)hw; (void)text; (void)caption; (void)type; return 0;
 }
@@ -637,13 +642,8 @@ inline BOOL GetMessageA(LPMSG msg, HWND hw, UINT min_val, UINT max_val) {
     (void)msg; (void)hw; (void)min_val; (void)max_val; return FALSE;
 }
 #define GetMessage GetMessageA
-inline BOOL PeekMessageA(LPMSG msg, HWND hw, UINT min_val, UINT max_val, UINT remove) {
-    (void)msg; (void)hw; (void)min_val; (void)max_val; (void)remove; return FALSE;
-}
-#define PeekMessage PeekMessageA
-inline BOOL TranslateMessage(const MSG* msg) { (void)msg; return FALSE; }
-inline LRESULT DispatchMessageA(const MSG* msg) { (void)msg; return 0; }
-#define DispatchMessage DispatchMessageA
+// PeekMessage, TranslateMessage, DispatchMessage — implemented in compat_sdl_events.h
+// (included at end of this file, needs SDL)
 
 #define SW_SHOW         5
 #define SW_HIDE         0
@@ -683,9 +683,13 @@ inline BOOL CreateDirectoryA(LPCSTR path, void* sa) { (void)path; (void)sa; retu
 #define CreateDirectory CreateDirectoryA
 inline void ExitProcess(UINT code) { exit(code); }
 
-// ---- Keyboard stubs ----
-inline SHORT GetKeyState(int vkey) { (void)vkey; return 0; }
-inline SHORT GetAsyncKeyState(int vkey) { (void)vkey; return 0; }
+// ---- Keyboard state (tracked by compat_sdl_events.h) ----
+extern unsigned char _compat_key_state[256]; // defined in platform_main.cpp
+inline SHORT GetKeyState(int vkey) {
+    if (vkey < 0 || vkey > 255) return 0;
+    return _compat_key_state[vkey] ? (SHORT)0x8000 : 0;
+}
+inline SHORT GetAsyncKeyState(int vkey) { return GetKeyState(vkey); }
 
 // ---- Cursor stubs ----
 inline BOOL GetCursorPos(LPPOINT pt) { (void)pt; return TRUE; }
@@ -987,13 +991,64 @@ inline BOOL ScreenToClient(HWND hw, LPPOINT lpPoint) { (void)hw; (void)lpPoint; 
 inline BOOL ClientToScreen(HWND hw, LPPOINT lpPoint) { (void)hw; (void)lpPoint; return TRUE; }
 
 // ---- Keyboard stubs ----
-inline BOOL GetKeyboardState(BYTE* lpKeyState) { (void)lpKeyState; return FALSE; }
+inline BOOL GetKeyboardState(BYTE* lpKeyState) {
+    if (lpKeyState) memcpy(lpKeyState, _compat_key_state, 256);
+    return TRUE;
+}
 inline int ToAscii(UINT uVirtKey, UINT uScanCode, const BYTE* lpKeyState, LPWORD lpChar, UINT uFlags) {
-    (void)uVirtKey; (void)uScanCode; (void)lpKeyState; (void)lpChar; (void)uFlags; return 0;
+    (void)uScanCode; (void)uFlags;
+    if (!lpChar) return 0;
+    // Basic ASCII mapping: if key is printable, return it
+    bool shift = lpKeyState && (lpKeyState[VK_SHIFT] & 0x80);
+    if (uVirtKey >= 'A' && uVirtKey <= 'Z') {
+        *lpChar = shift ? uVirtKey : (uVirtKey + 32); // uppercase or lowercase
+        return 1;
+    }
+    if (uVirtKey >= '0' && uVirtKey <= '9') {
+        *lpChar = (WORD)uVirtKey;
+        return 1;
+    }
+    if (uVirtKey == VK_SPACE) { *lpChar = ' '; return 1; }
+    if (uVirtKey == VK_RETURN) { *lpChar = '\r'; return 1; }
+    if (uVirtKey == VK_TAB) { *lpChar = '\t'; return 1; }
+    return 0;
 }
 inline int ToUnicode(UINT wVirtKey, UINT wScanCode, const BYTE* lpKeyState,
                       LPWSTR pwszBuff, int cchBuff, UINT wFlags) {
-    (void)wVirtKey; (void)wScanCode; (void)lpKeyState; (void)pwszBuff; (void)cchBuff; (void)wFlags; return 0;
+    (void)wScanCode; (void)wFlags;
+    if (!pwszBuff || cchBuff < 1) return 0;
+    bool shift = lpKeyState && (lpKeyState[VK_SHIFT] & 0x80);
+    if (wVirtKey >= 'A' && wVirtKey <= 'Z') {
+        pwszBuff[0] = shift ? (WCHAR)wVirtKey : (WCHAR)(wVirtKey + 32);
+        return 1;
+    }
+    if (wVirtKey >= '0' && wVirtKey <= '9') {
+        // Shift+number for common symbols
+        if (shift) {
+            const char* shifted = ")!@#$%^&*(";
+            pwszBuff[0] = (WCHAR)shifted[wVirtKey - '0'];
+        } else {
+            pwszBuff[0] = (WCHAR)wVirtKey;
+        }
+        return 1;
+    }
+    switch (wVirtKey) {
+        case VK_SPACE:  pwszBuff[0] = ' '; return 1;
+        case VK_RETURN: pwszBuff[0] = '\r'; return 1;
+        case VK_TAB:    pwszBuff[0] = '\t'; return 1;
+        default: break;
+    }
+    // Punctuation (unshifted US layout)
+    switch (wVirtKey) {
+        case 0xBA: pwszBuff[0] = shift ? ':' : ';'; return 1;
+        case 0xBB: pwszBuff[0] = shift ? '+' : '='; return 1;
+        case 0xBC: pwszBuff[0] = shift ? '<' : ','; return 1;
+        case 0xBD: pwszBuff[0] = shift ? '_' : '-'; return 1;
+        case 0xBE: pwszBuff[0] = shift ? '>' : '.'; return 1;
+        case 0xBF: pwszBuff[0] = shift ? '?' : '/'; return 1;
+        default: break;
+    }
+    return 0;
 }
 
 // ---- More VK codes ----
@@ -1168,6 +1223,7 @@ inline LONG InterlockedExchange(volatile LONG* target, LONG value) {
 // ---- Real file I/O implementations (must come after all type definitions) ----
 #ifdef __cplusplus
 #include "compat_file_io.h"
+#include "compat_sdl_events.h"
 #endif
 
 #endif // _COMPAT_WINDOWS_H_

@@ -3,6 +3,13 @@
 
 #include <SDL.h>
 #include "ddini.h"
+
+// Global keyboard state used by GetKeyState/GetKeyboardState (compat layer)
+BYTE _compat_key_state[256] = {};
+
+// Global state for compat_sdl_events.h
+WPARAM _sdl_mouse_wparam_storage = 0;
+_compat_wndproc_t _compat_wndproc_storage = NULL;
 #include "Dplay.h"
 #include "Dplobby.h"
 

@@ -1524,11 +1524,11 @@ void SaveAnmObj( SaveBuf* SB )
 		if (EUsage[i])
 		{
 			xBlockWrite( SB, &i, 2 );
-			AnmObject NAN = *( GAnm[i] );
-			if (NAN.Sender)NAN.Sender = (OneObject*) ( NAN.Sender->Index );
-			else NAN.Sender = (OneObject*) 0xFFFFFFFF;
-			NAN.Weap = (Weapon*) NAN.Weap->MyIndex;
-			xBlockWrite( SB, &NAN.x, sizeof( AnmObject ) - 4 );
+			AnmObject NANOBJ = *( GAnm[i] );
+			if (NANOBJ.Sender)NANOBJ.Sender = (OneObject*) ( NANOBJ.Sender->Index );
+			else NANOBJ.Sender = (OneObject*) 0xFFFFFFFF;
+			NANOBJ.Weap = (Weapon*) NANOBJ.Weap->MyIndex;
+			xBlockWrite( SB, &NANOBJ.x, sizeof( AnmObject ) - 4 );
 		};
 	};
 };
@@ -1547,12 +1547,12 @@ void LoadAnmObj( SaveBuf* SB )
 		word ai;
 		xBlockRead( SB, &ai, 2 );
 		EUsage[ai] = 1;
-		AnmObject* NAN = GAnm[ai];
-		xBlockRead( SB, &NAN->x, sizeof( AnmObject ) - 4 );
-		if (int( NAN->Sender ) != -1)NAN->Sender = Group[int( NAN->Sender )];
-		else NAN->Sender = NULL;
-		NAN->Weap = WPLIST[int( NAN->Weap )];
-		NAN->NewAnm = NAN->Weap->NewAnm;
+		AnmObject* NANOBJ = GAnm[ai];
+		xBlockRead( SB, &NANOBJ->x, sizeof( AnmObject ) - 4 );
+		if (int( NANOBJ->Sender ) != -1)NANOBJ->Sender = Group[int( NANOBJ->Sender )];
+		else NANOBJ->Sender = NULL;
+		NANOBJ->Weap = WPLIST[int( NANOBJ->Weap )];
+		NANOBJ->NewAnm = NANOBJ->Weap->NewAnm;
 	};
 };
 extern int MAXSPR;
