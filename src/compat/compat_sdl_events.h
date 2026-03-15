@@ -79,7 +79,8 @@ extern WPARAM _sdl_mouse_wparam_storage;
 #define _sdl_mouse_wparam _sdl_mouse_wparam_storage
 
 inline void _sdl_update_modifiers(Uint16 mod) {
-    _sdl_mouse_wparam = 0;
+    // Preserve mouse button state, only update keyboard modifiers
+    _sdl_mouse_wparam &= (MK_LBUTTON | MK_RBUTTON | MK_MBUTTON);
     if (mod & KMOD_SHIFT)  _sdl_mouse_wparam |= 0x0004; // MK_SHIFT
     if (mod & KMOD_CTRL)   _sdl_mouse_wparam |= 0x0008; // MK_CONTROL
 }
