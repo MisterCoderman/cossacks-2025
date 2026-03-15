@@ -1,5 +1,23 @@
+cmake_minimum_required(VERSION 3.16)
+project(Cossacks VERSION 1.52 LANGUAGES C CXX)
+
 set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_C_STANDARD 11)
+
+# Platform detection
+if(WIN32)
+    message(STATUS "Building for Windows")
+    if(CMAKE_SIZEOF_VOID_P EQUAL 8)
+        message(STATUS "  Architecture: x64")
+    else()
+        message(STATUS "  Architecture: x86")
+    endif()
+elseif(APPLE)
+    message(STATUS "Building for macOS (${CMAKE_SYSTEM_PROCESSOR})")
+elseif(UNIX)
+    message(STATUS "Building for Linux (${CMAKE_SYSTEM_PROCESSOR})")
+endif()
 
 # On non-Windows, add our compatibility headers FIRST so they shadow real Windows headers
 if(NOT WIN32)
@@ -25,9 +43,15 @@ if(NOT WIN32)
         -fms-extensions
         -ferror-limit=0
     )
-    # Address Sanitizer — catches heap corruption at the source:
-    add_compile_options(-fsanitize=address -fno-omit-frame-pointer)
-    add_link_options(-fsanitize=address)
+
+    # AddressSanitizer: catches heap corruption, buffer overflows, use-after-free.
+    # Enable with: cmake -B build -DENABLE_ASAN=ON
+    option(ENABLE_ASAN "Enable AddressSanitizer" OFF)
+    if(ENABLE_ASAN)
+        message(STATUS "AddressSanitizer enabled")
+        add_compile_options(-fsanitize=address -fno-omit-frame-pointer)
+        add_link_options(-fsanitize=address)
+    endif()
 endif()
 
 # Find SDL2 (use system SDL2 on macOS via Homebrew, or bundled on Windows)
@@ -43,10 +67,10 @@ else()
     include_directories(SYSTEM ${SDL2_INCLUDE_DIRS})
 endif()
 
-# Define NODDRAW as the Release config does
+# Define NODDRAW — use SDL2 instead of DirectDraw
 add_definitions(-DNODDRAW)
 
-# Sub-projects
+# Sub-projects (build order matches dependency chain)
 add_subdirectory("CommCore library")
 add_subdirectory("IChat library")
 add_subdirectory("IntExplorer library")
