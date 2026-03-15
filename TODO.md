@@ -129,11 +129,14 @@ Already linking statically on macOS. Future cleanup.
 
 ## Make save files fully portable across 32-bit and 64-bit
 Most save-file structs are now portable. Remaining issues:
-- `City` (Megapolis.h) — enormous struct with many embedded `Brigade` arrays
-  (each Brigade has 7 pointers), `AI_Army` arrays, and its own pointer fields.
-  Serialized whole with `xBlockWrite(SB, CT, sizeof(City))`. Creating an
-  on-disk format would require handling hundreds of fields. Currently
-  self-consistent on 64-bit (same sizeof for write/read).
+- `City` (Megapolis.h) — the largest struct in the codebase (~441KB on 64-bit,
+  ~266KB on 32-bit). Contains 4,096 embedded `Brigade` instances (7 pointers
+  each = 28,672 pointers), 256 embedded `AI_Army` instances (4 pointers each
+  = 1,024 pointers), plus 7 direct pointer fields. Total: ~29,700 pointer
+  fields. Serialized whole with `xBlockWrite(SB, CT, sizeof(City))`.
+  Currently self-consistent on 64-bit (same sizeof for write/read), but
+  cross-platform portability would require a City_File struct handling all
+  ~29,700 pointer fields — a massive effort.
 - `BrigadeOrder` / `ArmyOrder` — variable-size allocations (`BOR->Size`
   includes `sizeof(BrigadeOrder)` which differs per platform). The extra-data
   scheme (`BOR + 1` for bytes beyond the struct) is tightly coupled to
@@ -141,8 +144,8 @@ Most save-file structs are now portable. Remaining issues:
   into save/load due to variable-size complexity.
 Note: these only affect cross-platform save portability (macOS↔Windows).
 Saves created and loaded on the same platform work correctly.
-  - `#pragma pack(1)` from game headers can break system struct layouts —
-    fixed for iphlpapi.h, may affect other system headers
+- `#pragma pack(1)` from game headers can break system struct layouts —
+  fixed for iphlpapi.h and CDirSound, may affect other system headers
 
 ## Assembly rewrite status (ALL DONE)
 21 files, ~155 blocks rewritten from x86 to portable C:
