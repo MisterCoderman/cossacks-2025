@@ -71,6 +71,16 @@ inline _compat_handle_info* _compat_get_handle(HANDLE h) {
 inline HANDLE CreateFileA(LPCSTR name, DWORD access, DWORD share, void* sa,
                           DWORD disp, DWORD flags, HANDLE templ) {
     (void)share; (void)sa; (void)flags; (void)templ;
+
+    // Convert backslashes to forward slashes
+    char fixedName[512];
+    strncpy(fixedName, name, sizeof(fixedName) - 1);
+    fixedName[sizeof(fixedName) - 1] = 0;
+    for (char* p = fixedName; *p; p++) {
+        if (*p == '\\') *p = '/';
+    }
+    name = fixedName;
+
     int oflags = 0;
 
     // Access mode

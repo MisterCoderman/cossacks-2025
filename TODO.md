@@ -98,9 +98,10 @@ Already linking statically on macOS. Future cleanup.
 - **IChat** — compiles and links (static lib)
 - **IntExplorer** — compiles and links (static lib)
 - **Main executable** — compiles, links, and runs. Native ARM64 binary (3.5MB)
-- **Runtime** — GAME IS FULLY PLAYABLE! Build, move, navigate menus,
-  save/load games all work. Rendering correct. Built-in AI works.
+- **Runtime** — GAME IS FULLY PLAYABLE WITH AUDIO! Build, move, save/load,
+  sound effects all work. Rendering correct. Built-in AI works.
   Keyboard (F12=menu, Escape=cancel) and mouse (click, drag select) work.
+  Campaigns don't work (need cew.dll scripting engine).
   May still have crashes in untested paths (combat, multiplayer, etc.).
 
 ## Assembly rewrite status (ALL DONE)

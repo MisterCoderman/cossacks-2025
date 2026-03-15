@@ -34,25 +34,86 @@ typedef struct {
     DWORD  dwFlags;
 } MMCKINFO;
 
+// ---- Real MMIO implementation for WAV file reading ----
+// HMMIO wraps a FILE*
 inline HMMIO mmioOpenA(LPSTR szFilename, void* lpmmioinfo, DWORD dwOpenFlags) {
-    (void)szFilename; (void)lpmmioinfo; (void)dwOpenFlags; return NULL;
+    (void)lpmmioinfo; (void)dwOpenFlags;
+    if (!szFilename) return NULL;
+    // Convert backslashes to forward slashes for macOS/Linux
+    char fixedPath[512];
+    strncpy(fixedPath, szFilename, sizeof(fixedPath) - 1);
+    fixedPath[sizeof(fixedPath) - 1] = 0;
+    for (char* p = fixedPath; *p; p++) {
+        if (*p == '\\') *p = '/';
+    }
+    FILE* f = fopen(fixedPath, "rb");
+    return (HMMIO)f;
 }
 #define mmioOpen mmioOpenA
 
 inline MMRESULT mmioDescend(HMMIO hmmio, MMCKINFO* lpck, const MMCKINFO* lpckParent, UINT wFlags) {
-    (void)hmmio; (void)lpck; (void)lpckParent; (void)wFlags; return MMSYSERR_NOERROR + 1;
+    FILE* f = (FILE*)hmmio;
+    if (!f || !lpck) return MMSYSERR_NOERROR + 1;
+
+    if (wFlags & MMIO_FINDRIFF) {
+        // Search for RIFF chunk with matching fccType
+        fseek(f, 0, SEEK_SET);
+        FOURCC ckid, cksize, fccType;
+        if (fread(&ckid, 4, 1, f) != 1) return MMSYSERR_NOERROR + 1;
+        if (fread(&cksize, 4, 1, f) != 1) return MMSYSERR_NOERROR + 1;
+        if (fread(&fccType, 4, 1, f) != 1) return MMSYSERR_NOERROR + 1;
+        if (ckid != mmioFOURCC('R','I','F','F') || fccType != lpck->fccType)
+            return MMSYSERR_NOERROR + 1;
+        lpck->ckid = ckid;
+        lpck->cksize = cksize;
+        lpck->dwDataOffset = 12; // data starts after RIFF header
+        return MMSYSERR_NOERROR;
+    }
+    if (wFlags & MMIO_FINDCHUNK) {
+        // Search for a sub-chunk within parent
+        DWORD parentEnd = lpckParent ? (lpckParent->dwDataOffset + lpckParent->cksize) : 0xFFFFFFFF;
+        DWORD pos = (DWORD)ftell(f);
+        while (pos < parentEnd) {
+            FOURCC ckid;
+            DWORD cksize;
+            if (fread(&ckid, 4, 1, f) != 1) return MMSYSERR_NOERROR + 1;
+            if (fread(&cksize, 4, 1, f) != 1) return MMSYSERR_NOERROR + 1;
+            if (ckid == lpck->ckid) {
+                lpck->cksize = cksize;
+                lpck->dwDataOffset = (DWORD)ftell(f);
+                return MMSYSERR_NOERROR;
+            }
+            // Skip this chunk (align to 2-byte boundary)
+            DWORD skip = (cksize + 1) & ~1;
+            fseek(f, skip, SEEK_CUR);
+            pos = (DWORD)ftell(f);
+        }
+        return MMSYSERR_NOERROR + 1; // chunk not found
+    }
+    return MMSYSERR_NOERROR + 1;
 }
 
 inline MMRESULT mmioAscend(HMMIO hmmio, MMCKINFO* lpck, UINT wFlags) {
-    (void)hmmio; (void)lpck; (void)wFlags; return MMSYSERR_NOERROR;
+    (void)wFlags;
+    FILE* f = (FILE*)hmmio;
+    if (!f || !lpck) return MMSYSERR_NOERROR;
+    // Seek past the end of this chunk
+    DWORD endPos = lpck->dwDataOffset + ((lpck->cksize + 1) & ~1);
+    fseek(f, endPos, SEEK_SET);
+    return MMSYSERR_NOERROR;
 }
 
 inline LONG mmioRead(HMMIO hmmio, char* pch, LONG cch) {
-    (void)hmmio; (void)pch; (void)cch; return 0;
+    FILE* f = (FILE*)hmmio;
+    if (!f || !pch || cch <= 0) return 0;
+    return (LONG)fread(pch, 1, cch, f);
 }
 
 inline MMRESULT mmioClose(HMMIO hmmio, UINT wFlags) {
-    (void)hmmio; (void)wFlags; return MMSYSERR_NOERROR;
+    (void)wFlags;
+    FILE* f = (FILE*)hmmio;
+    if (f) fclose(f);
+    return MMSYSERR_NOERROR;
 }
 
 // ---- MCI stubs ----
