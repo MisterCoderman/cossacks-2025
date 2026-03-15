@@ -3,6 +3,7 @@ src/Temp/
 src/.vs/
 src/Testing/
 build/
+build-test/
 src/build/
 cmake-build-*/
 .idea/
