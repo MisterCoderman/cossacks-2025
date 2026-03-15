@@ -50,6 +50,10 @@ struct xRLCTable
 typedef xRLCTable* RLCTable;
 typedef RLCTable* lpRLCTable;
 
+// Compute absolute address from RLC table + index.
+// OfsTable[i] stores a file-relative offset; add the base of the sign field.
+#define RLC_ADDR(tbl, idx) ((void*)((byte*)&(tbl)->sign + (tbl)->OfsTable[idx]))
+
 class FASTDRAW_API RLCFont
 {
 public:

@@ -25,7 +25,8 @@ __forceinline byte CalcHash(char* s) {
 	#endif
 };
 StrHash::StrHash(){
-	memset(this,0,sizeof(StrHash));
+	memset(SHI, 0, sizeof(SHI));
+	LastIndex = 0;
 };
 void StrHash::Clear(){
 	for(int i=0;i<256;i++){
@@ -36,7 +37,8 @@ void StrHash::Clear(){
 			free(lpSHI->Value);
 		};
 	};
-	memset(this,0,sizeof(StrHash));
+	memset(SHI, 0, sizeof(SHI));
+	LastIndex = 0;
 };
 StrHash::~StrHash(){
 	Clear();

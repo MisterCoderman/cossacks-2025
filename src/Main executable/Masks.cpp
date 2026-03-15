@@ -352,10 +352,10 @@ extern RLCTable SimpleMaskB;
 extern RLCTable SimpleMaskC;
 extern RLCTable SimpleMaskD;
 void CopyMaskedBitmap(byte* Bits, int x, int y, int MaskID) {
-	CopyMaskedBitmap64(Bits, x, y, (void*)(SimpleMaskA->OfsTable[MaskID]));
-	CopyMaskedTransparentBitmap_4(Bits, x, y, (void*)(SimpleMaskB->OfsTable[MaskID]));
-	CopyMaskedTransparentBitmap_8(Bits, x, y, (void*)(SimpleMaskC->OfsTable[MaskID]));
-	CopyMaskedTransparentBitmap_12(Bits, x, y, (void*)(SimpleMaskD->OfsTable[MaskID]));
+	CopyMaskedBitmap64(Bits, x, y, RLC_ADDR(SimpleMaskA, MaskID));
+	CopyMaskedTransparentBitmap_4(Bits, x, y, RLC_ADDR(SimpleMaskB, MaskID));
+	CopyMaskedTransparentBitmap_8(Bits, x, y, RLC_ADDR(SimpleMaskC, MaskID));
+	CopyMaskedTransparentBitmap_12(Bits, x, y, RLC_ADDR(SimpleMaskD, MaskID));
 };
 //  0
 //	|\
@@ -787,13 +787,13 @@ int GetBmOfst(int i) {
 			//1,2 over 3 - inverse mask
 			FastCreateMaskedBitmap64_1(BitmapsArray+GetBmOfst(bm1),x0,y0);
 			CopyMaskedBitmap64(BitmapsArray+GetBmOfst(bm3),x0,y0,
-				(void*)(Masks->OfsTable[27+(2-s2)*3+s3]));
+				RLC_ADDR(Masks,27+(2-s2)*3+s3));
 			return;
 		}else{
 			//3 over 1,2 - normal mask
 			FastCreateMaskedBitmap64_1(BitmapsArray+GetBmOfst(bm1),x0,y0);
 			CopyMaskedBitmap64(BitmapsArray+GetBmOfst(bm3),x0,y0,
-				(void*)(Masks->OfsTable[18+(2-s2)*3+s3]));
+				RLC_ADDR(Masks,18+(2-s2)*3+s3));
 			return;
 		};
 	};
@@ -802,13 +802,13 @@ int GetBmOfst(int i) {
 			//2,3 over 1 - inverse mask
 			FastCreateMaskedBitmap64_1(BitmapsArray+GetBmOfst(bm3),x0,y0);
 			CopyMaskedBitmap64(BitmapsArray+GetBmOfst(bm1),x0,y0,
-				(void*)(Masks->OfsTable[45+(2-s3)*3+s1]));
+				RLC_ADDR(Masks,45+(2-s3)*3+s1));
 			return;
 		}else{
 			//1 over 2,3 - normal mask
 			FastCreateMaskedBitmap64_1(BitmapsArray+GetBmOfst(bm3),x0,y0);
 			CopyMaskedBitmap64(BitmapsArray+GetBmOfst(bm1),x0,y0,
-				(void*)(Masks->OfsTable[36+(2-s3)*3+s1]));
+				RLC_ADDR(Masks,36+(2-s3)*3+s1));
 			return;
 		};
 	};
@@ -817,13 +817,13 @@ int GetBmOfst(int i) {
 			//1,3 over 2 - inverse mask
 			FastCreateMaskedBitmap64_1(BitmapsArray+GetBmOfst(bm3),x0,y0);
 			CopyMaskedBitmap64(BitmapsArray+GetBmOfst(bm2),x0,y0,
-				(void*)(Masks->OfsTable[9+(2-s1)*3+s2]));
+				RLC_ADDR(Masks,9+(2-s1)*3+s2));
 			return;
 		}else{
 			//2 over 1,3 - normal mask
 			FastCreateMaskedBitmap64_1(BitmapsArray+GetBmOfst(bm3),x0,y0);
 			CopyMaskedBitmap64(BitmapsArray+GetBmOfst(bm2),x0,y0,
-				(void*)(Masks->OfsTable[(2-s1)*3+s2]));
+				RLC_ADDR(Masks,(2-s1)*3+s2));
 			return;
 		};
 	};
@@ -831,24 +831,24 @@ int GetBmOfst(int i) {
 	if(bm1<bm2&&bm1<bm3){
 		FastCreateMaskedBitmap64_1(BitmapsArray+GetBmOfst(bm1),x0,y0);
 		CopyMaskedBitmap64(BitmapsArray+GetBmOfst(bm2),x0,y0,
-				(void*)(Masks->OfsTable[(2-s1)*3+s2]));
+				RLC_ADDR(Masks,(2-s1)*3+s2));
 		CopyMaskedBitmap64(BitmapsArray+GetBmOfst(bm3),x0,y0,
-				(void*)(Masks->OfsTable[18+(2-s2)*3+s3]));
+				RLC_ADDR(Masks,18+(2-s2)*3+s3));
 		return;
 	};
 	if(bm2<bm1&&bm2<bm3){
 		FastCreateMaskedBitmap64_1(BitmapsArray+GetBmOfst(bm2),x0,y0);
 		CopyMaskedBitmap64(BitmapsArray+GetBmOfst(bm1),x0,y0,
-				(void*)(Masks->OfsTable[36+(2-s3)*3+s1]));
+				RLC_ADDR(Masks,36+(2-s3)*3+s1));
 		CopyMaskedBitmap64(BitmapsArray+GetBmOfst(bm3),x0,y0,
-				(void*)(Masks->OfsTable[18+(2-s2)*3+s3]));
+				RLC_ADDR(Masks,18+(2-s2)*3+s3));
 		return;
 	};
 	FastCreateMaskedBitmap64_1(BitmapsArray+GetBmOfst(bm3),x0,y0);
 	CopyMaskedBitmap64(BitmapsArray+GetBmOfst(bm1),x0,y0,
-			(void*)(Masks->OfsTable[36+(2-s3)*3+s1]));
+			RLC_ADDR(Masks,36+(2-s3)*3+s1));
 	CopyMaskedBitmap64(BitmapsArray+GetBmOfst(bm2),x0,y0,
-			(void*)(Masks->OfsTable[(2-s1)*3+s2]));
+			RLC_ADDR(Masks,(2-s1)*3+s2));
 };
 //
 //                1
@@ -869,13 +869,13 @@ void PrepareIntersection2(int bm1,int bm2,int bm3,
 			//1,2 over 3 - inverse mask
 			FastCreateMaskedBitmap64_2(BitmapsArray+GetBmOfst(bm1),x0,y01);
 			CopyMaskedBitmap64(BitmapsArray+GetBmOfst(bm3),x0,y0,
-				(void*)(Masks->OfsTable[54+27+(2-s2)*3+s3]));
+				RLC_ADDR(Masks,54+27+(2-s2)*3+s3));
 			return;
 		}else{
 			//3 over 1,2 - normal mask
 			FastCreateMaskedBitmap64_2(BitmapsArray+GetBmOfst(bm1),x0,y01);
 			CopyMaskedBitmap64(BitmapsArray+GetBmOfst(bm3),x0,y0,
-				(void*)(Masks->OfsTable[54+18+(2-s2)*3+s3]));
+				RLC_ADDR(Masks,54+18+(2-s2)*3+s3));
 			return;
 		};
 	};
@@ -884,13 +884,13 @@ void PrepareIntersection2(int bm1,int bm2,int bm3,
 			//2,3 over 1 - inverse mask
 			FastCreateMaskedBitmap64_2(BitmapsArray+GetBmOfst(bm3),x0,y01);
 			CopyMaskedBitmap64(BitmapsArray+GetBmOfst(bm1),x0,y0,
-				(void*)(Masks->OfsTable[54+45+(2-s3)*3+s1]));
+				RLC_ADDR(Masks,54+45+(2-s3)*3+s1));
 			return;
 		}else{
 			//1 over 2,3 - normal mask
 			FastCreateMaskedBitmap64_2(BitmapsArray+GetBmOfst(bm3),x0,y01);
 			CopyMaskedBitmap64(BitmapsArray+GetBmOfst(bm1),x0,y0,
-				(void*)(Masks->OfsTable[54+36+(2-s3)*3+s1]));
+				RLC_ADDR(Masks,54+36+(2-s3)*3+s1));
 			return;
 		};
 	};
@@ -899,13 +899,13 @@ void PrepareIntersection2(int bm1,int bm2,int bm3,
 			//1,3 over 2 - inverse mask
 			FastCreateMaskedBitmap64_2(BitmapsArray+GetBmOfst(bm3),x0,y01);
 			CopyMaskedBitmap64(BitmapsArray+GetBmOfst(bm2),x0,y0,
-				(void*)(Masks->OfsTable[54+9+(2-s1)*3+s2]));
+				RLC_ADDR(Masks,54+9+(2-s1)*3+s2));
 			return;
 		}else{
 			//2 over 1,3 - normal mask
 			FastCreateMaskedBitmap64_2(BitmapsArray+GetBmOfst(bm3),x0,y01);
 			CopyMaskedBitmap64(BitmapsArray+GetBmOfst(bm2),x0,y0,
-				(void*)(Masks->OfsTable[54+(2-s1)*3+s2]));
+				RLC_ADDR(Masks,54+(2-s1)*3+s2));
 			return;
 		};
 	};
@@ -913,24 +913,24 @@ void PrepareIntersection2(int bm1,int bm2,int bm3,
 	if(bm1<bm2&&bm1<bm3){
 		FastCreateMaskedBitmap64_2(BitmapsArray+GetBmOfst(bm1),x0,y01);
 		CopyMaskedBitmap64(BitmapsArray+GetBmOfst(bm2),x0,y0,
-				(void*)(Masks->OfsTable[54+(2-s1)*3+s2]));
+				RLC_ADDR(Masks,54+(2-s1)*3+s2));
 		CopyMaskedBitmap64(BitmapsArray+GetBmOfst(bm3),x0,y0,
-				(void*)(Masks->OfsTable[54+18+(2-s2)*3+s3]));
+				RLC_ADDR(Masks,54+18+(2-s2)*3+s3));
 		return;
 	};
 	if(bm2<bm1&&bm2<bm3){
 		FastCreateMaskedBitmap64_2(BitmapsArray+GetBmOfst(bm2),x0,y01);
 		CopyMaskedBitmap64(BitmapsArray+GetBmOfst(bm1),x0,y0,
-				(void*)(Masks->OfsTable[54+36+(2-s3)*3+s1]));
+				RLC_ADDR(Masks,54+36+(2-s3)*3+s1));
 		CopyMaskedBitmap64(BitmapsArray+GetBmOfst(bm3),x0,y0,
-				(void*)(Masks->OfsTable[54+18+(2-s2)*3+s3]));
+				RLC_ADDR(Masks,54+18+(2-s2)*3+s3));
 		return;
 	};
 	FastCreateMaskedBitmap64_2(BitmapsArray+GetBmOfst(bm3),x0,y01);
 	CopyMaskedBitmap64(BitmapsArray+GetBmOfst(bm1),x0,y0,
-			(void*)(Masks->OfsTable[54+36+(2-s3)*3+s1]));
+			RLC_ADDR(Masks,54+36+(2-s3)*3+s1));
 	CopyMaskedBitmap64(BitmapsArray+GetBmOfst(bm2),x0,y0,
-			(void*)(Masks->OfsTable[54+(2-s1)*3+s2]));
+			RLC_ADDR(Masks,54+(2-s1)*3+s2));
 };*/
 // 1(x0,y0)
 //  |\
@@ -996,7 +996,7 @@ void PrepareIntersection1(int bm1, int bm2, int bm3,
 	if (bm1 < bm2 && bm1 < bm3) {
 		FastCreateMaskedBitmap64_1(BitmapsArray + GetBmOfst(bm1), x0, y0);
 		CopyMaskedBitmap64(BitmapsArray + GetBmOfst(bm2), x0, y0,
-			(void*)(Masks->OfsTable[(2 - s1) * 3 + s2]));
+			RLC_ADDR(Masks,(2 - s1) * 3 + s2));
 		CopyMaskedBitmap(BitmapsArray + GetBmOfst(bm3), x0, y0, 18 + (2 - s2) * 3 + s3);
 		return;
 	};

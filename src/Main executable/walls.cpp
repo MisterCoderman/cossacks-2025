@@ -393,7 +393,7 @@ WallSystem::WallSystem()
 {
 	WCL = NULL;
 	NClusters = 0;
-	memset( WRefs, 0, MaxLI * 4 );
+	memset( WRefs, 0, MaxLI * sizeof(WallCell*) );
 };
 WallSystem::~WallSystem()
 {
@@ -409,7 +409,7 @@ WallSystem::~WallSystem()
 	free( WCL );
 	WCL = NULL;
 	NClusters = 0;
-	memset( WRefs, 0, MaxLI * 4 );
+	memset( WRefs, 0, MaxLI * sizeof(WallCell*) );
 }
 
 void WallSystem::AddCluster( WallCluster* WC )

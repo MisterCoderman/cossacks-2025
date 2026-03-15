@@ -25,6 +25,9 @@ if(NOT WIN32)
         -fms-extensions
         -ferror-limit=0
     )
+    # Uncomment to enable Address Sanitizer (catches heap corruption at the source):
+    # add_compile_options(-fsanitize=address -fno-omit-frame-pointer)
+    # add_link_options(-fsanitize=address)
 endif()
 
 # Find SDL2 (use system SDL2 on macOS via Homebrew, or bundled on Windows)

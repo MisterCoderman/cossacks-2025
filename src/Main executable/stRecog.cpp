@@ -782,8 +782,8 @@ void InitNation(byte msk, byte NIndex)
 	nat->UnitsIDS = new lpWORD[NNations];
 	nat->Harch = 0;
 	memset(nat->NUnits, 0, NNations * 4);
-	memset(nat->UnitNames, 0, NNations * 4);
-	memset(nat->UnitsIDS, 0, NNations * 4);
+	memset(nat->UnitNames, 0, NNations * sizeof(lplpCHAR));
+	memset(nat->UnitsIDS, 0, NNations * sizeof(lpWORD));
 	nat->FoodEff = 1010;
 	nat->WoodEff = 100;
 	nat->StoneEff = 100;

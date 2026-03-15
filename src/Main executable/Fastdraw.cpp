@@ -2558,7 +2558,7 @@ void ShowRLCiRedN(int x, int y, void* PicPtr, int N)
 };
 // Helper: compute absolute address from RLC table + index
 // OfsTable[i] stores a file-relative offset; add the base of the sign field
-#define RLC_ADDR(tbl, idx) ((void*)((byte*)&(tbl)->sign + (tbl)->OfsTable[idx]))
+// RLC_ADDR is defined in Fastdraw.h
 
 void ShowRLCItemDarkN(int x, int y, lpRLCTable lprt, int n, int Ints)
 {

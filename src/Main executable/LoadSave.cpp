@@ -642,7 +642,7 @@ void UnLoading()
 	memset( NucList, 0, sizeof(NucList) );
 	memset( NucSN, 0, sizeof(NucSN) );
 	memset( NDone, 0, sizeof(NDone) );
-	memset( WRefs, 0, VAL_MAXCIOFS * 4 * 4 );
+	memset( WRefs, 0, VAL_MAXCIOFS * 4 * sizeof(WallCell*) );
 	ClearTopChange();
 	StopDynamicalTopology();
 	if (MineList)
@@ -3439,7 +3439,7 @@ void ClearArrays()
 	memset( BLDList, 0, VAL_MAXCIOFS * 2 );
 	memset( NPresence, 0, VAL_MAXCIOFS );
 	memset( NSpri, 0, VAL_SPRSIZE );
-	memset( SpRefs, 0, VAL_SPRSIZE * 4 );
+	memset( SpRefs, 0, VAL_SPRSIZE * sizeof(int*) );
 	memset( WaterDeep, 0, ( VAL_MAPSX*VAL_MAPSX ) >> 2 );
 	memset( WaterBright, 0, ( VAL_MAPSX*VAL_MAPSX ) >> 2 );
 
@@ -3625,17 +3625,17 @@ void SetupArrays()
 	szz = VAL_MAXCIOFS;
 	ARRSZ += szz;
 
-	WRefs = (WallCell**) calloc( VAL_MAXCIOFS * 4 * 4, 1 );
-	szz = VAL_MAXCIOFS * 4 * 4;
+	WRefs = (WallCell**) calloc( VAL_MAXCIOFS * 4, sizeof(WallCell*) );
+	szz = VAL_MAXCIOFS * 4 * sizeof(WallCell*);
 	ARRSZ += szz;
 	NSpri = new byte[VAL_SPRSIZE];
 	szz = VAL_SPRSIZE;
 	ARRSZ += szz;
 	memset( NSpri, 0, VAL_SPRSIZE );
-	SpRefs = (int**) calloc( VAL_SPRSIZE * 4, 1 );
-	szz = VAL_SPRSIZE * 4;
+	SpRefs = (int**) calloc( VAL_SPRSIZE, sizeof(int*) );
+	szz = VAL_SPRSIZE * sizeof(int*);
 	ARRSZ += szz;
-	memset( SpRefs, 0, VAL_SPRSIZE * 4 );
+	memset( SpRefs, 0, VAL_SPRSIZE * sizeof(int*) );
 	WaterDeep = new byte[( VAL_MAPSX*VAL_MAPSX ) >> 2];
 	szz = ( VAL_MAPSX*VAL_MAPSX ) >> 2;
 	ARRSZ += szz;
@@ -3651,7 +3651,7 @@ void SetupArrays()
 	}
 
 	UnitsField.Allocate();
-	Obj3Map = (word**) calloc( B3SZ * 4, 1 );
+	Obj3Map = (word**) calloc( B3SZ, sizeof(word*) );
 	szz = B3SZ * 4;
 	ARRSZ += szz;
 	NObj3 = new word[B3SZ];
@@ -3696,7 +3696,7 @@ void SetupArrays()
 		SectMap = NULL;
 	}
 
-	OTRI.TRIANG = (VertOver**) calloc( VertLx*VertLx * 4, 1 );
+	OTRI.TRIANG = (VertOver**) calloc( VertLx*VertLx, sizeof(VertOver*) );
 	szz = VertLx*VertLx * 4;
 	ARRSZ += szz;
 	OTRI.NTRIANG = new word[VertLx*VertLx];
@@ -3827,7 +3827,7 @@ void EnemyInfo::ALLOCATE()
 	SupMortLastTime = new word[MAXCIOFS];
 	InflMap = new DWORD[TopLx*TopLx];
 	SafeMAP = new byte[SafeMLx*SafeMLx];
-	SCINF = (SafeCellInfo**) calloc( SafeLX*SafeLX * 4, 1 );
+	SCINF = (SafeCellInfo**) calloc( SafeLX*SafeLX, sizeof(SafeCellInfo*) );
 	NUN = new word[TSX*TSX];
 	TMAP = new byte[TSX*TSX];
 	GAINF.ArmDistr = new word[StratLx*StratLy];

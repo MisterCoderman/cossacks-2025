@@ -30,7 +30,7 @@ word*  NObj3;
 void InitObjs3()
 {
 	memset( OBARS, 0, sizeof(OBARS) );
-	memset( Obj3Map, 0, B3SZ * 4 );
+	memset( Obj3Map, 0, B3SZ * sizeof(word*) );
 	memset( NObj3, 0, B3SZ * 2 );
 	NBars = 0;
 }
@@ -41,7 +41,7 @@ void ClearObjs3()
 	{
 		if (OBARS[i])
 		{
-			delete OBARS[i]; // Замена free на delete
+			delete OBARS[i]; // пїЅпїЅпїЅпїЅпїЅпїЅ free пїЅпїЅ delete
 			OBARS[i] = NULL;
 		}
 	}
