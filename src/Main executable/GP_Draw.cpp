@@ -184,9 +184,13 @@ byte* GP_System::GetCash(int Size)
 		if (tpos + CASH_HDR_SIZE > cas) break;
 		int sz = INTV(Cash + tpos + CASH_SZ_OFS);
 		if (sz <= 0 || tpos + sz > cas) break;
-		uintptr_t* ptr = (uintptr_t*)PTRV(Cash + tpos + CASH_PTR_OFS);
-		if (ptr && ptr != (uintptr_t*)NO_PACK)
-		{
+		intptr_t ptrval = PTRV(Cash + tpos + CASH_PTR_OFS);
+		uintptr_t* ptr = (uintptr_t*)ptrval;
+		if (ptr && ptr != (uintptr_t*)NO_PACK
+#if INTPTR_MAX > INT32_MAX
+			&& (uintptr_t)ptrval > 0x100000000ULL // skip truncated 32-bit values in sprite data
+#endif
+		) {
 			ptr[0] = (uintptr_t)(intptr_t)-1; // NO_PACK
 			PTRV(Cash + tpos + CASH_PTR_OFS) = 0;
 		};
