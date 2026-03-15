@@ -1062,10 +1062,8 @@ RetryConn:
 	{
 		DoNewInet = 1;
 	}
-#ifndef _WIN32
-	// On macOS/Linux, always use CommCore (Direct IP) since DirectPlay is unavailable
-	DoNewInet = 1;
-#endif
+	// On macOS/Linux, Direct IP is the only option, DoNewInet is already set
+	// by the selected_network_protocol == 2 check above
 
 	if (!DoNewInet)
 	{
@@ -1901,6 +1899,14 @@ int MPL_ChooseConnection()
 	INET->UserParam = 3;
 	INET->OnUserClick = &MMChooseName;
 
+#ifndef _WIN32
+	// On macOS, hide unsupported options (DirectPlay / Internet Game)
+	TCP->Visible = 0;
+	TCP->Enabled = 0;
+	INET->Visible = 0;
+	INET->Enabled = 0;
+#endif
+
 	//IP address input form
 	GPPicture* IP1 = MENU.addGPPicture(nullptr, 25 + 72, 180 + 222 + dy2 + dy3 + 26 + 13, BTNS.GPID, 19);
 	IP1->Visible = 0;
@@ -1924,7 +1930,13 @@ int MPL_ChooseConnection()
 	NameChoose = 0;
 	int pp = 1;
 
+#ifdef _WIN32
 	selected_network_protocol = 1;
+#else
+	// On macOS, default to Direct IP (only option available)
+	selected_network_protocol = 2;
+	NameChoose = 2;
+#endif
 
 	//Wait for user input
 	do

@@ -252,6 +252,7 @@ tpRARSetChangeVolProc* lpRARSetChangeVolProc = NULL;
 tpRARSetProcessDataProc* lpRARSetProcessDataProc = NULL;
 tpRARSetPassword* lpRARSetPassword = NULL;
 HANDLE PASCAL RAROpenArchive(struct RAROpenArchiveData *ArchiveData) {
+	if (!lpRAROpenArchive) return INVALID_HANDLE_VALUE;
 	return lpRAROpenArchive(ArchiveData);
 };
 int PASCAL RARCloseArchive(HANDLE hArcData) {

@@ -105,9 +105,11 @@ Already linking statically on macOS. Future cleanup.
   investigation. cew.dll contains script data but the interpreter may
   depend on LoadLibrary to load AI DLLs for mission scripts.
   Known issues:
-  - Campaigns: immediate defeat (AI DLLs can't be loaded on macOS —
-    LoadLibrary returns NULL. The built-in AI works for skirmish but
-    campaign missions need AI DLLs for mission-specific scripts)
+  - Campaigns: immediate defeat. Each mission has a `Mission.dll` containing
+    compiled x86 Windows code for mission logic (victory/defeat conditions,
+    triggers, scripted events). These can't run on macOS ARM64.
+    Also `unrar.dll` needed to extract some campaign data from .rar files.
+    Would need mission DLL source code or Wine/Rosetta to make campaigns work.
   - Multiplayer: TCP/IP LAN mode doesn't work (requires DirectPlay which
     is Windows-only). Direct IP mode uses CommCore UDP stack and should
     work — select "Direct IP" when creating/joining a game.
