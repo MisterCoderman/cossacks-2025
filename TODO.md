@@ -104,7 +104,14 @@ Already linking statically on macOS. Future cleanup.
   Campaigns show immediate defeat — the campaign scripting engine needs
   investigation. cew.dll contains script data but the interpreter may
   depend on LoadLibrary to load AI DLLs for mission scripts.
-  May still have crashes in untested paths (combat, multiplayer, etc.).
+  Known issues:
+  - Campaigns: immediate defeat (AI DLLs can't be loaded on macOS —
+    LoadLibrary returns NULL. The built-in AI works for skirmish but
+    campaign missions need AI DLLs for mission-specific scripts)
+  - Multiplayer: TCP/IP LAN mode doesn't work (requires DirectPlay which
+    is Windows-only). Direct IP mode uses CommCore UDP stack and should
+    work — select "Direct IP" when creating/joining a game.
+  - May still have crashes in untested gameplay paths (combat, etc.)
 
 ## Assembly rewrite status (ALL DONE)
 21 files, ~155 blocks rewritten from x86 to portable C:

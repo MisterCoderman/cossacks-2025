@@ -460,21 +460,61 @@ inline DWORD GetLogicalDriveStringsA(DWORD size, LPSTR buf) { (void)size; (void)
 // are implemented in compat_file_io.h (included at end of this file)
 
 // ---- Critical section stubs ----
+// Critical sections implemented via pthread_mutex
+#include <pthread.h>
 typedef struct _CRITICAL_SECTION {
-    void* dummy;
+    pthread_mutex_t mutex;
 } CRITICAL_SECTION, *LPCRITICAL_SECTION;
 
-inline void InitializeCriticalSection(LPCRITICAL_SECTION cs) { (void)cs; }
-inline void DeleteCriticalSection(LPCRITICAL_SECTION cs) { (void)cs; }
-inline void EnterCriticalSection(LPCRITICAL_SECTION cs) { (void)cs; }
-inline void LeaveCriticalSection(LPCRITICAL_SECTION cs) { (void)cs; }
+inline void InitializeCriticalSection(LPCRITICAL_SECTION cs) {
+    pthread_mutexattr_t attr;
+    pthread_mutexattr_init(&attr);
+    pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE);
+    pthread_mutex_init(&cs->mutex, &attr);
+    pthread_mutexattr_destroy(&attr);
+}
+inline void DeleteCriticalSection(LPCRITICAL_SECTION cs) { pthread_mutex_destroy(&cs->mutex); }
+inline void EnterCriticalSection(LPCRITICAL_SECTION cs) { pthread_mutex_lock(&cs->mutex); }
+inline void LeaveCriticalSection(LPCRITICAL_SECTION cs) { pthread_mutex_unlock(&cs->mutex); }
 
 // ---- Threading stubs ----
-inline HANDLE CreateThread(void* attr, size_t stack, void* func, void* param, DWORD flags, DWORD* id) {
-    (void)attr; (void)stack; (void)func; (void)param; (void)flags; (void)id;
+#ifndef WAIT_OBJECT_0
+#define WAIT_OBJECT_0 0
+#endif
+#ifndef INFINITE
+#define INFINITE 0xFFFFFFFF
+#endif
+// CreateThread using pthreads
+typedef DWORD (*_compat_thread_proc)(LPVOID);
+struct _compat_thread_info {
+    _compat_thread_proc proc;
+    LPVOID param;
+    pthread_t thread;
+};
+inline void* _compat_thread_wrapper(void* arg) {
+    _compat_thread_info* info = (_compat_thread_info*)arg;
+    info->proc(info->param);
     return NULL;
 }
-inline DWORD WaitForSingleObject(HANDLE h, DWORD ms) { (void)h; (void)ms; return 0; }
+inline HANDLE CreateThread(void* attr, size_t stack, void* func, void* param, DWORD flags, DWORD* id) {
+    (void)attr; (void)stack; (void)flags;
+    _compat_thread_info* info = new _compat_thread_info;
+    info->proc = (_compat_thread_proc)func;
+    info->param = param;
+    if (pthread_create(&info->thread, NULL, _compat_thread_wrapper, info) != 0) {
+        delete info;
+        return NULL;
+    }
+    if (id) *id = (DWORD)(uintptr_t)info;
+    return (HANDLE)info;
+}
+inline DWORD WaitForSingleObject(HANDLE h, DWORD ms) {
+    (void)ms; // timeout not implemented
+    if (!h) return WAIT_OBJECT_0;
+    _compat_thread_info* info = (_compat_thread_info*)h;
+    pthread_join(info->thread, NULL);
+    return WAIT_OBJECT_0;
+}
 // CloseHandle — implemented in compat_file_io.h
 #define INFINITE 0xFFFFFFFF
 #define WAIT_OBJECT_0 0
@@ -662,8 +702,32 @@ typedef struct _SYSTEMTIME {
     WORD wSecond;
     WORD wMilliseconds;
 } SYSTEMTIME;
-inline void GetLocalTime(SYSTEMTIME* st) { (void)st; }
-inline void GetSystemTime(SYSTEMTIME* st) { (void)st; }
+inline void GetLocalTime(SYSTEMTIME* st) {
+    if (!st) return;
+    time_t t = time(NULL);
+    struct tm* tm = localtime(&t);
+    st->wYear = (WORD)(tm->tm_year + 1900);
+    st->wMonth = (WORD)(tm->tm_mon + 1);
+    st->wDayOfWeek = (WORD)tm->tm_wday;
+    st->wDay = (WORD)tm->tm_mday;
+    st->wHour = (WORD)tm->tm_hour;
+    st->wMinute = (WORD)tm->tm_min;
+    st->wSecond = (WORD)tm->tm_sec;
+    st->wMilliseconds = 0;
+}
+inline void GetSystemTime(SYSTEMTIME* st) {
+    if (!st) return;
+    time_t t = time(NULL);
+    struct tm* tm = gmtime(&t);
+    st->wYear = (WORD)(tm->tm_year + 1900);
+    st->wMonth = (WORD)(tm->tm_mon + 1);
+    st->wDayOfWeek = (WORD)tm->tm_wday;
+    st->wDay = (WORD)tm->tm_mday;
+    st->wHour = (WORD)tm->tm_hour;
+    st->wMinute = (WORD)tm->tm_min;
+    st->wSecond = (WORD)tm->tm_sec;
+    st->wMilliseconds = 0;
+}
 inline BOOL SystemTimeToFileTime(const SYSTEMTIME* st, FILETIME* ft) { (void)st; (void)ft; return TRUE; }
 inline BOOL FileTimeToSystemTime(const FILETIME* ft, SYSTEMTIME* st) { (void)ft; (void)st; return TRUE; }
 inline BOOL GetFileTime(HANDLE hFile, FILETIME* lpCreate, FILETIME* lpAccess, FILETIME* lpWrite) {

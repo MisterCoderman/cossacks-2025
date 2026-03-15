@@ -1062,6 +1062,10 @@ RetryConn:
 	{
 		DoNewInet = 1;
 	}
+#ifndef _WIN32
+	// On macOS/Linux, always use CommCore (Direct IP) since DirectPlay is unavailable
+	DoNewInet = 1;
+#endif
 
 	if (!DoNewInet)
 	{

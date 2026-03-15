@@ -9,17 +9,26 @@
 BOOL CCommCore::InitNetwork()
 {
 	_log_message("InitNetwork()");
+	fprintf(stderr, "[NET] InitNetwork start\n"); fflush(stderr);
 
 	WSADATA WSAData;
 
-	if(WSAStartup(MAKEWORD(2,2),&WSAData)!=0)
+	if(WSAStartup(MAKEWORD(2,2),&WSAData)!=0) {
+		fprintf(stderr, "[NET] WSAStartup failed\n"); fflush(stderr);
 		return FALSE;
+	}
 
-	if(!InitSocket())
+	if(!InitSocket()) {
+		fprintf(stderr, "[NET] InitSocket failed\n"); fflush(stderr);
 		return FALSE;
+	}
+	fprintf(stderr, "[NET] InitSocket OK\n"); fflush(stderr);
 
-	if(!InitHost())
+	if(!InitHost()) {
+		fprintf(stderr, "[NET] InitHost failed\n"); fflush(stderr);
 		return FALSE;
+	}
+	fprintf(stderr, "[NET] InitHost OK, addrs=%d\n", m_uAddrCount); fflush(stderr);
 
 	return TRUE;
 }
@@ -99,19 +108,34 @@ BOOL CCommCore::InitSocket()
 	_log_message("InitSocket()");
 
 	m_DataSocket=socket(AF_INET,SOCK_DGRAM,IPPROTO_UDP);
-	if(m_DataSocket==INVALID_SOCKET)
+	if(m_DataSocket==INVALID_SOCKET) {
+		fprintf(stderr, "[NET] socket() failed\n"); fflush(stderr);
 		return FALSE;
+	}
 
 	u_long	lArgP=0x01;
+#ifdef _WIN32
 	if(ioctlsocket(m_DataSocket,FIONBIO,&lArgP)==SOCKET_ERROR)
 		return FALSE;
+#else
+	// On POSIX, use fcntl to set non-blocking
+	int flags = fcntl(m_DataSocket, F_GETFL, 0);
+	if (flags < 0 || fcntl(m_DataSocket, F_SETFL, flags | O_NONBLOCK) < 0) {
+		fprintf(stderr, "[NET] fcntl non-blocking failed\n"); fflush(stderr);
+		return FALSE;
+	}
+#endif
 
+#ifdef _WIN32
 	u_long	lMaxSize;
 	int		iSizeOfMaxSize=sizeof(u_long);
 	if(getsockopt(m_DataSocket,SOL_SOCKET,SO_MAX_MSG_SIZE,(char *)&lMaxSize,&iSizeOfMaxSize)==SOCKET_ERROR)
 		return FALSE;
-
 	m_uMaxMsgSize=(u_short)lMaxSize;
+#else
+	// SO_MAX_MSG_SIZE doesn't exist on POSIX; use a reasonable default for UDP
+	m_uMaxMsgSize = 8192;
+#endif
 
 	sockaddr_in locaddr;
 
