@@ -30,6 +30,17 @@ inline int _sdl_key_to_vk(SDL_Keycode key) {
         case SDLK_TAB:       return VK_TAB;
         case SDLK_BACKSPACE: return VK_BACK;
         case SDLK_DELETE:    return VK_DELETE;
+        case SDLK_PERIOD:    return 0xBE; // VK_OEM_PERIOD — avoid clash with VK_DELETE (both 0x2E)
+        case SDLK_COMMA:     return 0xBC; // VK_OEM_COMMA
+        case SDLK_MINUS:     return 0xBD; // VK_OEM_MINUS
+        case SDLK_EQUALS:    return 0xBB; // VK_OEM_PLUS (= key)
+        case SDLK_SEMICOLON: return 0xBA; // VK_OEM_1
+        case SDLK_SLASH:     return 0xBF; // VK_OEM_2
+        case SDLK_BACKQUOTE: return 0xC0; // VK_OEM_3
+        case SDLK_LEFTBRACKET:  return 0xDB; // VK_OEM_4
+        case SDLK_BACKSLASH:    return 0xDC; // VK_OEM_5
+        case SDLK_RIGHTBRACKET: return 0xDE; // VK_OEM_6
+        case SDLK_QUOTE:        return 0xDE; // VK_OEM_7
         case SDLK_LEFT:      return VK_LEFT;
         case SDLK_RIGHT:     return VK_RIGHT;
         case SDLK_UP:        return VK_UP;

@@ -1075,6 +1075,20 @@ inline int ToAscii(UINT uVirtKey, UINT uScanCode, const BYTE* lpKeyState, LPWORD
     if (uVirtKey == VK_SPACE) { *lpChar = ' '; return 1; }
     if (uVirtKey == VK_RETURN) { *lpChar = '\r'; return 1; }
     if (uVirtKey == VK_TAB) { *lpChar = '\t'; return 1; }
+    // Punctuation (US layout)
+    switch (uVirtKey) {
+        case 0xBA: *lpChar = shift ? ':' : ';'; return 1;
+        case 0xBB: *lpChar = shift ? '+' : '='; return 1;
+        case 0xBC: *lpChar = shift ? '<' : ','; return 1;
+        case 0xBD: *lpChar = shift ? '_' : '-'; return 1;
+        case 0xBE: *lpChar = shift ? '>' : '.'; return 1;
+        case 0xBF: *lpChar = shift ? '?' : '/'; return 1;
+        case 0xC0: *lpChar = shift ? '~' : '`'; return 1;
+        case 0xDB: *lpChar = shift ? '{' : '['; return 1;
+        case 0xDC: *lpChar = shift ? '|' : '\\'; return 1;
+        case 0xDE: *lpChar = shift ? '"' : '\''; return 1;
+        default: break;
+    }
     return 0;
 }
 inline int ToUnicode(UINT wVirtKey, UINT wScanCode, const BYTE* lpKeyState,
