@@ -1,9 +1,11 @@
-This is an ongoing effort to make the engine run natively on macOS & web (with the help of Claude Code).
+This is a proof-of-concept port of the engine to macOS & web (with the help of Claude Code). 
+I may not continue working on this, but it demonstrates what's possible — and the individual improvements 
+(bug fixes, portability fixes, assembly rewrites, cmake configs) can be cherry-picked into the main codebase without affecting the existing Windows build.
 
 ### Current Status
 
 The game is playable on **macOS** and in **web browsers (WASM)** in Random Map mode.
-Campaigns are not yet supported (see limitations below).
+Campaigns are not supported (see limitations below). Multiplayer is not yet working and needs further debugging.
 
 ### Building on macOS
 
