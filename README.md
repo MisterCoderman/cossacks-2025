@@ -1,3 +1,46 @@
+> \[!IMPORTANT\] \## Support for this version has ended
+>
+> Support for this version of the game **ended on July 14,
+> 2026** following the release of the new version of the project.
+>
+> As of **July 14, 2026**, the new version is available to all users.
+> All future development, updates, and bug fixes will be focused
+> **exclusively on the new version**.
+>
+> Updates for older versions are no longer planned. Exceptions may only
+> be made in the event of **critical issues that prevent the game from
+> launching or significantly disrupt its core functionality**.
+>
+> We strongly recommend switching to the latest version of the game:
+>
+> 👉 **[Go to the new version of the project](https://github.com/MisterCoderman/cossacks-1.52-platform)**
+>
+> This repository is preserved for archival and reference purposes.
+>
+> ------------------------------------------------------------------------
+>
+> ## Поддержка этой версии завершена
+>
+> Поддержка данной версии игры **завершена 14 июля 2026
+> года** в связи с выходом новой версии проекта.
+>
+> Начиная с **14 июля 2026 года**, новая версия игры доступна для всех
+> пользователей. Вся дальнейшая разработка, обновления и исправления
+> будут сосредоточены **исключительно на новой версии**.
+>
+> Обновления старых версий больше не планируются. Исключения возможны
+> только в случае возникновения **критических проблем, препятствующих
+> запуску игры или существенно нарушающих работу её основных функций**.
+>
+> Мы настоятельно рекомендуем перейти на актуальную версию игры:
+>
+> 👉 **[Перейти к новой версии проекта](https://github.com/MisterCoderman/cossacks-1.52-platform)**
+>
+> Этот репозиторий сохранён в архивных и ознакомительных целях.
+
+<hr>
+
+
 *[Информация на русском языке](#rus)*
 
 
